@@ -120,18 +120,35 @@
       </button>
     </form>
 
-    <div v-else class="text-center p-4 bg-tea-rose-red/20 rounded-lg border-2 border-tea-rose-red">
+    <div v-else class="text-center p-4 bg-tea-rose-red/20 shadow-xl rounded-2xl border-2 border-thistle">
+        <h2 class="text-2xl font-display mb-4 text-paynes-gray">Verifica Email</h2>
+        
         <p class="text-paynes-gray text-lg mb-4">
             Abbiamo inviato un codice di attivazione all'indirizzo email <b>{{ form.email }}</b>.
         </p>
 
-        <div v-if="otpError" class="p-2 mb-4 text-sm font-semibold text-red-700 bg-red-200 rounded-lg">
-            Codice non valido. Riprova. Hai 3 tentativi rimanenti.
+        <p v-if="mockOtp" class="text-sm font-bold text-red-600 mb-6 p-2 bg-theme-primary rounded border border-red-300">
+            👉 MOCK: Il codice OTP da inserire è: **{{ mockOtp }}** 👈
+        </p>
+
+        <div v-if="otpError" class="p-3 mb-4 text-sm font-semibold rounded-lg border"
+             :class="{
+                 // Messaggio di errore standard (tentativi rimanenti)
+                 'text-red-700 bg-red-200 border-red-300': !isBlocked,
+                 // Messaggio di blocco definitivo
+                 'text-gray-700 bg-gray-200 border-gray-300': isBlocked
+             }">
+            <span v-if="!isBlocked">
+                Codice non valido o scaduto. Riprova. Hai **{{ retryCount }}** {{ retryCount === 1 ? 'tentativo' : 'tentativi' }} rimanenti.
+            </span>
+            <span v-else>
+                **Attenzione:** Hai superato il limite massimo di tentativi. Richiedi un nuovo codice per sbloccare.
+            </span>
         </div>
         
-        <p class="text-sm font-bold text-red-600 mb-6 p-2 bg-theme-primary rounded">
-            👉 MOCK: Il codice OTP da inserire è: {{ mockOtp }} 👈
-        </p>
+        <label for="otp-input-0" class="block text-sm font-medium mb-2 text-paynes-gray">
+            Inserisci il codice di 6 cifre:
+        </label>
         
         <div class="flex justify-center space-x-2 mb-6">
             <input
@@ -144,6 +161,7 @@
                 inputmode="numeric"
                 pattern="[0-9]"
                 class="otp-input"
+                :disabled="isBlocked"
                 @input="handleOtpInput(index)"
                 @keydown.backspace="handleBackspace(index, $event)"
                 @paste.prevent
@@ -152,7 +170,7 @@
         
         <button
             @click="handleOtpSubmit"
-            :disabled="!isOtpComplete"
+            :disabled="!isOtpComplete || isBlocked" 
             class="w-full bg-zomp text-white py-2 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50"
         >
             Verifica e Continua
@@ -161,7 +179,8 @@
         <div class="flex justify-center space-x-4 mt-4">
             <button 
                 @click="resendOtp" 
-                class="text-sm text-paynes-gray hover:text-zomp underline"
+                :disabled="isBlocked"
+                class="text-sm text-paynes-gray hover:text-zomp underline disabled:text-gray-400"
             >
                 Invia di nuovo Codice
             </button>
@@ -174,6 +193,7 @@
             </button>
         </div>
     </div>
+    </div>
 
     <p class="mt-6 text-center text-sm text-paynes-gray">
       Hai già un account?
@@ -181,7 +201,7 @@
         Accedi
       </router-link>
     </p>
-  </div>
+
   
   <AppModal 
       :is-open="showTermsModal"
@@ -260,15 +280,27 @@ async function validateUsername(username) {
     try {
         const response = await apiClient.get(`/users/check-exists/${username}`);
         
-        const isTaken = response; 
-        
-        usernameAvailability.value = !isTaken; // True se NON è preso
-        isUsernameValid.value = !isTaken;
+        if (response && typeof response.exists === 'boolean') {
+            const isTaken = response.exists; 
+            usernameAvailability.value = !isTaken; 
+            isUsernameValid.value = !isTaken;
+        } else {
+            console.error('Risposta API malformata:', response);
+            usernameAvailability.value = true;
+            isUsernameValid.value = true;
+        }
 
     } catch (error) {
         console.error('Errore durante la verifica username:', error);
-        usernameAvailability.value = false;
-        isUsernameValid.value = false;
+        
+        if (error.message.includes('500')) {
+            console.error('Errore server - assumo username disponibile');
+            usernameAvailability.value = true;
+            isUsernameValid.value = true;
+        } else {
+            usernameAvailability.value = false;
+            isUsernameValid.value = false;
+        }
     }
 }
 
@@ -281,6 +313,19 @@ const passwordRequirements = ref({
     minLength: false, hasUpper: false, hasLower: false, hasNumber: false, hasSpecial: false,
 });
 
+function getOrCreateSessionId() {
+    let sessionId = localStorage.getItem('app-session-id');
+    if (!sessionId) {
+        // Genera un UUID semplice (necessita di un ambiente che supporti crypto.randomUUID)
+        // Se non supportato, usa un fallback basato sul timestamp.
+        sessionId = (typeof crypto.randomUUID === 'function') 
+                    ? crypto.randomUUID() 
+                    : 'temp-' + Date.now() + Math.random().toString(16).slice(2);
+                    
+        localStorage.setItem('app-session-id', sessionId);
+    }
+    return sessionId;
+}
 
 function validateEmail() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -332,6 +377,9 @@ const otpDigits = ref(['', '', '', '', '', ''])
 const otpSent = ref(false) 
 const mockOtp = ref(null) 
 const otpError = ref(false); 
+const retryCount = ref(3); 
+const maxRetries = 3; 
+const isBlocked = ref(false); 
 
 const isOtpComplete = computed(() => {
     return otpDigits.value.every(digit => digit.length === 1);
@@ -364,13 +412,23 @@ async function handleBackspace(index, event) {
     }
 }
 
-function handleOtpError() {
-    // Mostra l'errore per 5s e resetta i campi OTP
+function handleOtpError(message = "Codice non valido. Riprova.") {
+    retryCount.value--; // Decrementa il contatore dei tentativi
     otpError.value = true;
-    setTimeout(() => {
+    
+    if (retryCount.value <= 0) {
+        isBlocked.value = true;
+        message = "Hai superato il numero massimo di tentativi. Richiedi un nuovo codice.";
+    }
+
+    const resetTimeout = setTimeout(() => {
         otpError.value = false;
-        otpDigits.value = ['', '', '', '', '', ''];
+        if (!isBlocked.value) {
+            otpDigits.value = ['', '', '', '', '', ''];
+        }
     }, 5000); 
+    
+    console.warn(`Tentativi rimasti: ${retryCount.value}. Messaggio: ${message}`);
 }
 
 async function resendOtp() {
@@ -388,37 +446,114 @@ async function resendOtp() {
     
     alert('Nuovo codice inviato all\'email (controlla il MOCK)');
 }
-
 async function handleSubmit() {
-    // Invia i dati al BE (Mock)
     if (!isFormValid.value) {
+        // non dovrebbe accadere grazie al binding del button, ma giusto per sicurezza
         alert('Per favore, compila tutti i campi correttamente e accetta i termini.');
         return;
     }
     
-    console.log('Tentativo di registrazione e invio OTP per:', form.value.email)
+    console.log('Tentativo di invio OTP per:', form.value.email);
     
     try {
-        // Logica mock
-        mockOtp.value = generateOtp();
+        const payload = { email: form.value.email };
+        const currentSessionId = getOrCreateSessionId(); 
+
+        // Chiamata API POST, che restituisce l'oggetto JSON parsato
+        const response = await apiClient.post('/auth/register-init', payload, { 
+             headers: {
+                 'X-Session-Id': currentSessionId 
+             }
+        });
+        
+        // Verifica se il campo "mockOtp" è presente e valido
+        if (response && response.mockOtp && response.mockOtp !== 'null' && response.mockOtp !== null) {
+            mockOtp.value = response.mockOtp; // Salva l'OTP per la visualizzazione debug
+            console.log('Mock OTP ricevuto dal backend:', mockOtp.value);
+        } else {
+            mockOtp.value = null; // Invio Email Reale (non mostrare il box mock)
+        }
+        
+        // Aggiorna lo stato per mostrare il div OTP
         otpSent.value = true;
+        
     } catch (error) {
-        alert('Errore durante la registrazione/invio OTP: ' + error.message)
+        let errorMessage = 'Impossibile completare la richiesta.';
+        
+        // Se la richiesta è fallita, l'oggetto 'error' contiene già la ragione.
+        if (error.message.includes('API Error 409')) {
+             errorMessage = 'Email già registrata.';
+        } else if (error.message.includes('API Error 500')) {
+             errorMessage = 'Errore interno del server durante l\'invio email.';
+        }
+        
+        alert(`Errore durante l'avvio della registrazione: ${errorMessage}`);
+        console.error('Errore Backend in handleSubmit:', error);
     }
 }
 
 async function handleOtpSubmit() {
-    // Verifica il codice inserito
+    if (isBlocked.value) {
+        alert("Account bloccato. Richiedi un nuovo codice.");
+        return;
+    }
+    
     const inputOtpString = otpDigits.value.join('');
+    const currentSessionId = getOrCreateSessionId(); // Lo stesso SID usato per generare l'OTP
+    
+    const payload = {
+        email: form.value.email,
+        otp: inputOtpString
+    };
+    
+  try {
+        await apiClient.post('/auth/register-verify', payload, { 
+             headers: {
+                 'X-Session-Id': currentSessionId 
+             }
+        });
+        
+        await completeRegistration();
 
-    if (inputOtpString === mockOtp.value) {
-        // Successo: reindirizza alla pagina di impostazione posizione
-        router.push('/set-location');
-    } else {
-        // Errore: mostra feedback in linea
-        handleOtpError();
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            // OTP non valido, scaduto o bloccato (gestione del retry)
+            handleOtpError(error.response.data.message || "Codice OTP non valido o scaduto. Riprova.");
+            
+        } else {
+             // Gestione di altri errori API
+            alert("Si è verificato un errore di sistema durante la verifica OTP.");
+            console.error('Verifica OTP fallita per errore API:', error);
+        }
     }
 }
+
+async function completeRegistration() {
+    
+    const payload = {
+        username: form.value.username,
+        email: form.value.email,
+        password: form.value.password,
+        acceptTerms: form.value.acceptTerms,
+        acceptPrivacy: form.value.acceptPrivacy
+    };
+
+    try {
+        await apiClient.post('/auth/register', payload); 
+        
+        console.log('Utente creato con successo. Procedo al setup.');
+
+        router.push('/set-location'); 
+
+    } catch (error) {
+        // Gestione degli errori del DB o Hashing (500 Internal Error)
+        let errorMessage = 'Errore durante la creazione finale dell\'utente.';
+        
+        alert(`Errore: ${errorMessage}`);
+        console.error('Errore registrazione finale:', error);
+    }
+}
+
 </script>
 
 <style scoped>
