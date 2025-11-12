@@ -31,7 +31,9 @@
           Questo username è già in uso.
         </p>
         <p
-          v-else-if="form.username.length > 0 && usernameAvailability && isUsernameValid"
+          v-else-if="
+            form.username.length > 0 && usernameAvailability && isUsernameValid
+          "
           class="text-xs text-zomp mt-1">
           Username disponibile!
         </p>
@@ -95,19 +97,35 @@
               Almeno 8 caratteri.
             </li>
             <li
-              :class="passwordRequirements.hasUpper? 'text-zomp dark:text-tea-rose-red' : 'text-red-500 dark:text-red-300'">
+              :class="
+                passwordRequirements.hasUpper
+                  ? 'text-zomp dark:text-tea-rose-red'
+                  : 'text-red-500 dark:text-red-300'
+              ">
               Almeno una lettera Maiuscola (A-Z).
             </li>
             <li
-              :class="passwordRequirements.hasLower? 'text-zomp dark:text-tea-rose-red': 'text-red-500 dark:text-red-300'">
+              :class="
+                passwordRequirements.hasLower
+                  ? 'text-zomp dark:text-tea-rose-red'
+                  : 'text-red-500 dark:text-red-300'
+              ">
               Almeno una lettera minuscola (a-z).
             </li>
             <li
-              :class="passwordRequirements.hasNumber? 'text-zomp dark:text-tea-rose-red': 'text-red-500 dark:text-red-300'">
+              :class="
+                passwordRequirements.hasNumber
+                  ? 'text-zomp dark:text-tea-rose-red'
+                  : 'text-red-500 dark:text-red-300'
+              ">
               Almeno un numero (0-9).
             </li>
             <li
-              :class="passwordRequirements.hasSpecial? 'text-zomp dark:text-tea-rose-red': 'text-red-500 dark:text-red-300'">
+              :class="
+                passwordRequirements.hasSpecial
+                  ? 'text-zomp dark:text-tea-rose-red'
+                  : 'text-red-500 dark:text-red-300'
+              ">
               Almeno un carattere speciale (@$!%*?&).
             </li>
           </ul>
@@ -170,7 +188,7 @@
 
       <!-- Box Mock OTP (visibile solo in modalità debug backend) -->
       <p
-        v-if="mockOtp"
+        v-if="mockOtp && !isBlocked"
         class="text-sm font-bold text-red-600 mb-6 p-2 bg-theme-primary rounded border border-red-300">
         MOCK: Il codice OTP da inserire è: <strong>{{ mockOtp }}</strong>
       </p>
@@ -184,9 +202,8 @@
           'text-red-700 bg-red-200 border-red-300': !isBlocked,
         }">
         <span v-if="isBlocked">
-          <strong>ATTENZIONE: </strong> Tentativi esauriti. La sessione di
-          verifica è bloccata. Richiedi un <strong>nuovo codice</strong> per
-          continuare.
+          <strong>ATTENZIONE: </strong> Hai superato il limite massimo di
+          tentativi. La sessione di verifica è bloccata.
         </span>
         <span v-else>
           {{ otpErrorMessage }}
@@ -238,31 +255,34 @@
       </div>
 
       <!-- Azioni secondarie: reinvio, torna indietro, vai home -->
-      <div class="flex justify-center space-x-4 mt-4">
-        <button
-          @click="resendOtp"
-          :disabled="isResending"
-          class="text-sm text-paynes-gray hover:text-zomp underline disabled:text-gray-400">
-          {{ isResending ? "Invio..." : "Invia di nuovo Codice" }}
-        </button>
+      <div class="mt-4">
+        <div v-if="!isBlocked" class="flex justify-center space-x-4">
+          <button
+            @click="resendOtp"
+            :disabled="isResending"
+            class="text-sm text-paynes-gray hover:text-zomp underline disabled:text-gray-400">
+            {{ isResending ? "Invio..." : "Invia di nuovo Codice" }}
+          </button>
 
-        <button
-          @click="resetToInitialForm"
-          class="text-sm text-paynes-gray hover:text-zomp underline">
-          Torna alla registrazione
-        </button>
+          <button
+            @click="resetToInitialForm"
+            class="text-sm text-paynes-gray hover:text-zomp underline">
+            Torna alla registrazione
+          </button>
+        </div>
 
-        <button
-          v-if="isBlocked"
-          @click="goHome"
-          class="text-sm text-red-500 hover:text-red-700 underline font-semibold">
-          Vai alla Home
-        </button>
+        <div v-else>
+          <button
+            @click="goHome"
+            class="text-sm text-paynes-gray hover:text-zomp underline font-semibold">
+            Torna alla Home Page
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Link accesso per utenti già registrati -->
-    <p class="mt-6 text-center text-sm text-paynes-gray">
+    <p v-if="!otpSent" class="mt-6 text-center text-sm text-paynes-gray">
       Hai già un account?
       <router-link
         to="/login"
@@ -287,14 +307,13 @@
 </template>
 
 <script setup>
+import { ref, computed, nextTick, watch } from "vue"
+import { useRouter } from "vue-router"
+import AppModal from "@/components/AppModal.vue"
+import { apiClient } from "@/services/apiClient"
+import { TERMS_AND_CONDITIONS, PRIVACY_POLICY } from "@/utils/legalTexts"
 
-import { ref, computed, nextTick, watch } from "vue";
-import { useRouter } from "vue-router";
-import AppModal from "@/components/AppModal.vue";
-import { apiClient } from "@/services/apiClient";
-import { TERMS_AND_CONDITIONS, PRIVACY_POLICY } from "@/utils/legalTexts";
-
-const router = useRouter();
+const router = useRouter()
 
 // ============================================================================
 //                             STATO FORM PRINCIPALE
@@ -309,29 +328,29 @@ const form = ref({
   password: "",
   acceptTerms: false,
   acceptPrivacy: false,
-});
+})
 
 // ============================================================================
 //                          MODALI TERMINI E PRIVACY
 // ============================================================================
 
-const showTermsModal = ref(false);
-const showPrivacyModal = ref(false);
-const termsContent = TERMS_AND_CONDITIONS;
-const privacyContent = PRIVACY_POLICY;
+const showTermsModal = ref(false)
+const showPrivacyModal = ref(false)
+const termsContent = TERMS_AND_CONDITIONS
+const privacyContent = PRIVACY_POLICY
 
 // ============================================================================
 //          VALIDAZIONE USERNAME (con debounce e controllo disponibilità)
 // ============================================================================
 
 // Indica se l'username digitato è disponibile (non esiste nel database)
-const usernameAvailability = ref(true);
+const usernameAvailability = ref(true)
 // Indica se è in corso la verifica asincrona dell'username
-const isCheckingUsername = ref(false);
+const isCheckingUsername = ref(false)
 // Stato finale di validità dell'username (disponibile e formato corretto)
-const isUsernameValid = ref(false);
+const isUsernameValid = ref(false)
 // Timer per debounce della validazione username (evita chiamate API ad ogni keystroke)
-let usernameCheckTimeout = null;
+let usernameCheckTimeout = null
 
 /**
  * Watcher che attiva la validazione username con debounce di 500ms
@@ -340,52 +359,52 @@ watch(
   () => form.value.username,
   (newUsername) => {
     if (usernameCheckTimeout) {
-      clearTimeout(usernameCheckTimeout);
+      clearTimeout(usernameCheckTimeout)
     }
 
-    isCheckingUsername.value = true;
+    isCheckingUsername.value = true
 
     usernameCheckTimeout = setTimeout(() => {
-      validateUsername(newUsername);
-      isCheckingUsername.value = false;
-    }, 500);
+      validateUsername(newUsername)
+      isCheckingUsername.value = false
+    }, 500)
   }
-);
+)
 
 /**
  * Verifica la disponibilità dell'username tramite chiamata API
  * @param {string} username - Username da verificare
  */
 async function validateUsername(username) {
-  usernameAvailability.value = true;
-  isUsernameValid.value = false;
+  usernameAvailability.value = true
+  isUsernameValid.value = false
 
   if (username.length === 0) {
-    return;
+    return
   }
 
   try {
-    const response = await apiClient.get(`/users/check-exists/${username}`);
+    const response = await apiClient.get(`/users/check-exists/${username}`)
 
     if (response && typeof response.exists === "boolean") {
-      const isTaken = response.exists;
-      usernameAvailability.value = !isTaken;
-      isUsernameValid.value = !isTaken;
+      const isTaken = response.exists
+      usernameAvailability.value = !isTaken
+      isUsernameValid.value = !isTaken
     } else {
-      console.error("Risposta API malformata:", response);
-      usernameAvailability.value = true;
-      isUsernameValid.value = true;
+      console.error("Risposta API malformata:", response)
+      usernameAvailability.value = true
+      isUsernameValid.value = true
     }
   } catch (error) {
-    console.error("Errore durante la verifica username:", error);
+    console.error("Errore durante la verifica username:", error)
 
     if (error.message.includes("500")) {
-      console.error("Errore server - assumo username disponibile");
-      usernameAvailability.value = true;
-      isUsernameValid.value = true;
+      console.error("Errore server - assumo username disponibile")
+      usernameAvailability.value = true
+      isUsernameValid.value = true
     } else {
-      usernameAvailability.value = false;
-      isUsernameValid.value = false;
+      usernameAvailability.value = false
+      isUsernameValid.value = false
     }
   }
 }
@@ -395,9 +414,9 @@ async function validateUsername(username) {
 // ============================================================================
 
 // Indica se il formato email è valido
-const isEmailValid = ref(true);
+const isEmailValid = ref(true)
 // Indica se la password soddisfa tutti i requisiti
-const isPasswordValid = ref(true);
+const isPasswordValid = ref(true)
 // Dettaglio requisiti password per feedback visivo granulare
 const passwordRequirements = ref({
   minLength: false,
@@ -405,37 +424,37 @@ const passwordRequirements = ref({
   hasLower: false,
   hasNumber: false,
   hasSpecial: false,
-});
+})
 
 /**
  * Valida il formato email tramite regex
  */
 function validateEmail() {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   isEmailValid.value =
-    emailRegex.test(form.value.email) || form.value.email.length === 0;
+    emailRegex.test(form.value.email) || form.value.email.length === 0
 }
 
 /**
  * Valida la password controllando ogni requisito di sicurezza
  */
 function validatePassword() {
-  const p = form.value.password;
+  const p = form.value.password
 
-  passwordRequirements.value.minLength = p.length >= 8;
-  passwordRequirements.value.hasUpper = /[A-Z]/.test(p);
-  passwordRequirements.value.hasLower = /[a-z]/.test(p);
-  passwordRequirements.value.hasNumber = /\d/.test(p);
-  passwordRequirements.value.hasSpecial = /[@$!%*?&]/.test(p);
+  passwordRequirements.value.minLength = p.length >= 8
+  passwordRequirements.value.hasUpper = /[A-Z]/.test(p)
+  passwordRequirements.value.hasLower = /[a-z]/.test(p)
+  passwordRequirements.value.hasNumber = /\d/.test(p)
+  passwordRequirements.value.hasSpecial = /[@$!%*?&]/.test(p)
 
   const allValid =
     passwordRequirements.value.minLength &&
     passwordRequirements.value.hasUpper &&
     passwordRequirements.value.hasLower &&
     passwordRequirements.value.hasNumber &&
-    passwordRequirements.value.hasSpecial;
+    passwordRequirements.value.hasSpecial
 
-  isPasswordValid.value = allValid || p.length === 0;
+  isPasswordValid.value = allValid || p.length === 0
 }
 
 // ============================================================================
@@ -443,14 +462,14 @@ function validatePassword() {
 // ============================================================================
 
 // Indica se è in corso l'invio della richiesta OTP
-const isSendingOtp = ref(false);
+const isSendingOtp = ref(false)
 
 /**
  * Disabilita il pulsante submit se il form non è valido o è in corso una verifica
  */
 const isSubmittingDisabled = computed(() => {
-  return !isFormValid.value || isCheckingUsername.value || isSendingOtp.value;
-});
+  return !isFormValid.value || isCheckingUsername.value || isSendingOtp.value
+})
 
 /**
  * Il form è valido se tutti i campi rispettano le regole e le checkbox sono spuntate
@@ -465,36 +484,36 @@ const isFormValid = computed(() => {
     isUsernameValid.value &&
     form.value.acceptTerms &&
     form.value.acceptPrivacy
-  );
-});
+  )
+})
 
 // ============================================================================
 //                               GESTIONE FASE OTP
 // ============================================================================
 
 // Array di 6 cifre per l'input OTP
-const otpDigits = ref(["", "", "", "", "", ""]);
+const otpDigits = ref(["", "", "", "", "", ""])
 // Indica se la schermata OTP è visibile (fase 2 registrazione)
-const otpSent = ref(false);
+const otpSent = ref(false)
 // OTP mock ricevuto dal backend in modalità debug
-const mockOtp = ref(null);
+const mockOtp = ref(null)
 // Indica se è presente un errore di verifica OTP
-const otpError = ref(false);
+const otpError = ref(false)
 // Messaggio di errore dinamico ricevuto dal backend
-const otpErrorMessage = ref("");
+const otpErrorMessage = ref("")
 // Numero di tentativi rimasti (sincronizzato con il backend)
-const retryCount = ref(3);
+const retryCount = ref(3)
 // Numero massimo di tentativi consentiti
-const maxRetries = 3;
+const maxRetries = 3
 // Indica se l'account è bloccato per troppi tentativi falliti
-const isBlocked = ref(false);
+const isBlocked = ref(false)
 // Indica se è in corso il reinvio del codice OTP
-const isResending = ref(false);
+const isResending = ref(false)
 
 // l'OTP è completo quando tutte e 6 le cifre sono inserite
 const isOtpComplete = computed(() => {
-  return otpDigits.value.every((digit) => digit.length === 1);
-});
+  return otpDigits.value.every((digit) => digit.length === 1)
+})
 
 /**
  * Gestisce l'input di una singola cifra OTP e sposta il focus al campo successivo
@@ -502,14 +521,14 @@ const isOtpComplete = computed(() => {
  */
 async function handleOtpInput(index) {
   // Limita l'input a un solo carattere
-  otpDigits.value[index] = otpDigits.value[index].slice(0, 1);
+  otpDigits.value[index] = otpDigits.value[index].slice(0, 1)
 
   // Sposta il focus al campo successivo se presente
   if (otpDigits.value[index] && index < otpDigits.value.length - 1) {
-    await nextTick();
-    const nextInput = document.getElementById(`otp-input-${index + 1}`);
+    await nextTick()
+    const nextInput = document.getElementById(`otp-input-${index + 1}`)
     if (nextInput) {
-      nextInput.focus();
+      nextInput.focus()
     }
   }
 }
@@ -521,13 +540,13 @@ async function handleOtpInput(index) {
  */
 async function handleBackspace(index, event) {
   if (!otpDigits.value[index] && index > 0) {
-    event.preventDefault();
+    event.preventDefault()
 
-    await nextTick();
-    const prevInput = document.getElementById(`otp-input-${index - 1}`);
+    await nextTick()
+    const prevInput = document.getElementById(`otp-input-${index - 1}`)
     if (prevInput) {
-      prevInput.focus();
-      prevInput.select();
+      prevInput.focus()
+      prevInput.select()
     }
   }
 }
@@ -538,40 +557,33 @@ async function handleBackspace(index, event) {
  */
 function handleOtpError(errorDetails) {
   // Aggiorna lo stato con i valori ricevuti dal backend
-  retryCount.value = Math.max(0, errorDetails.retriesRemaining || 0);
-  isBlocked.value = errorDetails.isBlocked || retryCount.value === 0;
-  otpErrorMessage.value =
-    errorDetails.message || "Codice OTP non valido o scaduto.";
-  otpError.value = true;
-
-  // Se bloccato, mostra alert critico
-  if (isBlocked.value) {
-    alert(otpErrorMessage.value);
-  }
+  retryCount.value = Math.max(0, errorDetails.retriesRemaining || 0)
+  isBlocked.value = errorDetails.isBlocked || retryCount.value === 0
+  otpError.value = true
 
   console.warn(
     `Tentativi rimasti: ${retryCount.value}. Bloccato: ${isBlocked.value}`
-  );
+  )
 }
 
 /**
  * Resetta lo stato di errore OTP e pulisce i campi di input
  */
 function resetOtpError() {
-  otpError.value = false;
-  otpErrorMessage.value = "";
-  otpDigits.value = ["", "", "", "", "", ""];
+  otpError.value = false
+  otpErrorMessage.value = ""
+  otpDigits.value = ["", "", "", "", "", ""]
 }
 
 /**
  * Torna alla schermata di registrazione iniziale
  */
 function resetToInitialForm() {
-  otpSent.value = false;
-  resetOtpError();
-  retryCount.value = maxRetries;
-  isBlocked.value = false;
-  mockOtp.value = null;
+  otpSent.value = false
+  resetOtpError()
+  retryCount.value = maxRetries
+  isBlocked.value = false
+  mockOtp.value = null
 }
 
 // ============================================================================
@@ -583,48 +595,44 @@ function resetToInitialForm() {
  */
 async function handleSubmit() {
   if (!isFormValid.value || isSendingOtp.value) {
-    alert("Compilare tutti i campi correttamente e accettare i termini.");
-    return;
+    alert("Compilare tutti i campi correttamente e accettare i termini.")
+    return
   }
 
-  isSendingOtp.value = true;
-  console.log("Tentativo di invio OTP per:", form.value.email);
+  isSendingOtp.value = true
+  console.log("Tentativo di invio OTP per:", form.value.email)
 
   try {
     const payload = {
       email: form.value.email,
       username: form.value.username,
-    };
+    }
 
-    const response = await apiClient.post("/auth/register-init", payload);
+    const response = await apiClient.post("/auth/register-init", payload)
 
     // Verifica se il backend ha restituito un OTP mock (modalità debug)
-    if (
-      response &&
-      response.mockOtp &&
-      response.mockOtp !== null
-    ) {
-      mockOtp.value = response.mockOtp;
-      console.log("Mock OTP ricevuto dal backend:", mockOtp.value);
+    if (response && response.mockOtp && response.mockOtp !== null) {
+      mockOtp.value = response.mockOtp
+      console.log("Mock OTP ricevuto dal backend:", mockOtp.value)
     } else {
-      mockOtp.value = null;
+      mockOtp.value = null
     }
 
     // Passa alla schermata di verifica OTP
-    otpSent.value = true;
+    otpSent.value = true
   } catch (error) {
-    let errorMessage = "Impossibile completare la richiesta.";
+    let errorMessage = "Impossibile completare la richiesta."
 
     if (error.message.includes("API Error 409")) {
-      errorMessage = "Email già registrata.";
+      errorMessage = "Email già registrata."
     } else if (error.message.includes("API Error 500")) {
-      errorMessage = "Errore interno del server durante l'invio email.";
+      errorMessage = "Errore interno del server durante l'invio email."
     }
 
-    alert(`Errore durante l'avvio della registrazione: ${errorMessage}`);
-    console.error("Errore Backend in handleSubmit:", error);
+    alert(`Errore durante l'avvio della registrazione: ${errorMessage}`)
+    console.error("Errore Backend in handleSubmit:", error)
   } finally {
-    isSendingOtp.value = false;
+    isSendingOtp.value = false
   }
 }
 
@@ -633,19 +641,19 @@ async function handleSubmit() {
  */
 async function resendOtp() {
   if (isBlocked.value || isResending.value) {
-    return;
+    return
   }
 
-  isResending.value = true;
-  resetOtpError();
+  isResending.value = true
+  resetOtpError()
 
   try {
     const payload = {
       email: form.value.email,
       username: form.value.username,
-    };
+    }
 
-    const response = await apiClient.post("/auth/register-init", payload);
+    const response = await apiClient.post("/auth/register-init", payload)
 
     if (
       response &&
@@ -653,32 +661,32 @@ async function resendOtp() {
       response.mockOtp !== "null" &&
       response.mockOtp !== null
     ) {
-      mockOtp.value = response.mockOtp;
-      console.log("Nuovo Mock OTP ricevuto dal backend:", mockOtp.value);
+      mockOtp.value = response.mockOtp
+      console.log("Nuovo Mock OTP ricevuto dal backend:", mockOtp.value)
     } else {
-      mockOtp.value = null;
+      mockOtp.value = null
     }
 
     // Reset completo dello stato OTP
-    retryCount.value = maxRetries;
-    isBlocked.value = false;
+    retryCount.value = maxRetries
+    isBlocked.value = false
 
-    await nextTick();
-    const firstInput = document.getElementById("otp-input-0");
+    await nextTick()
+    const firstInput = document.getElementById("otp-input-0")
     if (firstInput) {
-      firstInput.focus();
+      firstInput.focus()
     }
   } catch (error) {
-    let errorMessage = "Impossibile inviare un nuovo codice.";
+    let errorMessage = "Impossibile inviare un nuovo codice."
 
     if (error.message.includes("API Error 500")) {
-      errorMessage = "Errore interno: Impossibile inviare l'email di verifica.";
+      errorMessage = "Errore interno: Impossibile inviare l'email di verifica."
     }
 
-    alert(`Errore di reinvio: ${errorMessage}`);
-    console.error("Errore Backend in resendOtp:", error);
+    alert(`Errore di reinvio: ${errorMessage}`)
+    console.error("Errore Backend in resendOtp:", error)
   } finally {
-    isResending.value = false;
+    isResending.value = false
   }
 }
 
@@ -691,45 +699,45 @@ async function resendOtp() {
  */
 async function handleOtpSubmit() {
   if (isBlocked.value) {
-    alert("Account bloccato. Richiedi un nuovo codice.");
-    return;
+    alert("Account bloccato. Richiedi un nuovo codice.")
+    return
   }
 
-  const inputOtpString = otpDigits.value.join("");
+  const inputOtpString = otpDigits.value.join("")
 
   const payload = {
     email: form.value.email,
     otp: inputOtpString,
-  };
+  }
 
   try {
     // Se la verifica ha successo, il backend risponde con 204 No Content
-    await apiClient.post("/auth/register-verify", payload);
+    await apiClient.post("/auth/register-verify", payload)
 
     // Procede con la registrazione finale
-    await completeRegistration();
+    await completeRegistration()
   } catch (error) {
     // Il backend risponde con 403 Forbidden in caso di OTP errato
     if (error.status === 403) {
       try {
-        const errorData = JSON.parse(error.message);
-        handleOtpError(errorData);
+        const errorData = JSON.parse(error.message)
+        handleOtpError(errorData)
       } catch (e) {
-        console.error("Errore durante la lettura dei dettagli OTP 403:", e);
+        console.error("Errore durante la lettura dei dettagli OTP 403:", e)
         handleOtpError({
           message: "Codice OTP non valido o scaduto. Riprova.",
           retriesRemaining: Math.max(0, retryCount.value - 1),
           isBlocked: retryCount.value <= 1,
-        });
+        })
       }
     } else if (error.status === 401) {
       console.error(
         "Verifica OTP fallita per errore 401: Controllare la configurazione apiClient."
-      );
-      alert("Errore di autenticazione inatteso.");
+      )
+      alert("Errore di autenticazione inatteso.")
     } else {
-      alert("Errore di sistema durante la verifica OTP.");
-      console.error("Verifica OTP fallita per errore API:", error);
+      alert("Errore di sistema durante la verifica OTP.")
+      console.error("Verifica OTP fallita per errore API:", error)
     }
   }
 }
@@ -744,20 +752,20 @@ async function completeRegistration() {
     password: form.value.password,
     acceptTerms: form.value.acceptTerms,
     acceptPrivacy: form.value.acceptPrivacy,
-  };
+  }
 
   try {
-    await apiClient.post("/auth/register", payload);
+    await apiClient.post("/auth/register", payload)
 
-    console.log("Utente creato con successo. Procedo al setup.");
+    console.log("Utente creato con successo. Procedo al setup.")
 
     // Reindirizza alla pagina di setup posizione
-    router.push("/set-location");
+    router.push("/set-location")
   } catch (error) {
-    let errorMessage = "Errore durante la creazione finale dell'utente.";
+    let errorMessage = "Errore durante la creazione finale dell'utente."
 
-    alert(`Errore: ${errorMessage}`);
-    console.error("Errore registrazione finale:", error);
+    alert(`Errore: ${errorMessage}`)
+    console.error("Errore registrazione finale:", error)
   }
 }
 
@@ -765,18 +773,18 @@ async function completeRegistration() {
  * Reindirizza alla home page
  */
 function goHome() {
-  router.push("/");
+  router.push("/")
 }
-
 </script>
 
 <style scoped>
 .otp-input {
-  width: 12vw;
+  /* Stili base per desktop e tablet */
+  width: 50px;
+  min-width: 40px;
   max-width: 50px;
-  min-width: 30px;
 
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1; /* Garantisce che siano quadrati */
 
   text-align: center;
   font-size: 1.5rem;
@@ -793,9 +801,13 @@ function goHome() {
   box-shadow: 0 0 0 2px var(--zomp);
 }
 
+/* Ottimizzazione per schermi piccoli (mobile) */
 @media (max-width: 640px) {
   .otp-input {
+    /* Riduzione dimensionale su mobile */
     width: 13vw;
+    min-width: 38px;
+    max-width: 45px;
     font-size: 1.2rem;
   }
 }
