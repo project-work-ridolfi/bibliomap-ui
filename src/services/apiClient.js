@@ -34,39 +34,44 @@ async function apiFetch(endpoint, options = {}) {
             ...options,
             headers: headers,
         });
-
-        // Gestione 401
+        
+        // Se la risposta è 401, forziamo il logout (assumiamo token scaduto)
         if (response.status === 401) {
             authStore.logout();
             window.location.href = '/login'; 
-            throw new Error('Unauthorized (401): Accesso non autorizzato.');
+            // Lanciamo un errore standard qui, il flusso si interrompe
+            throw new Error('Unauthorized (401): Accesso non autorizzato o token scaduto.');
         }
 
         if (!response.ok) {
             const contentType = response.headers.get('content-type');
+            let errorBody = null;
             let errorMessage = `API Error ${response.status}: ${response.statusText}`;
             
-            // Prova a leggere il corpo solo se è JSON
+            // Tentativo di leggere il corpo JSON (necessario per 403 con retry)
             if (contentType && contentType.includes('application/json')) {
                 try {
-                    const errorBody = await response.json();
+                    errorBody = await response.json();
                     errorMessage = errorBody.message || errorBody.details || errorMessage;
                 } catch (parseError) {
-                    // Se non riesce a parsare JSON, usa il messaggio di default
-                    console.warn('Risposta errore non è JSON valido');
+                    console.warn(`Risposta errore ${response.status} non è JSON valido o parsabile.`);
                 }
-            } else {
-                // Se è HTML o altro, leggi come testo
+            } else if (response.status !== 204) {
+                 // Legge come testo per log di debug se non è JSON
                 const errorText = await response.text();
-                console.error('Errore backend (HTML):', errorText.substring(0, 200));
+                console.error('Errore backend (non JSON):', errorText.substring(0, 200));
             }
             
-            throw new Error(errorMessage);
+            // Lanciamo un oggetto Error che contiene lo status e il body JSON (se presente).
+            const err = new Error(errorMessage);
+            err.status = response.status;
+            err.body = errorBody; 
+            throw err;
         }
 
         const text = await response.text();
         
-        // Verifica se il corpo è vuoto
+        // Verifica se il corpo è vuoto (es. 204 No Content)
         if (!text || text.trim().length === 0) {
             return null;
         }
