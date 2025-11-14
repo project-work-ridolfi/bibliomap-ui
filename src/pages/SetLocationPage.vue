@@ -238,33 +238,28 @@
 import { ref, computed, onMounted, nextTick, watch } from "vue"
 import { useRouter } from "vue-router"
 import maplibregl from "maplibre-gl"
-import { apiClient } from "@/services/apiClient" // Assunto import
+import { apiClient } from "@/services/apiClient"
 
-//  Spostare in variabile d'ambiente
 const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY
-const GEOCodingServiceUrl = "https://api.maptiler.com/geocoding"
+const geocodingServiceUrl = "https://api.maptiler.com/geocoding"
 
 const router = useRouter()
 
-const locationMode = ref("geo") // geo, map, address
+const locationMode = ref("geo")
 const form = ref({
   latitude: null,
   longitude: null,
-  // Dettaglio Indirizzo
   streetType: "Via",
   streetName: "",
   houseNumber: "",
   zipCode: "",
-  city: "Roma", // Fissa per ora
-  // Privacy
+  city: "Roma",
   visibility: "all",
-  blurRadius: 0, // Fix NaN: Inizia da 0
+  blurRadius: 0,
 })
 
-// per gestire lo stato (caricamento) e l'errore
 const isLoadingLocation = ref(false)
 const locationError = ref(null)
-const isLoadingGeocode = ref(false)
 
 // --- COMPUTED PROPERTIES ---
 
@@ -288,9 +283,7 @@ const isAddressValid = computed(() => {
 const isLocationSet = computed(() => {
   if (locationMode.value === "geo" && form.value.latitude) return true
   if (locationMode.value === "map" && form.value.latitude) return true
-  
-  if (locationMode.value === "address" && isAddressValid.value) return true 
-
+  if (locationMode.value === "address" && isAddressValid.value) return true
   return false
 })
 
@@ -299,7 +292,6 @@ const map = ref(null)
 const marker = ref(null)
 const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`
 
-// Funzione di inizializzazione mappa
 const initMap = async () => {
   if (map.value) {
     map.value.resize()
@@ -312,7 +304,7 @@ const initMap = async () => {
     map.value = new maplibregl.Map({
       container: "map",
       style: styleUrl,
-      center: [12.4963, 41.9029], // Centro iniziale (Roma)
+      center: [12.4963, 41.9029],
       zoom: 12,
     })
 
@@ -338,7 +330,7 @@ const initMap = async () => {
 
 watch(locationMode, (newMode) => {
   locationError.value = null
-  form.value.latitude = null // Resetta le coordinate ad ogni cambio
+  form.value.latitude = null
   form.value.longitude = null
 
   if (newMode === "map") {
@@ -352,7 +344,6 @@ onMounted(() => {
   }
 })
 
-// Watch per l'indirizzo: se cambia, resetta le coordinate geocodificate
 watch([() => form.value.streetName, () => form.value.zipCode], () => {
   if (locationMode.value === "address") {
     form.value.latitude = null
@@ -360,76 +351,72 @@ watch([() => form.value.streetName, () => form.value.zipCode], () => {
   }
 })
 
-// --- ACCESSO GEOLOCALIZZAZIONE ---
+// --- GEOLOCALIZZAZIONE BROWSER (GPS) ---
 async function getGeolocation() {
   locationError.value = null
-  isLoadingGeocode.value = true
+  isLoadingLocation.value = true
+  form.value.latitude = null
+  form.value.longitude = null
+
+  if (!navigator.geolocation) {
+    locationError.value = "Geolocalizzazione non supportata dal browser."
+    isLoadingLocation.value = false
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      form.value.latitude = position.coords.latitude
+      form.value.longitude = position.coords.longitude
+      isLoadingLocation.value = false
+      console.log(`Geolocalizzazione riuscita: Lat=${form.value.latitude}, Lng=${form.value.longitude}`)
+    },
+    (error) => {
+      let errorMessage = "Errore sconosciuto"
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage = "Permesso negato. Abilita la geolocalizzazione nel browser."
+          break
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = "Posizione non disponibile."
+          break
+        case error.TIMEOUT:
+          errorMessage = "Timeout nella richiesta di geolocalizzazione."
+          break
+      }
+      locationError.value = errorMessage
+      isLoadingLocation.value = false
+      console.error("Errore geolocalizzazione:", error)
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  )
+}
+
+// --- GEOCODIFICA INDIRIZZO ---
+async function geocodeAddress() {
+  locationError.value = null
+  isLoadingLocation.value = true
   form.value.latitude = null
   form.value.longitude = null
 
   if (!isAddressValid.value) {
     locationError.value = "Devi compilare i campi Via e CAP."
-    isLoadingGeocode.value = false
+    isLoadingLocation.value = false
     return
   }
 
-  // Costruisce l’indirizzo
   const addressPart = `${form.value.streetType} ${form.value.streetName} ${form.value.houseNumber || ''}, ${form.value.zipCode} ${form.value.city}`
-
-  // l’URL con parametri lingua e area geografica (Roma)
-  const url = `${GEOCodingServiceUrl}/${encodeURIComponent(addressPart)}.json?key=${mapTilerApiKey}&limit=1&language=it&country=IT&bbox=12.2,41.7,12.7,42.0`
+  const url = `${geocodingServiceUrl}/${encodeURIComponent(addressPart)}.json?key=${mapTilerApiKey}&limit=1&language=it&country=IT&bbox=12.2,41.7,12.7,42.0`
 
   try {
     const response = await fetch(url)
-
     if (!response.ok) {
       throw new Error(`Geocodifica fallita: Errore HTTP ${response.status}`)
     }
-
-    const data = await response.json()
-
-    if (data.features && data.features.length > 0) {
-      const [lng, lat] = data.features[0].geometry.coordinates
-
-      form.value.latitude = lat
-      form.value.longitude = lng
-
-      console.log(` Geocodifica riuscita: Lat=${lat}, Lng=${lng}`)
-    } else {
-      locationError.value = "Indirizzo non trovato o non valido nell'area di Roma."
-    }
-
-  } catch (e) {
-    console.error(" Errore Geocoding API:", e)
-    locationError.value = `Errore API: ${e.message}. Riprova.`
-  } finally {
-    isLoadingGeocode.value = false
-  }
-}
-
-
-// --- GEOCIDIFICA INDIRIZZO (NUOVO) ---
-
-async function geocodeAddress() {
-  locationError.value = null
-  isLoadingGeocode.value = true
-  form.value.latitude = null
-  form.value.longitude = null
-
-  if (!isAddressValid.value) {
-    locationError.value = "Devi compilare i campi Via e CAP."
-    isLoadingGeocode.value = false
-    return
-  }
-
-  const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY
-  const addressPart = `${form.value.streetType} ${form.value.streetName} ${form.value.houseNumber || ''}, ${form.value.zipCode} ${form.value.city}`
-  const baseUrl = "https://api.maptiler.com/geocoding"
-  const url = `${baseUrl}/${encodeURIComponent(addressPart)}.json?key=${MAPTILER_KEY}&limit=1&bbox=12.2,41.7,12.7,42.0`
-
-  try {
-    const response = await fetch(url)
-    if (!response.ok) throw new Error(`Geocodifica fallita: Errore HTTP ${response.status}`)
 
     const data = await response.json()
     if (data.features && data.features.length > 0) {
@@ -444,59 +431,46 @@ async function geocodeAddress() {
     console.error("Errore Geocoding API:", e)
     locationError.value = `Errore API: ${e.message}. Riprova.`
   } finally {
-    isLoadingGeocode.value = false
+    isLoadingLocation.value = false
   }
 }
-
 
 // --- GESTIONE DEI PULSANTI FINALI ---
 
 async function saveLocation() {
-  
-    //  GESTIONE MODALITÀ INDIRIZZO E GEOCIDIFICA
-    if (locationMode.value === "address") {
-        if (!isAddressValid.value) {
-            locationError.value = "Devi compilare i campi Via e CAP."
-            return
-        }
+  // Gestione modalità indirizzo: geocodifica se necessario
+  if (locationMode.value === "address") {
+    if (!isAddressValid.value) {
+      locationError.value = "Devi compilare i campi Via e CAP."
+      return
+    }
 
-        // Se i campi sono validi MA mancano le coordinate (primo click)
-        if (!form.value.latitude || !form.value.longitude) {
-            await geocodeAddress()
-            
-            // Dobbiamo verificare se la geocodifica ha avuto successo.
-            // Se fallisce (locationError è impostato), la funzione si ferma.
-            if (locationError.value || !form.value.latitude) return 
-        }
+    if (!form.value.latitude || !form.value.longitude) {
+      await geocodeAddress()
+      if (locationError.value || !form.value.latitude) return
     }
-    
-    // VERIFICA FINALE (Controllo unificato per tutte le modalità)
-    // Se la location è stata impostata (o è stata appena impostata da geocodeAddress)
-    if (form.value.latitude && form.value.longitude) { // Usiamo le coordinate come prova finale
-        
-        //  Esegue la chiamata API e naviga
-        const payload = {
-            latitude: form.value.latitude,
-            longitude: form.value.longitude,
-            blurRadius: form.value.blurRadius,
-            visibility: form.value.visibility,
-        }
-        
-        try {
-            // await apiClient.post('/set-location', payload) // TODO
-            console.log("Posizione salvata con successo. Payload:", payload)
-        
-            router.push("/new-collection")
-        
-        } catch (e) {
-            locationError.value = "Errore durante il salvataggio della posizione nel server."
-            console.error("Errore salvataggio BE:", e)
-        }
-        
-    } else {
-        // Se si arriva qui senza coordinate (e non siamo in address mode), qualcosa non va.
-        locationError.value = "Seleziona una posizione valida prima di salvare."
+  }
+
+  // Verifica finale per tutte le modalità
+  if (form.value.latitude && form.value.longitude) {
+    const payload = {
+      latitude: form.value.latitude,
+      longitude: form.value.longitude,
+      blurRadius: form.value.blurRadius,
+      visibility: form.value.visibility,
     }
+
+    try {
+      // await apiClient.post('/set-location', payload) TODO!!!
+      console.log("Posizione salvata con successo. Payload:", payload)
+      router.push("/new-collection")
+    } catch (e) {
+      locationError.value = "Errore durante il salvataggio della posizione nel server."
+      console.error("Errore salvataggio BE:", e)
+    }
+  } else {
+    locationError.value = "Seleziona una posizione valida prima di salvare."
+  }
 }
 
 function skipAndContinue() {
