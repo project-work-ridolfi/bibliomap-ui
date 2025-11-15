@@ -200,19 +200,19 @@
             id="precision"
             v-model.number="form.blurRadius"
             min="0"
-            max="2000"
-            step="100"
+            max="500"
+            step="10"
             class="w-full h-2 bg-thistle rounded-lg appearance-none cursor-pointer range-lg dark:bg-ash-gray focus:outline-none focus:ring-2 focus:ring-zomp" />
         </div>
 
         <div class="flex justify-between text-xs text-paynes-gray/70">
           <span>Posizione Esatta (0m)</span>
-          <span>Area Larga (2km)</span>
+          <span>Area Larga (500m)</span>
         </div>
 
         <p class="text-xs text-paynes-gray/70 mt-1">
           Scegli quanto vuoi che la tua posizione sia offuscata, per incrementi
-          di 100 metri.
+          di 10 metri.
         </p>
       </div>
     </div>
