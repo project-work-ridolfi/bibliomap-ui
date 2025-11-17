@@ -167,6 +167,16 @@
             *
           </span>
         </label>
+        <label class="flex items-start">
+          <input
+            v-model="form.ofAge"
+            type="checkbox"
+            required
+            class="mt-1 mr-2 form-checkbox text-zomp rounded border-ash-gray focus:ring-zomp" />
+          <span class="text-sm">
+            Dichiaro di essere maggiorenne *
+          </span>
+        </label>
       </div>
 
       <!-- Pulsante invio form iniziale -->
@@ -328,6 +338,7 @@ const form = ref({
   password: "",
   acceptTerms: false,
   acceptPrivacy: false,
+  ofAge: false
 })
 
 // ============================================================================
@@ -483,7 +494,8 @@ const isFormValid = computed(() => {
     isPasswordValid.value &&
     isUsernameValid.value &&
     form.value.acceptTerms &&
-    form.value.acceptPrivacy
+    form.value.acceptPrivacy &&
+    form.value.ofAge
   )
 })
 
@@ -752,6 +764,7 @@ async function completeRegistration() {
     password: form.value.password,
     acceptTerms: form.value.acceptTerms,
     acceptPrivacy: form.value.acceptPrivacy,
+    ofAge: form.value.ofAge
   }
 
   try {
