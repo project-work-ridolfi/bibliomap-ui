@@ -1,315 +1,182 @@
 <template>
-  <div
-    class="max-w-xl mx-auto p-8 bg-white shadow-xl rounded-2xl border-2 border-thistle space-y-6">
-    <template v-if="isFirstLibraryMode">
-      <h1 class="text-3xl font-display text-center text-paynes-gray">
-        La tua Prima Libreria
-      </h1>
-      <p class="text-center text-paynes-gray">
-        Una **Libreria** è uno scaffale virtuale che puoi associare a una
-        posizione fisica. Qui potrai catalogare i tuoi libri per condividerli o
-        semplicemente tenerli organizzati. Iniziamo!
+  <div class="max-w-xl mx-auto p-8 bg-white shadow-xl rounded-2xl border-2 border-thistle space-y-6">
+    <div v-if="isFirstLibrary" class="space-y-4 text-center">
+      <h1 class="text-3xl font-display text-paynes-gray">Crea la tua prima libreria</h1>
+      <p class="text-paynes-gray">
+        Una "libreria" in Bibliomap rappresenta una collezione fisica di libri in un luogo specifico.
+        Puoi pensare ad essa come a uno scaffale o una scatola di libri che vuoi condividere.
       </p>
-      <hr class="border-thistle" />
-    </template>
+    </div>
+    <div v-else class="text-center">
+      <h1 class="text-3xl font-display text-paynes-gray">Aggiungi una Nuova Libreria</h1>
+    </div>
 
-    <h2 class="text-2xl font-display text-center text-paynes-gray">
-      {{ isFirstLibraryMode ? "Configurazione Veloce" : "Aggiungi una Nuova Libreria" }}
-    </h2>
+    <hr class="border-thistle" />
 
-    <form @submit.prevent="createLibrary" class="space-y-6">
+    <!-- Form -->
+    <div class="space-y-4">
+      <!-- Library Name -->
       <div>
-        <label
-          for="libraryName"
-          class="block text-lg font-medium text-paynes-gray">
-          Nome della Libreria *
-        </label>
-        <input
-          v-model="form.name"
-          id="libraryName"
-          type="text"
-          required
-          :placeholder="
-            isFirstLibraryMode
-              ? 'Il mio scaffale, la mia biblioteca...'
-              : 'Nome univoco'
-          "
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp text-lg" />
-        <p v-if="isFirstLibraryMode" class="mt-1 text-sm text-paynes-gray/70">
-          Scegli un nome che ti aiuti a identificare questa raccolta di libri (es. "Il mio primo scaffale").
-          Ti consigliamo **{{ prefillData.name }}**.
+        <label for="libraryName" class="block text-sm font-medium text-paynes-gray">Nome Libreria *</label>
+        <input v-model="form.name" id="libraryName" type="text" required placeholder="Es. Scaffale in salotto"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+        <p v-if="isFirstLibrary" class="text-xs text-paynes-gray/70 mt-1">
+          Dai un nome a questa collezione di libri.
         </p>
       </div>
 
+      <!-- Location -->
       <div>
-        <label class="block text-lg font-medium text-paynes-gray">
-          Posizione della Libreria *
-        </label>
-
-        <div class="space-y-2">
-          <div
-            v-if="userLocation.latitude"
-            @click="locationMode = 'user'"
-            :class="
-              locationMode === 'user'
-                ? 'bg-zomp text-white border-zomp'
-                : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40 border-thistle'
-            "
-            class="p-3 rounded-xl shadow-md transition duration-150 font-semibold border-2 cursor-pointer">
-            <i class="fa-solid fa-location-arrow mr-2"></i>
-            Usa la tua posizione salvata ({{ userLocation.display }})
-          </div>
-
-          <div
-            @click="locationMode = 'new'"
-            :class="
-              locationMode === 'new'
-                ? 'bg-zomp text-white border-zomp'
-                : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40 border-thistle'
-            "
-            class="p-3 rounded-xl shadow-md transition duration-150 font-semibold border-2 cursor-pointer">
-            <i class="fa-solid fa-map-pin mr-2"></i>
-            Nuova Posizione (TODO: Navigare a SetLocation per le Librerie)
-          </div>
+        <label class="block text-sm font-medium text-paynes-gray">Posizione</label>
+        <p class="text-xs text-paynes-gray/70 mb-2">
+          Dove si trovano fisicamente questi libri?
+        </p>
+        <div class="grid grid-cols-2 gap-4">
+          <button @click="form.location = 'user_default'" :class="form.location === 'user_default' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+            Usa la mia posizione
+          </button>
+          <button @click="form.location = 'new_location'" :class="form.location === 'new_location' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+            Nuova Posizione (TODO)
+          </button>
         </div>
-
-        <p class="mt-1 text-sm text-paynes-gray/70">
-          La posizione viene utilizzata per calcolare le distanze. Scegli se usare
-          quella che hai già impostato per il tuo profilo o aggiungerne una nuova.
+        <p v-if="form.location === 'user_default'" class="text-sm text-zomp font-semibold mt-2 text-center">
+          Verrà usata la posizione associata al tuo profilo.
+        </p>
+         <p v-if="form.location === 'new_location'" class="text-sm text-red-700 font-semibold mt-2 text-center">
+          TODO: Implementare la modifica della posizione per la libreria.
         </p>
       </div>
 
+      <!-- Visibility -->
       <div>
-        <label
-          for="visibility"
-          class="block text-lg font-medium mb-1 text-paynes-gray"
-          >Visibilità (Chi può vedere questa Libreria?)</label
-        >
-        <select
-          v-model="form.visibility"
-          id="visibility"
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp text-lg">
+        <label for="visibility" class="block text-sm font-medium mb-1 text-paynes-gray">Visibilità Libreria</label>
+        <select v-model="form.visibility" id="visibility"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp">
           <option value="all">Tutti gli utenti di Bibliomap</option>
           <option value="friends">Solo i miei amici (Mock)</option>
-          <option value="private">Nessuno (Libreria privata)</option>
+          <option value="private">Nessuno (Solo io)</option>
         </select>
-        <p class="mt-1 text-sm text-paynes-gray/70">
-          Questo controllo imposta chi può vedere i libri di questa specifica libreria.
-          È pre-impostato su **{{ prefillData.visibilityDisplay }}** (sezione privacy della tua posizione).
+        <p v-if="isFirstLibrary" class="text-xs text-paynes-gray/70 mt-1">
+          Abbiamo pre-impostato la visibilità che hai scelto per il tuo profilo. Puoi cambiarla se vuoi.
         </p>
       </div>
+    </div>
 
-      <p v-if="errorMessage" class="text-sm text-red-700 font-medium mt-2">
+     <p v-if="errorMessage" class="text-sm text-red-700 font-medium mt-2 text-center">
         Errore: {{ errorMessage }}
-      </p>
+     </p>
 
-      <div class="flex" :class="isFirstLibraryMode ? 'justify-between space-x-4' : 'justify-center'">
-        <button
-          v-if="isFirstLibraryMode"
-          @click.prevent="skipAndContinue"
-          class="w-1/2 bg-thistle text-paynes-gray py-3 rounded-lg hover:bg-ash-gray transition duration-150 font-bold text-lg">
-          Salta
-        </button>
+    <!-- Buttons -->
+    <div class="flex justify-between space-x-4 pt-4">
+      <button v-if="isFirstLibrary" @click="skip"
+        class="w-1/2 bg-thistle text-paynes-gray py-3 rounded-lg hover:bg-ash-gray transition duration-150 font-bold text-lg">
+        Salta
+      </button>
+      <button @click="createLibrary" :disabled="!isFormValid"
+        class="w-full bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
+        {{ isFirstLibrary ? 'Crea e Aggiungi Libri' : 'Crea Libreria' }}
+      </button>
+    </div>
 
-        <button
-          type="submit"
-          :disabled="!isFormValid"
-          :class="isFirstLibraryMode ? 'w-1/2' : 'w-full'"
-          id="create-library-btn"
-          class="bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
-          <i
-            :class="isLoading ? 'fa-spinner fa-spin' : 'fa-plus'"
-            class="fa-solid mr-2"></i>
-          Crea Libreria
-        </button>
-      </div>
-    </form>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { apiClient } from "@/services/apiClient"; // Assumo che apiClient esista
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { apiClient } from '@/services/apiClient'; // Assuming you have this
 
-const route = useRoute();
 const router = useRouter();
+const route = useRoute();
 
-// --- STATO E DATI ---
-
-// Mock dei dati dell'utente, normalmente verrebbero da Vuex/Pinia o una chiamata API
-const userMockData = {
-  defaultName: "Il mio primo scaffale",
-  defaultVisibility: "all",
-  defaultLocation: {
-    latitude: 41.9029,
-    longitude: 12.4963,
-    display: "Roma Centro (mock)",
-  },
-};
-
-const isLoading = ref(false);
-const errorMessage = ref(null);
-const locationMode = ref("user"); // 'user' (salvata) o 'new' (nuova posizione)
+// This computed property determines which version of the page to show
+const isFirstLibrary = computed(() => route.query.from === 'setup');
 
 const form = ref({
-  name: "",
-  // lat e lng non sono necessari se usiamo 'userLocation' come riferimento
-  visibility: userMockData.defaultVisibility,
-  locationReference: "user", // user/new
+  name: '',
+  location: 'user_default', // 'user_default' or 'new_location'
+  visibility: 'all', // 'all', 'friends', 'private'
 });
 
-const userLocation = ref({
-  latitude: null,
-  longitude: null,
-  visibility: null,
-  display: null,
-});
-
-// --- COMPUTED PROPERTIES ---
-
-// Modalità di visualizzazione: true se veniamo da setLocation/onboarding
-const isFirstLibraryMode = computed(
-  () => route.query.onboarding === "true" || route.query.from === "setLocation"
-);
-
-// Dati pre-fill o suggeriti
-const prefillData = computed(() => {
-  const vis = userLocation.value.visibility || userMockData.defaultVisibility;
-  return {
-    name: userMockData.defaultName,
-    visibility: vis,
-    visibilityDisplay:
-      vis === "all"
-        ? "Tutti"
-        : vis === "friends"
-        ? "Solo amici"
-        : "Nessuno",
-  };
-});
+const errorMessage = ref(null);
 
 const isFormValid = computed(() => {
-  return form.value.name.length > 0 && form.value.locationReference;
+    return form.value.name.trim() !== '';
 });
 
-// --- FUNZIONI API MOCK ---
+// Mock function to fetch user preferences
+const fetchUserPreferences = async () => {
+    console.log("Mock: Chiamata al BE per recuperare le preferenze di posizione/visibilità dell'utente...");
+    // In a real app, this would be an API call
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({
+                visibility: 'all', // Default visibility from user profile
+                // location data could also be fetched here
+            });
+        }, 500);
+    });
+};
 
-// Simula il recupero dei dati di posizione/visibilità dell'utente dal BE
-async function fetchUserLibraryDefaults() {
-  console.log("Mock: Chiamata al BE per i dati predefiniti dell'utente...");
-  isLoading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Simula latenza
 
-  try {
-    // Simula risposta del BE con i dati salvati dall'utente
-    const mockResponse = {
-      defaultLocation: userMockData.defaultLocation,
-      defaultVisibility: userMockData.defaultVisibility,
-    };
-    
-    // Aggiorna lo stato della posizione utente
-    userLocation.value.latitude = mockResponse.defaultLocation.latitude;
-    userLocation.value.longitude = mockResponse.defaultLocation.longitude;
-    userLocation.value.visibility = mockResponse.defaultVisibility;
-    userLocation.value.display = mockResponse.defaultLocation.display;
-    
-    // Pre-fill della visibilità nella modalità normale
-    form.value.visibility = mockResponse.defaultVisibility;
-  } catch (e) {
-    console.error("Mock: Errore nel recupero dati utente", e);
-    // In caso di errore, usa i valori di fallback del mock iniziale
-    userLocation.value.latitude = userMockData.defaultLocation.latitude;
-    userLocation.value.longitude = userMockData.defaultLocation.longitude;
-    userLocation.value.visibility = userMockData.defaultVisibility;
-    userLocation.value.display = userMockData.defaultLocation.display;
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-// --- LOGICA DI INIZIALIZZAZIONE ---
-
-onMounted(() => {
-  // 1. Logica di inizializzazione per la Modalità Onboarding
-  if (isFirstLibraryMode.value) {
-    console.log("Modalità: Prima Libreria (Onboarding)");
-    // Pre-fill: nome e visibilità con i dati consigliati
-    form.value.name = prefillData.value.name;
-    form.value.visibility = prefillData.value.visibility;
-    
-    // Poiché veniamo da setLocation, la posizione è stata salvata
-    userLocation.value = userMockData.defaultLocation;
-    userLocation.value.visibility = userMockData.defaultVisibility;
-  } 
-  // 2. Logica di inizializzazione per la Modalità Normale (Aggiungi Libreria)
-  else {
-    console.log("Modalità: Aggiungi Libreria (Normale)");
-    // Chiamata al BE per recuperare i default dell'utente
-    fetchUserLibraryDefaults();
-    // Il nome rimane vuoto in questa modalità
-    form.value.name = "";
+onMounted(async () => {
+  if (isFirstLibrary.value) {
+    // We are in the "first library" flow
+    form.value.name = 'La mia prima libreria';
+    // The visibility is passed via query param from the SetLocationPage
+    const initialVisibility = route.query.visibility;
+    if (['all', 'friends', 'private'].includes(initialVisibility)) {
+        form.value.visibility = initialVisibility;
+    }
+  } else {
+    // We are in the "add new library" flow
+    // Fetch user's default settings from the backend
+    try {
+        const prefs = await fetchUserPreferences();
+        form.value.visibility = prefs.visibility;
+    } catch (error) {
+        console.error("Errore nel recuperare le preferenze:", error);
+        errorMessage.value = "Impossibile caricare le tue preferenze.";
+    }
   }
 });
 
-// --- GESTIONE DEI PULSANTI ---
-
-// Gestione del bottone "Crea Libreria"
-async function createLibrary() {
-  if (!isFormValid.value) return;
-
-  isLoading.value = true;
+const createLibrary = async () => {
   errorMessage.value = null;
-
-  // Determina le coordinate da inviare al BE
-  let latToSend = userLocation.value.latitude;
-  let lngToSend = userLocation.value.longitude;
-  let locationModeSent = "user_default";
-
-  if (locationMode.value === 'new') {
-    // TODO: Qui dovresti navigare all'interfaccia di SetLocation per le librerie, 
-    // ma per ora simuliamo l'uso della posizione utente come fallback.
-    // Nella realtà, se locationMode fosse 'new', o avresti un sub-form qui, 
-    // oppure reindirizzeresti l'utente.
-    console.warn("TODO: 'Nuova Posizione' selezionata. Gestione della nuova posizione da implementare (es. naviga a /set-library-location)");
-    errorMessage.value = "La selezione di 'Nuova Posizione' è in fase di implementazione (TODO)."
-    isLoading.value = false;
-    return;
+  if (!isFormValid.value) {
+      errorMessage.value = "Il nome della libreria è obbligatorio.";
+      return;
   }
-
 
   const payload = {
-    name: form.value.name,
-    latitude: latToSend,
-    longitude: lngToSend,
-    visibility: form.value.visibility,
-    locationMode: locationModeSent,
+      name: form.value.name,
+      location: form.value.location, // This will need more complex handling for 'new_location'
+      visibility: form.value.visibility
   };
 
   try {
-    console.log("Chiamata API al BE per creare la libreria. Payload:", payload);
-    // await apiClient.post('/libraries/create', payload) 
+    // Replace with your actual API endpoint for creating a library
+    console.log("Chiamata al BE per creare la libreria:", payload);
+    // const response = await apiClient.post('/libraries', payload);
+    // const newLibraryId = response.data.id;
 
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula chiamata OK
+    // On success, navigate to the page to add a new book
+    // possibly passing the new library ID
+    // router.push(`/new-book?libraryId=${newLibraryId}`);
+    router.push('/new-book');
 
-    console.log("Libreria creata con successo.");
-    // Passaggio finale: reindirizza alla pagina per l'aggiunta del primo libro
-    router.push("/new-book");
-  } catch (e) {
-    errorMessage.value =
-      "Si è verificato un errore durante la creazione della libreria.";
-    console.error("Errore creazione libreria:", e);
-  } finally {
-    isLoading.value = false;
+  } catch (error) {
+    console.error("Errore durante la creazione della libreria:", error);
+    errorMessage.value = "Si è verificato un errore durante la creazione della libreria. Riprova.";
   }
-}
+};
 
-// Gestione del bottone "Salta" (solo in modalità Onboarding)
-function skipAndContinue() {
-  console.log("Creazione libreria saltata. Navigazione a /new-book.");
-  router.push("/new-book");
-}
+const skip = () => {
+  // If the user skips, just go to the next step
+  console.log("Creazione prima libreria saltata.");
+  router.push('/new-book');
+};
+
 </script>
-
-<style scoped>
-/* Stili TailwindCSS/Vue */
-</style>
