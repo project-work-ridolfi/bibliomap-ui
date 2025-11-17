@@ -18,7 +18,7 @@
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
-import VueFeather from 'vue-feather' // Importa il componente Icone
+import VueFeather from 'vue-feather' 
 
 defineProps({
     /** Controlla la visibilità della modale */
