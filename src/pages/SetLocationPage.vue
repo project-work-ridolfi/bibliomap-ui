@@ -461,9 +461,9 @@ async function saveLocation() {
     }
 
     try {
-      // await apiClient.post('/set-location', payload) TODO!!!
+      await apiClient.post('/users/set-location', payload) 
       console.log("Posizione salvata con successo. Payload:", payload)
-      router.push("/new-collection")
+      router.push({ path: "/library", query: { from: "setLocation", onboarding: true } })
     } catch (e) {
       locationError.value = "Errore durante il salvataggio della posizione nel server."
       console.error("Errore salvataggio BE:", e)
@@ -474,7 +474,7 @@ async function saveLocation() {
 }
 
 function skipAndContinue() {
-  console.log("Posizione saltata. Navigazione a /new-collection.")
-  router.push("/new-collection")
+  console.log("Posizione saltata. Navigazione a /new-library.")
+  router.push({ path: "/library", query: { from: "setLocation", onboarding: true } })
 }
 </script>

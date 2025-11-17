@@ -30,6 +30,13 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: "/library", 
+    name: "LibraryPage",
+    component: LibraryPage,
+    component: () => import('@/pages/LibraryPage.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/profile',
     name: 'profile',
     component: () => import('@/pages/ProfilePage.vue'),
