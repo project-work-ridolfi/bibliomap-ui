@@ -32,8 +32,11 @@
           Dove si trovano fisicamente questi libri?
         </p>
         <div class="grid grid-cols-2 gap-4">
-          <button @click="form.location = 'user_default'" :class="form.location === 'user_default' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
-            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+          <button 
+            @click="form.location = 'user_default'" 
+            :class="form.location === 'user_default' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
+            :disabled="userHasSkippedLocation"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle disabled:opacity-50 disabled:cursor-not-allowed">
             Usa la mia posizione
           </button>
           <button @click="form.location = 'new_location'" :class="form.location === 'new_location' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
@@ -41,7 +44,10 @@
             Nuova Posizione (TODO)
           </button>
         </div>
-        <p v-if="form.location === 'user_default'" class="text-sm text-zomp font-semibold mt-2 text-center">
+        <p v-if="userHasSkippedLocation" class="text-xs text-red-700 font-semibold mt-2 text-center">
+          Hai saltato l'impostazione della posizione del profilo. Devi specificare una nuova posizione per la libreria.
+        </p>
+        <p v-else-if="form.location === 'user_default'" class="text-sm text-zomp font-semibold mt-2 text-center">
           Verrà usata la posizione associata al tuo profilo.
         </p>
          <p v-if="form.location === 'new_location'" class="text-sm text-red-700 font-semibold mt-2 text-center">
@@ -54,8 +60,8 @@
         <label for="visibility" class="block text-sm font-medium mb-1 text-paynes-gray">Visibilità Libreria</label>
         <select v-model="form.visibility" id="visibility"
           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp">
-          <option value="all">Tutti gli utenti di Bibliomap</option>
-          <option value="friends">Solo i miei amici (Mock)</option>
+          <option value="all">Tutti</option>
+          <option value="logged-in">Solo gli utenti loggati</option>
           <option value="private">Nessuno (Solo io)</option>
         </select>
         <p v-if="isFirstLibrary" class="text-xs text-paynes-gray/70 mt-1">
@@ -75,7 +81,8 @@
         Salta
       </button>
       <button @click="createLibrary" :disabled="!isFormValid"
-        class="w-full bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
+        :class="isFirstLibrary ? 'w-1/2' : 'w-full'"
+        class="bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
         {{ isFirstLibrary ? 'Crea e Aggiungi Libri' : 'Crea Libreria' }}
       </button>
     </div>
@@ -86,18 +93,19 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { apiClient } from '@/services/apiClient'; // Assuming you have this
+import { apiClient } from '@/services/apiClient'; 
 
 const router = useRouter();
 const route = useRoute();
 
-// This computed property determines which version of the page to show
+// determina la versione da mostrare e se l'utente ha saltato il setup della posizione
 const isFirstLibrary = computed(() => route.query.from === 'setup');
+const userHasSkippedLocation = computed(() => route.query.locationSkipped === 'true');
 
 const form = ref({
   name: '',
   location: 'user_default', // 'user_default' or 'new_location'
-  visibility: 'all', // 'all', 'friends', 'private'
+  visibility: 'all', 
 });
 
 const errorMessage = ref(null);
@@ -106,37 +114,36 @@ const isFormValid = computed(() => {
     return form.value.name.trim() !== '';
 });
 
-// Mock function to fetch user preferences
+
 const fetchUserPreferences = async () => {
     console.log("Mock: Chiamata al BE per recuperare le preferenze di posizione/visibilità dell'utente...");
-    // In a real app, this would be an API call
     return new Promise(resolve => {
         setTimeout(() => {
             resolve({
-                visibility: 'all', // Default visibility from user profile
-                // location data could also be fetched here
+                visibility: 'all', 
             });
         }, 500);
     });
 };
 
-
 onMounted(async () => {
   if (isFirstLibrary.value) {
-    // We are in the "first library" flow
-    form.value.name = 'La mia prima libreria';
-    // The visibility is passed via query param from the SetLocationPage
+    form.value.name = 'La mia prima libreria'
     const initialVisibility = route.query.visibility;
-    if (['all', 'friends', 'private'].includes(initialVisibility)) {
+    if (['all', 'logged-in', 'private'].includes(initialVisibility)) {
         form.value.visibility = initialVisibility;
     }
+
+    // Se l'utente ha saltato la posizione, forza la scelta di una nuova posizione
+    if (userHasSkippedLocation.value) {
+      form.value.location = 'new_location';
+    }
+
   } else {
-    // We are in the "add new library" flow
-    // Fetch user's default settings from the backend
     try {
         const prefs = await fetchUserPreferences();
         form.value.visibility = prefs.visibility;
-    } catch (error) {
+    } catch (error) {s
         console.error("Errore nel recuperare le preferenze:", error);
         errorMessage.value = "Impossibile caricare le tue preferenze.";
     }
@@ -152,19 +159,18 @@ const createLibrary = async () => {
 
   const payload = {
       name: form.value.name,
-      location: form.value.location, // This will need more complex handling for 'new_location'
+      // La location sarà gestita dal backend in base alla scelta
+      location_type: form.value.location, // 'user_default' or 'new_location'
+      // Se 'new_location', ci saranno altri campi (da implementare)
       visibility: form.value.visibility
   };
 
   try {
-    // Replace with your actual API endpoint for creating a library
     console.log("Chiamata al BE per creare la libreria:", payload);
-    // const response = await apiClient.post('/libraries', payload);
-    // const newLibraryId = response.data.id;
-
-    // On success, navigate to the page to add a new book
-    // possibly passing the new library ID
-    // router.push(`/new-book?libraryId=${newLibraryId}`);
+    // TODO: Chiamata reale al BE per la creazione.
+    // Se la location è 'new_location', probabilmente si dovrebbe navigare 
+    // a un'altra pagina per definire la nuova posizione prima di salvare.
+    // Per ora, navighiamo direttamente a new-book.
     router.push('/new-book');
 
   } catch (error) {
@@ -174,9 +180,8 @@ const createLibrary = async () => {
 };
 
 const skip = () => {
-  // If the user skips, just go to the next step
   console.log("Creazione prima libreria saltata.");
-  router.push('/new-book');
+  router.push('/home');
 };
 
 </script>

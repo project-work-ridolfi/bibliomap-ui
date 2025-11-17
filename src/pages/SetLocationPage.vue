@@ -176,8 +176,8 @@
           v-model="form.visibility"
           id="visibility"
           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp">
-          <option value="all">Tutti gli utenti di Bibliomap</option>
-          <option value="friends">Solo i miei amici (Mock)</option>
+          <option value="all">Tutti</option>
+          <option value="friends">Solo gli utenti loggati</option>
           <option value="private">Nessuno (Uso solo per distanza da me)</option>
         </select>
       </div>
@@ -463,7 +463,10 @@ async function saveLocation() {
     try {
       await apiClient.post('/users/set-location', payload) 
       console.log("Posizione salvata con successo. Payload:", payload)
-      router.push({ path: "/library", query: { from: "setLocation", onboarding: true } })
+      router.push({ 
+        path: '/library', 
+        query: { from: 'setup', visibility: form.value.visibility } 
+      })
     } catch (e) {
       locationError.value = "Errore durante il salvataggio della posizione nel server."
       console.error("Errore salvataggio BE:", e)
@@ -474,7 +477,14 @@ async function saveLocation() {
 }
 
 function skipAndContinue() {
-  console.log("Posizione saltata. Navigazione a /new-library.")
-  router.push({ path: "/library", query: { from: "setLocation", onboarding: true } })
+  console.log("Posizione saltata. Navigazione a /library in modalità setup.")
+  router.push({ 
+    path: '/library', 
+    query: { 
+      from: 'setup', 
+      visibility: form.value.visibility, 
+      locationSkipped: true 
+    } 
+  })
 }
 </script>
