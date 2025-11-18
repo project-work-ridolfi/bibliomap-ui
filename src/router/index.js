@@ -31,8 +31,7 @@ const routes = [
   },
   {
     path: "/library", 
-    name: "LibraryPage",
-    component: LibraryPage,
+    name: "library",
     component: () => import('@/pages/LibraryPage.vue'),
     meta: { requiresAuth: true }
   },
@@ -44,7 +43,7 @@ const routes = [
   },
   {
     path: '/set-location',
-    name: 'SetLocation',
+    name: 'location',
     component: () => import('@/pages/SetLocationPage.vue'),
   }
 ]
