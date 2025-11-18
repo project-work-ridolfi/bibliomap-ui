@@ -322,6 +322,9 @@ import { useRouter } from "vue-router"
 import AppModal from "@/components/AppModal.vue"
 import { apiClient } from "@/services/apiClient"
 import { TERMS_AND_CONDITIONS, PRIVACY_POLICY } from "@/utils/legalTexts"
+import { useAuthStore } from '@/stores/authStore'
+
+const authStore = useAuthStore()
 
 const router = useRouter()
 
@@ -755,31 +758,41 @@ async function handleOtpSubmit() {
 }
 
 /**
- * Completa la registrazione inviando i dati finali al backend
+ * Completa la registrazione inviando i dati finali al backend che effettua il login automatico
  */
 async function completeRegistration() {
-  const payload = {
-    username: form.value.username,
-    email: form.value.email,
-    password: form.value.password,
-    acceptTerms: form.value.acceptTerms,
-    acceptPrivacy: form.value.acceptPrivacy,
-    ofAge: form.value.ofAge
-  }
+    
+    const payload = {
+        username: form.value.username,
+        email: form.value.email,
+        password: form.value.password,
+        acceptTerms: form.value.acceptTerms,
+        acceptPrivacy: form.value.acceptPrivacy
+    };
 
-  try {
-    await apiClient.post("/auth/register", payload)
+    try {
+        // risposta dal BE contiene { token, userId, message }
+        const response = await apiClient.post('/auth/register', payload); 
+        
+        if (response && response.token && response.userId) {
+            // salva il token e l'ID utente
+            authStore.setAuth(response.token, response.userId); 
+            console.log('Utente creato e accesso automatico riuscito.');
+            // naviga alla pagina di configurazione della posizione
+            router.push('/set-location'); 
 
-    console.log("Utente creato con successo. Procedo al setup.")
+        } else {
+            // la risposta dal BE non aveva token
+            throw new Error("Token di autenticazione mancante nella risposta del server.");
+        }
 
-    // Reindirizza alla pagina di setup posizione
-    router.push("/set-location")
-  } catch (error) {
-    let errorMessage = "Errore durante la creazione finale dell'utente."
-
-    alert(`Errore: ${errorMessage}`)
-    console.error("Errore registrazione finale:", error)
-  }
+    } catch (error) {
+        // gestione degli errori API 409 o 500
+        let errorMessage = 'Errore durante la creazione finale dell\'utente.';
+        
+        alert(`Errore: ${errorMessage}`);
+        console.error('Errore registrazione finale:', error);
+    }
 }
 
 /**
