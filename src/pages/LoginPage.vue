@@ -1,45 +1,63 @@
 <template>
-  <div class="max-w-md mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Accedi</h1>
-    
+  <div class="max-w-md mx-auto p-6 bg-white shadow-xl rounded-2xl border-2 border-thistle">
+    <h1 class="text-3xl font-display text-center text-paynes-gray mb-6">
+      ACCEDI
+    </h1>
+
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label for="username" class="block text-sm font-medium mb-1">
-          Username
+        <label for="email" class="block text-sm font-medium mb-1 text-paynes-gray">
+          Email *
         </label>
         <input
-          id="username"
-          v-model="form.username"
+          id="email"
+          v-model="form.email"
           type="text"
           required
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+          placeholder="nome@dominio.it"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
         />
+        <p
+          v-if="!isEmailValid && form.email.length > 0"
+          class="text-xs text-red-500 mt-1">
+          Inserisci un formato email valido.
+        </p>
       </div>
 
       <div>
-        <label for="password" class="block text-sm font-medium mb-1">
-          Password
+        <label for="password" class="block text-sm font-medium mb-1 text-paynes-gray">
+          Password *
         </label>
         <input
           id="password"
           v-model="form.password"
           type="password"
           required
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
         />
+      </div>
+      
+      <div class="text-right">
+        <button
+          type="button"
+          @click="forgotPassword"
+          class="text-sm text-zomp hover:text-paynes-gray transition duration-150 underline"
+        >
+          Password Dimenticata?
+        </button>
       </div>
 
       <button
         type="submit"
-        class="w-full bg-primary-700 text-white py-2 rounded-lg hover:bg-primary-800"
+        class="w-full bg-zomp text-white py-2 rounded-lg hover:bg-paynes-gray transition duration-150 font-bold text-lg"
       >
         Accedi
       </button>
     </form>
 
-    <p class="mt-4 text-center text-sm">
+    <p class="mt-6 text-center text-sm text-paynes-gray">
       Non hai un account?
-      <router-link to="/signup" class="text-primary-700 hover:underline">
+      <router-link to="/signup" class="text-zomp hover:text-paynes-gray font-semibold transition duration-150">
         Registrati
       </router-link>
     </p>
@@ -47,24 +65,45 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-
+import { apiClient } from '@/services/apiClient'
+import { validateEmailFormat } from '@/utils/helpers' 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const form = ref({
-  username: '',
+  // Usiamo 'email' nel modello FE per l'input generico, 
+  // ma lo inviamo come 'email' nel payload.
+  email: '', 
   password: ''
 })
 
+const isEmailValid = computed(() => {
+    if (form.value.email.length === 0) return true;
+    return validateEmailFormat(form.value.email);
+})
+
 async function handleSubmit() {
-  try {
-    await authStore.login(form.value)
-    router.push('/map')
-  } catch (error) {
-    alert('Errore durante il login: ' + error.message)
+  const payload = {
+      email: form.value.email, 
+      password: form.value.password
   }
+
+  try {
+    await authStore.login(payload) 
+    
+    //  TODO da capire se vogliamo veramente andare alla mappa?
+    router.push('/map') 
+  } catch (error) {
+    // gestione errori lanciati da apiClient.js (es. 401 Unauthorized)
+    const errorMessage = error.message || 'Verifica le credenziali e riprova.';
+    alert('Errore durante il login: ' + errorMessage)
+  }
+}
+
+function forgotPassword() {
+  alert('Funzione di recupero password non ancora implementata. Contatta l\'assistenza.')
 }
 </script>

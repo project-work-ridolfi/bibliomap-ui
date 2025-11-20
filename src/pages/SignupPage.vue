@@ -36,7 +36,7 @@
         </p>
       </div>
 
-      <div>
+     <div>
         <label
           for="email"
           class="block text-sm font-medium mb-1 text-paynes-gray">
@@ -49,8 +49,7 @@
           required
           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
           :class="{ 'border-red-500': !isEmailValid && form.email.length > 0 }"
-          @input="validateEmail" />
-        <p
+          /> <p
           v-if="!isEmailValid && form.email.length > 0"
           class="text-xs text-red-500 mt-1">
           Inserisci un'email valida (es. nome@dominio.it).
@@ -306,6 +305,7 @@ import AppModal from "@/components/AppModal.vue"
 import { apiClient } from "@/services/apiClient"
 import { TERMS_AND_CONDITIONS, PRIVACY_POLICY } from "@/utils/legalTexts"
 import { useAuthStore } from '@/stores/authStore'
+import { validateEmailFormat } from '@/utils/helpers' 
 
 const authStore = useAuthStore()
 
@@ -411,7 +411,9 @@ async function validateUsername(username) {
 // ============================================================================
 
 // Indica se il formato email è valido
-const isEmailValid = ref(true)
+const isEmailValid = computed(() => { 
+  return validateEmailFormat(form.value.email)
+})
 // Indica se la password soddisfa tutti i requisiti
 const isPasswordValid = ref(true)
 // Dettaglio requisiti password per feedback visivo granulare
@@ -423,14 +425,7 @@ const passwordRequirements = ref({
   hasSpecial: false,
 })
 
-/**
- * Valida il formato email tramite regex
- */
-function validateEmail() {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  isEmailValid.value =
-    emailRegex.test(form.value.email) || form.value.email.length === 0
-}
+
 
 /**
  * Valida la password controllando ogni requisito di sicurezza
