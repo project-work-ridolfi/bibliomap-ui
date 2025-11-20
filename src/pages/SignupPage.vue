@@ -774,28 +774,35 @@ async function completeRegistration() {
     };
 
     try {
-        // risposta dal BE contiene { token, userId, message }
+        // La risposta dal BE contiene { userId, message } e imposta il Cookie SESSION_ID
         const response = await apiClient.post('/auth/register', payload); 
 
         console.log('Registrazione finale riuscita:', response);
         
-        if (response && response.token && response.userId) {
-            // salva il token e l'ID utente
-            authStore.setAuth(response.token, response.userId); 
-            console.log('Utente creato e accesso automatico riuscito.');
+        // Verifica la presenza dell'ID utente (unico dato atteso nel corpo)
+        if (response && response.userId) {
+            
+            // L'autenticazione è avvenuta con successo (Cookie SESSION_ID impostato dal BE)
+            authStore.setAuth(response.userId); // Chiama setAuth con il solo ID
+            console.log('Utente creato e accesso automatico riuscito (tramite Session ID).');
 
             await nextTick();
             // naviga alla pagina di configurazione della posizione
             router.push('/set-location'); 
 
         } else {
-            // la risposta dal BE non aveva token
-            throw new Error("Token di autenticazione mancante nella risposta del server.");
+            // BE risponde 201 ma non manda l'ID utente nel corpo
+            throw new Error("ID utente mancante nella risposta del server.");
         }
 
     } catch (error) {
         // gestione degli errori API 409 o 500
         let errorMessage = 'Errore durante la creazione finale dell\'utente.';
+        
+        // Se error ha un messaggio API specifico (es. API Error 409), usalo
+        if (error.message && error.message.includes("API Error")) {
+             errorMessage = `Errore API: ${error.message}`;
+        }
         
         alert(`Errore: ${errorMessage}`);
         console.error('Errore registrazione finale:', error);
