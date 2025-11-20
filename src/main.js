@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { initApiClient } from './services/apiClient';
 import router from './router'
 import App from './App.vue'
 import './assets/main.css'
@@ -12,5 +11,4 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.component(VueFeather.name, VueFeather);
-initApiClient();
 app.mount('#app')

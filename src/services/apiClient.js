@@ -1,22 +1,15 @@
 import { useAuthStore } from '@/stores/authStore'
-import router from '@/router'
+import router from '@/router' 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-let authStore;
-
-export function initApiClient() {
-    authStore = useAuthStore();
-}
 
 /**
- * Funzione generica per eseguire richieste HTTP con gestione JWT e 401 (Logout)
+ * Funzione generica per eseguire richieste HTTP con gestione JWT e 401 (Logout).
  * @param {string} endpoint - L'endpoint da chiamare 
  */
 async function apiFetch(endpoint, options = {}) {
-    if (!authStore) {
-        console.error("apiClient non è stato inizializzato!");
-        initApiClient(); 
-    }
+    
+    const authStore = useAuthStore();
     
     const url = `${API_BASE_URL}/api${endpoint}`;    
 
@@ -25,22 +18,19 @@ async function apiFetch(endpoint, options = {}) {
         ...options.headers,
     };
     
-    if (authStore.token) {
-        headers['Authorization'] = `Bearer ${authStore.token}`;
-    }
-
     try {
         const response = await fetch(url, {
             ...options,
             headers: headers,
+            credentials: 'include'
         });
         
-        // Se la risposta è 401, forziamo il logout (assumiamo token scaduto)
+        
+        // 401 forza logout e reindirizzamento
         if (response.status === 401) {
             authStore.logout();
             window.location.href = '/login'; 
-            // Lanciamo un errore standard qui, il flusso si interrompe
-            throw new Error('Unauthorized (401): Accesso non autorizzato o token scaduto.');
+            throw new Error('Unauthorized (401): accesso non autorizzato o token scaduto.');
         }
 
         if (!response.ok) {
@@ -48,21 +38,20 @@ async function apiFetch(endpoint, options = {}) {
             let errorBody = null;
             let errorMessage = `API Error ${response.status}: ${response.statusText}`;
             
-            // Tentativo di leggere il corpo JSON (necessario per 403 con retry)
+            // legge corpo errore come JSON se possibile
             if (contentType && contentType.includes('application/json')) {
                 try {
                     errorBody = await response.json();
                     errorMessage = errorBody.message || errorBody.details || errorMessage;
                 } catch (parseError) {
-                    console.warn(`Risposta errore ${response.status} non è JSON valido o parsabile.`);
+                    console.warn(`risposta errore ${response.status} non è json valido o parsabile.`);
                 }
             } else if (response.status !== 204) {
-                 // Legge come testo per log di debug se non è JSON
                 const errorText = await response.text();
-                console.error('Errore backend (non JSON):', errorText.substring(0, 200));
+                console.error('errore backend (non json):', errorText.substring(0, 200));
             }
             
-            // Lanciamo un oggetto Error che contiene lo status e il body JSON (se presente).
+            // rilancia errore con dettagli
             const err = new Error(errorMessage);
             err.status = response.status;
             err.body = errorBody; 
@@ -71,7 +60,7 @@ async function apiFetch(endpoint, options = {}) {
 
         const text = await response.text();
         
-        // Verifica se il corpo è vuoto (es. 204 No Content)
+        // se 204 No Content o corpo vuoto
         if (!text || text.trim().length === 0) {
             return null;
         }
@@ -80,8 +69,8 @@ async function apiFetch(endpoint, options = {}) {
         try {
             return JSON.parse(text);
         } catch (parseError) {
-            console.error('Risposta non è JSON valido:', text.substring(0, 100));
-            throw new Error('Risposta del server non valida (non JSON)');
+            console.error('risposta non è json valido:', text.substring(0, 100));
+            throw new Error('risposta server non valida (non json)');
         }
 
     } catch (error) {

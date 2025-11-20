@@ -729,6 +729,7 @@ async function handleOtpSubmit() {
     // Se la verifica ha successo, il backend risponde con 204 No Content
     await apiClient.post("/auth/register-verify", payload)
 
+    console.log("Verifica OTP riuscita.")
     // Procede con la registrazione finale
     await completeRegistration()
   } catch (error) {
@@ -761,6 +762,8 @@ async function handleOtpSubmit() {
  * Completa la registrazione inviando i dati finali al backend che effettua il login automatico
  */
 async function completeRegistration() {
+
+    console.log("Completamento registrazione per:", form.value.email);
     
     const payload = {
         username: form.value.username,
@@ -773,11 +776,15 @@ async function completeRegistration() {
     try {
         // risposta dal BE contiene { token, userId, message }
         const response = await apiClient.post('/auth/register', payload); 
+
+        console.log('Registrazione finale riuscita:', response);
         
         if (response && response.token && response.userId) {
             // salva il token e l'ID utente
             authStore.setAuth(response.token, response.userId); 
             console.log('Utente creato e accesso automatico riuscito.');
+
+            await nextTick();
             // naviga alla pagina di configurazione della posizione
             router.push('/set-location'); 
 

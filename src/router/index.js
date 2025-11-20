@@ -44,8 +44,7 @@ const routes = [
   {
     path: '/set-location',
     name: 'location',
-    component: () => import('@/pages/SetLocationPage.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('@/pages/SetLocationPage.vue')
   }
 ]
 

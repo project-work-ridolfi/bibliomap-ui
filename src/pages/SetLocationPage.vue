@@ -223,13 +223,12 @@
         class="w-1/2 bg-thistle text-paynes-gray py-3 rounded-lg hover:bg-ash-gray transition duration-150 font-bold text-lg">
         Salta
       </button>
-      <button
+    <button
         @click="saveLocation"
-        :disabled="!isLocationSet"
-        id="save-location-btn"
+        :disabled="!isLocationSet || !authStore.isAuthenticated" id="save-location-btn"
         class="w-1/2 bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
         Salva Posizione
-      </button>
+    </button>
     </div>
   </div>
 </template>

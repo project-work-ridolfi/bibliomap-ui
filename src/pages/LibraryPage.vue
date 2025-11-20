@@ -157,31 +157,33 @@ const createLibrary = async () => {
       return;
   }
 
+  // Prepara payload usa location per la logica backend
   const payload = {
       name: form.value.name,
-      // La location sarà gestita dal backend in base alla scelta
-      location_type: form.value.location, // 'user_default' or 'new_location'
-      // Se 'new_location', ci saranno altri campi (da implementare)
+      locationType: form.value.location, 
       visibility: form.value.visibility
   };
 
   try {
-    console.log("Chiamata al BE per creare la libreria:", payload);
-    // TODO: Chiamata reale al BE per la creazione.
-    // Se la location è 'new_location', probabilmente si dovrebbe navigare 
-    // a un'altra pagina per definire la nuova posizione prima di salvare.
-    // Per ora, navighiamo direttamente a new-book.
-    router.push('/new-book');
+    const response = await apiClient.post('/libraries', payload);
+    
+    console.log("Libreria creata con ID:", response.libraryId);
+
+    // naviga alla pagina di aggiunta libri, passando il nuovo ID libreria
+    router.push(`/add-book?libraryId=${response.libraryId}`);
 
   } catch (error) {
-    console.error("Errore durante la creazione della libreria:", error);
-    errorMessage.value = "Si è verificato un errore durante la creazione della libreria. Riprova.";
+    // gestione degli errori 
+    const errorMsg = error.body ? error.body.message : "Si è verificato un errore durante la creazione della libreria.";
+    console.error("Errore durante la creazione della libreria:", error)
+    errorMessage.value = errorMsg
   }
-};
+}
 
 const skip = () => {
   console.log("Creazione prima libreria saltata.");
-  router.push('/home');
-};
+  // Naviga alla home page
+  router.push('/'); 
+}
 
 </script>
