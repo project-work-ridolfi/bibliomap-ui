@@ -238,11 +238,13 @@ import { ref, computed, onMounted, nextTick, watch } from "vue"
 import { useRouter } from "vue-router"
 import maplibregl from "maplibre-gl"
 import { apiClient } from "@/services/apiClient"
+import { useAuthStore } from '@/stores/authStore' 
 
 const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY
 const geocodingServiceUrl = "https://api.maptiler.com/geocoding"
 
 const router = useRouter()
+const authStore = useAuthStore() 
 
 const locationMode = ref("geo")
 const form = ref({

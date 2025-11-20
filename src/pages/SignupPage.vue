@@ -5,9 +5,7 @@
       REGISTRAZIONE
     </h1>
 
-    <!-- FORM INIZIALE: Raccolta dati username, email e password -->
     <form v-if="!otpSent" @submit.prevent="handleSubmit" class="space-y-4">
-      <!-- Campo Username con validazione disponibilità -->
       <div>
         <label
           for="username"
@@ -24,7 +22,6 @@
             'border-red-500': form.username.length > 0 && !usernameAvailability,
           }" />
 
-        <!-- Feedback disponibilità username -->
         <p
           v-if="form.username.length > 0 && !usernameAvailability"
           class="text-xs text-red-500 mt-1">
@@ -39,7 +36,6 @@
         </p>
       </div>
 
-      <!-- Campo Email con validazione formato -->
       <div>
         <label
           for="email"
@@ -61,7 +57,6 @@
         </p>
       </div>
 
-      <!-- Campo Password con validazione requisiti sicurezza -->
       <div>
         <label
           for="password"
@@ -80,7 +75,6 @@
           }"
           @input="validatePassword" />
 
-        <!-- Checklist requisiti password -->
         <div
           v-if="!isPasswordValid && form.password.length > 0"
           class="mt-2 p-2 rounded-lg bg-red-100 dark:bg-red-900 border border-red-300">
@@ -132,7 +126,6 @@
         </div>
       </div>
 
-      <!-- Checkbox accettazione termini e privacy -->
       <div class="space-y-2 text-paynes-gray">
         <label class="flex items-start">
           <input
@@ -179,7 +172,6 @@
         </label>
       </div>
 
-      <!-- Pulsante invio form iniziale -->
       <button
         type="submit"
         class="w-full bg-zomp text-white py-2 rounded-lg hover:bg-paynes-gray transition duration-150"
@@ -188,7 +180,6 @@
       </button>
     </form>
 
-    <!-- SCHERMATA VERIFICA OTP: Visibile dopo invio email -->
     <div
       v-else
       class="text-center p-4 bg-tea-rose-red/20 shadow-xl rounded-2xl border-2 border-thistle">
@@ -196,14 +187,12 @@
         Verifica Email
       </h2>
 
-      <!-- Box Mock OTP (visibile solo in modalità debug backend) -->
       <p
         v-if="mockOtp && !isBlocked"
         class="text-sm font-bold text-red-600 mb-6 p-2 bg-theme-primary rounded border border-red-300">
         MOCK: Il codice OTP da inserire è: <strong>{{ mockOtp }}</strong>
       </p>
 
-      <!-- Messaggio di errore dinamico (tentativi rimasti o blocco) -->
       <div
         v-if="otpError"
         class="p-3 mb-4 text-sm font-semibold rounded-lg border"
@@ -224,13 +213,11 @@
         </span>
       </div>
 
-      <!-- Messaggio iniziale conferma invio -->
       <p v-else class="text-paynes-gray text-lg mb-4">
         Codice di attivazione inviato all'indirizzo <b>{{ form.email }}</b
         >.
       </p>
 
-      <!-- Input OTP a 6 cifre (disabilitato se bloccato) -->
       <div v-if="!isBlocked">
         <label
           for="otp-input-0"
@@ -255,7 +242,6 @@
             @paste.prevent />
         </div>
 
-        <!-- Pulsante verifica OTP -->
         <button
           @click="handleOtpSubmit"
           :disabled="!isOtpComplete || isBlocked"
@@ -264,7 +250,6 @@
         </button>
       </div>
 
-      <!-- Azioni secondarie: reinvio, torna indietro, vai home -->
       <div class="mt-4">
         <div v-if="!isBlocked" class="flex justify-center space-x-4">
           <button
@@ -291,7 +276,6 @@
       </div>
     </div>
 
-    <!-- Link accesso per utenti già registrati -->
     <p v-if="!otpSent" class="mt-6 text-center text-sm text-paynes-gray">
       Hai già un account?
       <router-link
@@ -301,7 +285,6 @@
       </router-link>
     </p>
 
-    <!-- Modali termini e privacy -->
     <AppModal
       :is-open="showTermsModal"
       title="Termini e Condizioni"
@@ -787,7 +770,7 @@ async function completeRegistration() {
             console.log('Utente creato e accesso automatico riuscito (tramite Session ID).');
 
             await nextTick();
-            // naviga alla pagina di configurazione della posizione
+            // Naviga alla pagina di configurazione della posizione
             router.push('/set-location'); 
 
         } else {
