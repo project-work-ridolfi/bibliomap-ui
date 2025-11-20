@@ -3,19 +3,16 @@ import { ref, computed } from 'vue'
 import apiClient from '@/services/apiClient'
 
 export const useAuthStore = defineStore('auth', () => {
-  // State
+  // state
   const userId = ref(localStorage.getItem('userId') || null)
   const user = ref(null)
 
-  // Getters
-  // l'utente è autenticato se abbiamo un userId nello store o se l'oggetto user è caricato.
+  // utente autenticato se abbiamo un userId nello store o se carica user
   const isAuthenticated = computed(() => !!userId.value || !!user.value)
-  const isLoaded = computed(() => !!user.value) /
+  const isLoaded = computed(() => !!user.value) 
 
-  // Actions
   /**
-   * Imposta l'ID utente nello store e nel localStorage.
-   * @param {string} id - L'ID univoco dell'utente.
+   * imposta ID utente nello store e nel localStorage.
    */
   function setAuth(id) {
     userId.value = id
@@ -23,13 +20,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function register(userData) {
-      // La chiamata POST imposta il cookie nel browser
+      //  imposta il cookie 
       const response = await apiClient.post('/auth/register', userData) 
       
-      // Ci aspettiamo solo userId nel corpo, e il cookie nell'header
+      // solo userId nel corpo
       if (response && response.userId) {
           setAuth(response.userId) 
-          await fetchCurrentUser() // Carica i dati dell'utente
+          await fetchCurrentUser() 
       } else {
           throw new Error("Dati di autenticazione (userId) non ricevuti.")
       }
@@ -37,33 +34,27 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Effettua il login e salva l'ID utente.
-   * @param {Object} credentials - Email e password.
    */
   async function login(credentials) {
-    // Invia le credenziali.
-    // il be impostera il cookie 'access_token' 
+    // invia le credenziali, il be imposta il cookie di sessione
     const response = await apiClient.post('/auth/login', credentials)
     
     if (response && response.userId) {
         setAuth(response.userId) 
-        // carica i dati completi dell'utente.
         await fetchCurrentUser() 
     } else {
-        // se il BE restituisce 204, successo
-        // e carichiamo l'utente (fallisce in assenza di cookie).
+        // se il BE restituisce 204 o una risposta senza userId ma di successo, 
+        // tentiamo comunque di caricare l'utente (fetchCurrentUser fallirà con 401 se il cookie non è valido)
         await fetchCurrentUser() 
     }
   }
-
-  /**
-   * Esegue il logout.
-   * TODO: Il backend deve fornire un endpoint per cancellare il cookie 'access_token'.
-   */
+  
   function logout() {
     try {
+        // req per cancellare il cookie SESSION_ID su redis e dal browser
         apiClient.post('/auth/logout') 
     } catch (e) {
-        console.warn("Logout parziale: Impossibile raggiungere l'endpoint di logout del BE. Cookie non cancellato.")
+        console.warn("logout parziale: impossibile raggiungere l'endpoint di logout del be.")
     }
     
     // cancella lo stato locale
@@ -72,20 +63,24 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('userId')
   }
 
-  /**
-   * Recupera i dati dell'utente loggato.
-   */
+
   async function fetchCurrentUser() {
+    // prima di chiamare /users/me, l'FE deve assicurare che il BE
+    // possa identificare l'utente tramite il cookie
+    if (!userId.value) return 
+    
     try {
+        // /users/me nel BE cerca l'utente tramite SESSION_ID e restituisce i dati.
         const response = await apiClient.get('/users/me')
-        // be risponde con i dati dell'utente
         user.value = response 
-        userId.value = response.id
+        userId.value = response.id 
     } catch (error) {
-        console.warn("Impossibile caricare l'utente corrente. Sessione non valida o scaduta.")
+        // Se /users/me risponde 401 (cookie scaduto), il apiClient.js chiama logout()
+        console.warn("impossibile caricare l'utente corrente.")
     }
   }
-
+  
+  // return finale delle azioni e dello stato
   return {
     userId, 
     user,
@@ -93,7 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoaded,
     setAuth,
     register,
-    login,
+    login, 
     logout,
     fetchCurrentUser
   }
