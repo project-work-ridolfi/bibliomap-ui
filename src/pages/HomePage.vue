@@ -272,12 +272,9 @@ async function fetchBooks() {
             let finalCover
             
             if (b.cover) {
-                // Se il B64 nel DB ha già l'intestazione "data:image/...", usalo così com'è.
                 if (b.cover.startsWith('data:image')) {
                     finalCover = b.cover
                 } else {
-                    // Altrimenti aggiungiamo noi l'intestazione standard (assumiamo jpeg o png)
-                    // Nota: Se supporti vari formati, meglio che il prefisso sia salvato nel DB.
                     finalCover = `data:image/jpeg;base64,${b.cover}`
                 }
             } else {
@@ -287,7 +284,7 @@ async function fetchBooks() {
 
             return {
                 ...b,
-                coverUrl: finalCover, // Vue userà questo nel tag <img :src="...">
+                coverUrl: finalCover, 
                 libraryName: b.libraryName || 'Libreria Privata'
             }
         })

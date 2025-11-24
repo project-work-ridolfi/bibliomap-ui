@@ -45,7 +45,12 @@ const routes = [
     path: '/set-location',
     name: 'location',
     component: () => import('@/pages/SetLocationPage.vue')
-  }
+  },
+  {
+  path: '/books/:id',
+  name: 'BookDetail',
+  component: () => import('@/pages/BookPage.vue'),
+}
 ]
 
 const router = createRouter({
