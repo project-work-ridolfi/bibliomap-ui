@@ -74,8 +74,6 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const form = ref({
-  // Usiamo 'email' nel modello FE per l'input generico, 
-  // ma lo inviamo come 'email' nel payload.
   email: '', 
   password: ''
 })
@@ -94,8 +92,7 @@ async function handleSubmit() {
   try {
     await authStore.login(payload) 
     
-    //  TODO da capire se vogliamo veramente andare alla mappa?
-    router.push('/map') 
+    router.push('/') 
   } catch (error) {
     // gestione errori lanciati da apiClient.js (es. 401 Unauthorized)
     const errorMessage = error.message || 'Verifica le credenziali e riprova.';
