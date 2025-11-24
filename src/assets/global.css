@@ -1,3 +1,4 @@
+
 /* ------------------------------------------- */
 /* TAILWIND IMPORTS */
 /* ------------------------------------------- */
@@ -57,13 +58,10 @@ html.dark {
 }
 
 body {
-  /* RIMOSSO place-items: center per la responsività */
-  /* Lo sfondo esterno diventa SECONDARY */
   background-color: var(--bg-secondary); 
   color: var(--text-primary);
   
   display: flex;
-  /* NON place-items: center (permette al contenuto di fluire) */
   min-width: 320px;
   min-height: 100vh; 
   
@@ -72,14 +70,10 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Stili App Container (Riporta a full-width e centratura interna) */
 #app {
-  /* max-width rimosso per il contenitore root, così occupa tutto lo spazio disponibile */
   width: 100%;
   margin: 0 auto;
-  /* padding rimosso o modificato per evitare doppi padding con i componenti interni */
   padding: 0; 
-  /* text-align: center; (rimosso) */
 }
 
 /* ------------------------------------------- */
