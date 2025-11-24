@@ -1,3 +1,6 @@
+/* ------------------------------------------- */
+/* TAILWIND IMPORTS */
+/* ------------------------------------------- */
 @import "tailwindcss/preflight"; 
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
@@ -17,33 +20,36 @@
   /* Colori Tema CHIARO */
   --bg-primary: white;              /* Sfondo schede/header */
   --text-primary: var(--paynes-gray); /* Testo principale */
-  --bg-secondary: #f3ffef;          /* Sfondo generale */
+  --bg-secondary: #f3ffef;          /* Sfondo generale (colore di sfondo primario del body) */
   --text-link: var(--zomp);         /* Colore link/primario */
   --border-default: var(--thistle);
 }
 
 /* Modalità Notte (applicata quando html ha la classe "dark") */
 html.dark {
-  --dark-blue: #111827;             /* Blu scuro intenso */
-  --warm-yellow: #e0c632;           /* Giallo caldo */
-  --dark-secondary-bg: #2c3e50;     /* Tonalità scura per sfondi secondari */
+  --dark-blue: #111827;
+  --warm-yellow: #e0c632;
+  --dark-secondary-bg: #2c3e50;
   
   --bg-primary: var(--dark-blue);
   --text-primary: var(--tea-rose-red);
-  --bg-secondary: var(--dark-secondary-bg);
+  --bg-secondary: var(--dark-blue); /* Sfondo scuro omogeneo */
   --paynes-gray: var(--tea-rose-red);
   --zomp: var(--tea-rose-red);
   --text-link: var(--tea-rose-red); 
   --border-default: var(--ash-gray);
 }
 
+/* Correzioni specifiche per il tema scuro */
 .dark .border-ash-gray {
     border-color: var(--dark-secondary-bg) !important; 
 }
 
+
 /* ------------------------------------------- */
-/*  BASE STYLES E APPLICAZIONE VARIABILI */
+/* BASE STYLES E LAYOUT GLOBALE (CORREZIONE) */
 /* ------------------------------------------- */
+
 * {
   margin: 0;
   padding: 0;
@@ -51,17 +57,33 @@ html.dark {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.6;
-  
-  /* Applica le variabili di tema a body */
+  /* RIMOSSO place-items: center per la responsività */
+  /* Lo sfondo esterno diventa SECONDARY */
   background-color: var(--bg-secondary); 
   color: var(--text-primary);
+  
+  display: flex;
+  /* NON place-items: center (permette al contenuto di fluire) */
+  min-width: 320px;
+  min-height: 100vh; 
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Stili App Container (Riporta a full-width e centratura interna) */
+#app {
+  /* max-width rimosso per il contenitore root, così occupa tutto lo spazio disponibile */
+  width: 100%;
+  margin: 0 auto;
+  /* padding rimosso o modificato per evitare doppi padding con i componenti interni */
+  padding: 0; 
+  /* text-align: center; (rimosso) */
+}
+
 /* ------------------------------------------- */
-/*  UTILITY E ACCESSIBILITÀ */
+/* UTILITY E ACCESSIBILITÀ */
 /* ------------------------------------------- */
 
 /* Skip link per accessibilità */
@@ -69,8 +91,8 @@ body {
   position: absolute;
   top: -40px;
   left: 0;
-  background: var(--text-link); /* Colore del link/primario */
-  color: var(--bg-primary); /* Contrasto con lo sfondo primario */
+  background: var(--text-link); 
+  color: var(--bg-primary); 
   padding: 8px 16px;
   z-index: 100;
   text-decoration: none;
@@ -81,7 +103,7 @@ body {
   top: 0;
 }
 
-/* Utility classes custom  */
+/* Utility classes custom */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -96,7 +118,7 @@ body {
 
 /* Focus styles accessibili */
 *:focus-visible {
-  outline: 2px solid var(--text-link); /* Usa il colore del link come focus */
+  outline: 2px solid var(--text-link); 
   outline-offset: 2px;
 }
 

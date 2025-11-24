@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
 import App from './App.vue'
-import './assets/main.css'
+import './assets/global.css'
 import VueFeather from 'vue-feather';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
