@@ -1,140 +1,115 @@
-
-/* ------------------------------------------- */
-/* TAILWIND IMPORTS */
-/* ------------------------------------------- */
-@import "tailwindcss/preflight"; 
+@import "tailwindcss/preflight";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* ------------------------------------------- */
-/* DEFINIZIONE DELLE VARIABILI CSS E TEMA */
-/* ------------------------------------------- */
-
+/* definizione variabili */
 :root {
-  /* Palette Colori */
-  --tea-rose-red: #fac8cd; 
-  --thistle: #d7bcc8;      
-  --ash-gray: #98b6b1;    
-  --zomp: #629677;        
-  --paynes-gray: #495d63; 
-
-  /* Colori Tema CHIARO */
-  --bg-primary: white;              /* Sfondo schede/header */
-  --text-primary: var(--paynes-gray); /* Testo principale */
-  --bg-secondary: #f3ffef;          /* Sfondo generale (colore di sfondo primario del body) */
-  --text-link: var(--zomp);         /* Colore link/primario */
-  --border-default: var(--thistle);
+  --tea-rose: #fac8cd;
+  --thistle: #d7bcc8;
+  --ash-gray: #98b6b1;
+  --zomp: #629677;
+  --paynes-gray: #495d63;
+  
+  /* tema chiaro */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3ffef;
+  --text-main: var(--paynes-gray);
+  --border-color: var(--thistle); /* colore bordo unificato */
+  --accent-color: var(--zomp);
 }
 
-/* Modalità Notte (applicata quando html ha la classe "dark") */
+/* tema scuro */
 html.dark {
-  --dark-blue: #111827;
-  --warm-yellow: #e0c632;
-  --dark-secondary-bg: #2c3e50;
-  
-  --bg-primary: var(--dark-blue);
-  --text-primary: var(--tea-rose-red);
-  --bg-secondary: var(--dark-blue); /* Sfondo scuro omogeneo */
-  --paynes-gray: var(--tea-rose-red);
-  --zomp: var(--tea-rose-red);
-  --text-link: var(--tea-rose-red); 
-  --border-default: var(--ash-gray);
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --accent-color: var(--tea-rose);
+  --paynes-gray: var(--tea-rose);
 }
 
-/* Correzioni specifiche per il tema scuro */
-.dark .border-ash-gray {
-    border-color: var(--dark-secondary-bg) !important; 
-}
-
-
-/* ------------------------------------------- */
-/* BASE STYLES E LAYOUT GLOBALE (CORREZIONE) */
-/* ------------------------------------------- */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* reset e base */
 body {
-  background-color: var(--bg-secondary); 
-  color: var(--text-primary);
-  
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh; 
-  
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.6;
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#app {
-  width: 100%;
-  margin: 0 auto;
-  padding: 0; 
-}
-
-/* ------------------------------------------- */
-/* UTILITY E ACCESSIBILITÀ */
-/* ------------------------------------------- */
-
-/* Skip link per accessibilità */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--text-link); 
-  color: var(--bg-primary); 
-  padding: 8px 16px;
-  z-index: 100;
-  text-decoration: none;
-  border-radius: 0 0 4px 0;
-}
-
-.skip-link:focus {
-  top: 0;
-}
-
-/* Utility classes custom */
+/* nasconde elementi accessibilità che rompono layout */
+.skip-link, 
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+  display: none !important;
 }
 
-/* Focus styles accessibili */
-*:focus-visible {
-  outline: 2px solid var(--text-link); 
-  outline-offset: 2px;
-}
-
-/* Transizioni smooth */
-button, a {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Disabled state */
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Classe helper per gli sfondi che devono cambiare con il tema (es. card, header, ecc.) */
+/* utility classi colori */
 .bg-theme-primary {
-    background-color: var(--bg-primary) !important; 
-    color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-primary);
 }
 
-/* Classe helper per i bordi che devono cambiare con il tema */
-.border-theme-default {
-    border-color: var(--border-default) !important;
+.text-theme-main {
+  color: var(--text-main);
+}
+
+/* stili mappa e pin */
+.marker-container {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  cursor: pointer;
+}
+
+.custom-book-pin {
+  width: 44px;
+  height: 44px;
+  background-color: var(--zomp);
+  border: 3px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.marker-container:hover .custom-book-pin {
+  transform: rotate(-45deg) scale(1.15);
+  background-color: var(--paynes-gray);
+  z-index: 50;
+}
+
+/* stili popup mappa */
+.maplibregl-popup-content {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-main) !important;
+  border-radius: 12px !important;
+  padding: 10px !important;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.maplibregl-popup-close-button {
+  color: var(--text-main) !important;
+  font-size: 16px;
+  padding: 4px;
+}
+
+/* bottone azione dentro popup */
+.popup-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--ash-gray);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.popup-circle-btn:hover {
+  background-color: var(--zomp);
 }
