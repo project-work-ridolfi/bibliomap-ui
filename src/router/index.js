@@ -30,7 +30,7 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: "/library", 
+    path: "/library",
     name: "library",
     component: () => import('@/pages/LibraryPage.vue'),
     meta: { requiresAuth: true }
@@ -47,10 +47,15 @@ const routes = [
     component: () => import('@/pages/SetLocationPage.vue')
   },
   {
-  path: '/books/:id',
-  name: 'BookDetail',
-  component: () => import('@/pages/BookPage.vue'),
-}
+    path: '/books/:id',
+    name: 'BookDetail',
+    component: () => import('@/pages/BookPage.vue'),
+  },
+  {
+    path: '/books/:id/edit',
+    name: 'BookEdit',
+    component: () => import('@/pages/BookEdit.vue'),
+  }
 ]
 
 const router = createRouter({
@@ -61,7 +66,7 @@ const router = createRouter({
 // Guard per route protette
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
   } else {

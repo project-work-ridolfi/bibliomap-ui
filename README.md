@@ -49,6 +49,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] /login
 - [x] /setlocation
   - [ ] set location non nella registrazione
+  - [ ] se vai nella mappa esci e ci torni la mappa e' vuota
 - [ ] create library
 - [ ] add book
 - [ ] password dimenticata

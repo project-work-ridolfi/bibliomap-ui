@@ -136,15 +136,15 @@
                     <div class="pt-4 border-t border-thistle flex justify-end">
 
                         <div v-if="isOwner" class="flex space-x-3">
-                            <button aria-label="modifica dettagli libro" title="Modifica"
+                            <button @click="router.push(`/books/${book.id}/edit`)" aria-label="modifica dettagli libro"
+                                title="Modifica"
                                 class="p-3 text-paynes-gray hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
                                 <i class="fa-solid fa-pen-to-square text-lg" aria-hidden="true"></i>
                             </button>
 
                             <button @click="moveBook" aria-label="sposta in altra libreria"
-                                title="Sposta in altra libreria"
-                                class="p-3 text-paynes-gray hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
-                                <i class="fa-solid fa-arrow-right-from-bracket text-lg" aria-hidden="true"></i>
+                                title="Sposta in altra libreria" class="...">
+                                <i class="fa-solid fa-right-left text-lg" aria-hidden="true"></i>
                             </button>
 
                             <button @click="openDeleteModal" aria-label="elimina libro definitivamente" title="Elimina"
