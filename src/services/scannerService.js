@@ -1,50 +1,69 @@
-import { Html5Qrcode } from 'html5-qrcode'
+import Quagga from '@ericblade/quagga2'
 
-let scanner = null
+let onDetectedCallback = null
 
-export async function startScanner(containerId, onSuccess, onError) {
-  try {
-    scanner = new Html5Qrcode(containerId)
-    
-    await scanner.start(
-      { facingMode: 'environment' }, // Camera posteriore
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 150 },
-        aspectRatio: 1.777778 // 16:9
-      },
-      (decodedText) => {
-        // Verifica che sia un ISBN (EAN-13)
-        if (/^97[89]\d{10}$/.test(decodedText)) {
-          onSuccess(decodedText)
-          stopScanner()
-        }
-      },
-      (errorMessage) => {
-        // Ignora errori di scan continui (normale durante la scansione)
-        if (!errorMessage.includes('NotFoundException')) {
-          console.warn('Scanner error:', errorMessage)
-        }
-      }
-    )
-  } catch (err) {
-    console.error('Failed to start scanner:', err)
-    if (onError) onError(err)
-  }
+// configurazione quagga per isbn
+const config = {
+  inputStream: {
+    name: 'Live',
+    type: 'LiveStream',
+    target: null, // viene settato dinamicamente
+    constraints: {
+      width: { min: 640 },
+      height: { min: 480 },
+      facingMode: 'environment', // usa fotocamera posteriore su mobile
+      aspectRatio: { min: 1, max: 2 }
+    }
+  },
+  locator: {
+    patchSize: 'medium',
+    halfSample: true
+  },
+  numOfWorkers: 2,
+  decoder: {
+    readers: ['ean_reader'] // ean-13 è lo standard per isbn
+  },
+  locate: true
 }
 
-export async function stopScanner() {
-  if (scanner) {
-    try {
-      await scanner.stop()
-      scanner.clear()
-      scanner = null
-    } catch (err) {
-      console.error('Error stopping scanner:', err)
+function handleDetected(result) {
+  if (result && result.codeResult && result.codeResult.code) {
+    const code = result.codeResult.code
+    // validazione base per evitare falsi positivi brevi
+    if (code.length === 13 && (code.startsWith('978') || code.startsWith('979'))) {
+      if (onDetectedCallback) {
+        onDetectedCallback(code)
+      }
     }
   }
 }
 
-export function isScanning() {
-  return scanner !== null
+export async function startScanner(domElement, callback) {
+  config.inputStream.target = domElement
+  onDetectedCallback = callback
+
+  try {
+    await new Promise((resolve, reject) => {
+      Quagga.init(config, (err) => {
+        if (err) {
+          console.error('errore inizializzazione quagga', err)
+          reject(err)
+          return
+        }
+        Quagga.start()
+        resolve()
+      })
+    })
+
+    Quagga.onDetected(handleDetected)
+    
+  } catch (err) {
+    throw new Error('impossibile avviare fotocamera')
+  }
+}
+
+export async function stopScanner() {
+  Quagga.offDetected(handleDetected)
+  await Quagga.stop()
+  onDetectedCallback = null
 }

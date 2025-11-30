@@ -52,6 +52,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
   - [ ] se vai nella mappa esci e ci torni la mappa e' vuota
 - [ ] create library
 - [ ] add book
+    - [ ] fix css, migliora distanze e togli righe brutte
 - [ ] password dimenticata
 - [ ] metriche utilizzo
 - [ ] cambia visibilità
@@ -62,3 +63,4 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] css - fonts - notte
 - [ ] footer
 - [ ] modale richiesta libro
+- [ ] fix switch light/dark

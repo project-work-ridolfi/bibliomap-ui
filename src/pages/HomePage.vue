@@ -79,17 +79,54 @@
 
         <div ref="listContainer" class="flex-grow p-3 relative overflow-hidden flex flex-col bg-theme-primary">
 
-          <div v-if="isLocationLoading" class="text-xs text-[var(--zomp)] text-center animate-pulse mb-2">Recupero
-            posizione...</div>
-          <div v-if="locationError" class="text-xs text-red-500 text-center mb-2 p-1">{{ locationError }}</div>
+          <div class="text-[10px] text-center mb-2 p-1.5 rounded bg-gray-100 border border-gray-200 flex flex-col gap-1">
+             <div v-if="isLocationLoading" class="text-[var(--zomp)] font-bold animate-pulse">
+               <i class="fa-solid fa-satellite-dish"></i> Ricerca posizione...
+             </div>
+             <div v-else class="flex flex-col gap-1 w-full px-2">
+                <div class="flex justify-between items-center w-full">
+                  <span class="opacity-70">Posizione stimata ({{ gpsAccuracy ? '~' + Math.round(gpsAccuracy) + 'm' : 'N/A' }})</span>
+                  <button @click="handleGeolocationFlow" class="underline text-blue-500 hover:text-blue-700">Riprova</button>
+                </div>
+                <div class="text-[var(--paynes-gray)] font-bold border-t border-gray-300 pt-1 mt-1">
+                   <i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>
+                   Trascina il segnaposto rosa sulla mappa se la posizione è sbagliata.
+                </div>
+             </div>
+             <div v-if="locationError" class="text-red-500 font-mono text-[9px] break-words leading-tight">
+               {{ locationError }}
+             </div>
+          </div>
 
           <div v-if="isFetchingBooks"
             class="absolute inset-0 flex flex-col items-center justify-center bg-theme-primary z-20">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--paynes-gray)]"></i>
           </div>
 
-          <div v-else-if="filteredBooks.length === 0" class="text-center text-theme-main opacity-70 mt-10 text-sm">
-            Nessun libro trovato. Prova ad ampliare la tua area di ricerca.
+          <div v-else-if="filteredBooks.length === 0" class="flex flex-col items-center justify-center mt-4 px-4 text-center">
+            <p class="text-theme-main opacity-70 text-sm mb-4">
+              Nessun libro trovato in quest'area.
+            </p>
+            
+            <div class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)]">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] uppercase font-bold text-theme-main opacity-80">Espandi raggio</span>
+                <span class="text-xs font-bold text-[var(--zomp)]">{{ expansionRadius >= 1000 ? (expansionRadius / 1000).toFixed(1) + ' km' : expansionRadius + ' m' }}</span>
+              </div>
+              
+              <input 
+                type="range" 
+                min="500" 
+                max="15000" 
+                step="500" 
+                v-model.number="expansionRadius"
+                @change="applyRadiusZoom"
+                class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]"
+              >
+              <p class="text-[10px] text-theme-main opacity-60 text-left">
+                Trascina per visualizzare un'area più ampia della città.
+              </p>
+            </div>
           </div>
 
           <div v-else class="flex flex-col gap-2 w-full h-full overflow-y-auto">
@@ -185,7 +222,10 @@ import { apiClient } from '@/services/apiClient'
 const authStore = useAuthStore()
 const router = useRouter()
 
-// stati mappa e dati
+const ROME_CENTER = { lat: 41.9028, lng: 12.4964 }
+const CARD_HEIGHT = 180
+const MAX_SEARCH_RADIUS = 20
+
 const map = shallowRef(null)
 const mapLoaded = ref(false)
 const listContainer = ref(null)
@@ -193,22 +233,22 @@ const isFetchingBooks = ref(false)
 const isLocationLoading = ref(false)
 const locationError = ref(null)
 const userLocation = ref(null)
+const userMarker = shallowRef(null) // ref per il marker trascinabile
+const gpsAccuracy = ref(null)
 const currentMarkers = shallowRef([])
+const accuracyCircleId = 'user-accuracy-circle' 
 
-// stati filtri
 const showFilters = ref(false)
 const currentPage = ref(1)
 const itemsPerPage = ref(3)
 const filters = reactive({ searchText: '' })
 const selectedTag = ref(null)
+const expansionRadius = ref(1000)
 
-// stati ordinamento
 const sortField = ref(null)
-const sortDirection = ref(null) // 'asc', 'desc', null
+const sortDirection = ref(null)
 
 const books = ref([])
-const ROME_CENTER = { lat: 41.9028, lng: 12.4964 }
-const CARD_HEIGHT = 180
 
 const DEFAULT_COVERS = [
   '/images/cover_default_1.png',
@@ -257,18 +297,14 @@ const availableTags = computed(() => {
   return [...new Set(allTags)].sort()
 })
 
-// logica ordinamento tri-state
 const handleSort = (field) => {
   if (sortField.value !== field) {
-    // primo click: attiva field e asc
     sortField.value = field
     sortDirection.value = 'asc'
   } else {
-    // click sullo stesso campo
     if (sortDirection.value === 'asc') {
       sortDirection.value = 'desc'
     } else {
-      // terzo click: disattiva
       sortField.value = null
       sortDirection.value = null
     }
@@ -278,12 +314,10 @@ const handleSort = (field) => {
 const filteredBooks = computed(() => {
   let result = [...books.value]
 
-  // filtro tag
   if (selectedTag.value) {
     result = result.filter(b => b.tags && b.tags.includes(selectedTag.value))
   }
 
-  // ordinamento
   if (sortField.value && sortDirection.value) {
     result.sort((a, b) => {
       let compare = 0
@@ -294,7 +328,6 @@ const filteredBooks = computed(() => {
       return sortDirection.value === 'asc' ? compare : -compare
     })
   } else {
-    // default fallback distance
     result.sort((a, b) => a.distance - b.distance)
   }
   return result
@@ -329,11 +362,26 @@ watch(filteredBooks, () => { if (mapLoaded.value) updateMapMarkers() })
 async function handleGeolocationFlow() {
   isLocationLoading.value = true
   locationError.value = null
+  gpsAccuracy.value = null
+  
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (pos) => finalizeLocation(pos.coords.latitude, pos.coords.longitude),
-      async () => { await tryUserStoredLocation() },
-      { enableHighAccuracy: false, timeout: 4000 }
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords
+        gpsAccuracy.value = accuracy
+        
+        // se l'accuratezza è pessima (> 2km) zoomiamo meno
+        let startZoom = 15
+        if (accuracy > 5000) startZoom = 11
+        else if (accuracy > 2000) startZoom = 13
+        
+        finalizeLocation(latitude, longitude, startZoom)
+      },
+      async (err) => {
+        locationError.value = "GPS non disponibile, uso posizione default"
+        await tryUserStoredLocation()
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     )
   } else {
     await tryUserStoredLocation()
@@ -342,18 +390,16 @@ async function handleGeolocationFlow() {
 
 async function tryUserStoredLocation() {
   if (authStore.isAuthenticated && authStore.user?.latitude) {
-    finalizeLocation(authStore.user.latitude, authStore.user.longitude)
-    locationError.value = "uso posizione profilo"
+    finalizeLocation(authStore.user.latitude, authStore.user.longitude, 15)
   } else {
-    locationError.value = "uso posizione default roma"
-    finalizeLocation(ROME_CENTER.lat, ROME_CENTER.lng)
+    finalizeLocation(ROME_CENTER.lat, ROME_CENTER.lng, 12)
   }
 }
 
-function finalizeLocation(lat, lng) {
+function finalizeLocation(lat, lng, zoomLevel = 15) {
   userLocation.value = { lat, lng }
   isLocationLoading.value = false
-  initMap(lat, lng)
+  initMap(lat, lng, zoomLevel)
 }
 
 function getMapRadius() {
@@ -383,7 +429,6 @@ async function fetchBooks(lat, lng, radius) {
     const rawBooks = Array.isArray(results) ? results : (results.results || [])
 
     books.value = rawBooks.map(b => {
-      // handle per il formato della cover
       let finalCover
       if (b.cover) {
         if (b.cover.startsWith('data:image')) {
@@ -399,9 +444,7 @@ async function fetchBooks(lat, lng, radius) {
         ...b,
         coverUrl: finalCover,
         libraryName: b.libraryName || 'libreria privata',
-        // map dto username 
         ownerName: b.username || 'utente sconosciuto',
-        // si assicura che esista array di tag
         tags: b.tags || []
       }
     })
@@ -415,13 +458,73 @@ async function fetchBooks(lat, lng, radius) {
 
 function searchInCurrentArea() {
   if (!map.value) return
-  const center = map.value.getCenter()
-  const radius = getMapRadius()
-  const safeRadius = radius > 100 ? 100 : radius
-  fetchBooks(center.lat, center.lng, safeRadius)
+  // usiamo la posizione del marker utente come centro della ricerca
+  // se non esiste (caso limite), usiamo centro mappa
+  let lat, lng
+  if (userMarker.value) {
+    const lngLat = userMarker.value.getLngLat()
+    lng = lngLat.lng
+    lat = lngLat.lat
+  } else {
+    const center = map.value.getCenter()
+    lng = center.lng
+    lat = center.lat
+  }
+
+  let radius = getMapRadius()
+  if (radius > MAX_SEARCH_RADIUS) {
+    radius = MAX_SEARCH_RADIUS
+  }
+  
+  fetchBooks(lat, lng, radius)
 }
 
-const initMap = (lat, lng) => {
+function applyRadiusZoom() {
+  if (!map.value) return
+  const targetZoom = 15.5 - Math.log2(expansionRadius.value / 500)
+  map.value.flyTo({ zoom: targetZoom, speed: 1.2 })
+}
+
+function createGeoJSONCircle(center, radiusInKm, points = 64) {
+    const coords = { latitude: center[1], longitude: center[0] }
+    const km = radiusInKm
+    const ret = []
+    const distanceX = km / (111.320 * Math.cos((coords.latitude * Math.PI) / 180))
+    const distanceY = km / 110.574
+
+    let theta, x, y
+    for (let i = 0; i < points; i++) {
+        theta = (i / points) * (2 * Math.PI)
+        x = distanceX * Math.cos(theta)
+        y = distanceY * Math.sin(theta)
+        ret.push([coords.longitude + x, coords.latitude + y])
+    }
+    ret.push(ret[0])
+    return {
+        type: "FeatureCollection",
+        features: [{
+            type: "Feature",
+            geometry: { type: "Polygon", coordinates: [ret] }
+        }]
+    }
+}
+
+const initMap = (lat, lng, zoomLevel) => {
+  // se mappa esiste, spostiamo marker e vista
+  if (map.value) {
+    map.value.flyTo({ center: [lng, lat], zoom: zoomLevel })
+    
+    if (userMarker.value) {
+      userMarker.value.setLngLat([lng, lat])
+    } else {
+      createUserMarker(lat, lng)
+    }
+    
+    drawAccuracyCircle(lat, lng)
+    searchInCurrentArea()
+    return
+  }
+
   const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY
   const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`
 
@@ -429,24 +532,77 @@ const initMap = (lat, lng) => {
     container: 'map',
     style: styleUrl,
     center: [lng, lat],
-    zoom: 15,
+    zoom: zoomLevel,
     attributionControl: false
   })
 
-  if (authStore.isAuthenticated || userLocation.value) {
-    new maplibregl.Marker({ color: '#fac8cd' }).setLngLat([lng, lat]).addTo(map.value)
-  }
-
   map.value.on('load', () => {
     mapLoaded.value = true
+    createUserMarker(lat, lng)
+    drawAccuracyCircle(lat, lng)
     searchInCurrentArea()
   })
 
+  // se l'utente sposta la mappa manualmente (pan/zoom), rilanciamo la ricerca
+  // centrata sempre sul marker utente, ma col nuovo raggio visibile
   map.value.on('moveend', () => {
     if (filters.searchText === '') {
       searchInCurrentArea()
     }
   })
+}
+
+// crea marker draggable
+const createUserMarker = (lat, lng) => {
+  if (userMarker.value) return
+
+  userMarker.value = new maplibregl.Marker({ color: '#fac8cd', draggable: true })
+    .setLngLat([lng, lat])
+    .addTo(map.value)
+
+  userMarker.value.on('dragend', () => {
+    const newPos = userMarker.value.getLngLat()
+    // aggiorniamo la posizione utente logica
+    userLocation.value = { lat: newPos.lat, lng: newPos.lng }
+    // spostiamo anche il cerchio accuratezza
+    drawAccuracyCircle(newPos.lat, newPos.lng)
+    // rilanciamo ricerca
+    searchInCurrentArea()
+  })
+}
+
+const drawAccuracyCircle = (lat, lng) => {
+  if (!map.value || !gpsAccuracy.value || gpsAccuracy.value < 100) {
+    // se accuratezza alta o nulla, nascondi cerchio se esiste
+    if (map.value && map.value.getLayer(accuracyCircleId)) {
+       map.value.setLayoutProperty(accuracyCircleId, 'visibility', 'none')
+    }
+    return
+  }
+  
+  const radiusKm = gpsAccuracy.value / 1000
+  const circleData = createGeoJSONCircle([lng, lat], radiusKm)
+
+  if (map.value.getSource(accuracyCircleId)) {
+    map.value.getSource(accuracyCircleId).setData(circleData)
+    map.value.setLayoutProperty(accuracyCircleId, 'visibility', 'visible')
+  } else {
+    map.value.addSource(accuracyCircleId, {
+      type: 'geojson',
+      data: circleData
+    })
+    map.value.addLayer({
+      id: accuracyCircleId,
+      type: 'fill',
+      source: accuracyCircleId,
+      layout: {}, // default visible
+      paint: {
+        'fill-color': '#fac8cd',
+        'fill-opacity': 0.2,
+        'fill-outline-color': '#fac8cd'
+      }
+    })
+  }
 }
 
 const updateMapMarkers = () => {
@@ -466,7 +622,6 @@ const updateMapMarkers = () => {
 
     markerContainer.appendChild(pin)
 
-    // costruzione dinamica popup per evitare righe undefined
     let popupContent = `
             <div class="flex flex-col items-center gap-3 p-2 w-[180px]">
                 <div class="text-center">`

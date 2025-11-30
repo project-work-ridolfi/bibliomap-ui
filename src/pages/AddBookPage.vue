@@ -1,422 +1,634 @@
 <template>
-  <div class="max-w-xl mx-auto p-8 bg-white shadow-xl rounded-2xl border-2 border-thistle space-y-6">
+  <div class="max-w-2xl mx-auto p-8 shadow-xl rounded-2xl border-2 transition-colors duration-300 bg-theme-primary text-theme-main border-gray-200 dark:border-gray-700">
 
-    <h1 class="text-3xl font-display text-center text-paynes-gray">
+    <h1 class="text-3xl font-display text-center text-theme-main">
       Aggiungi un Libro
     </h1>
-    <p v-if="generalError" class="text-sm text-red-700 font-medium mt-2 text-center">errore: {{ generalError }}</p>
+    
+    <p v-if="generalError" class="text-sm text-red-700 dark:text-red-400 font-medium mt-2 text-center">errore: {{ generalError }}</p>
 
-    <div v-if="!form.targetLibraryId || !hasLibraries" class="space-y-3 p-4 border rounded-lg border-ash-gray">
-        <label for="librarySelect" class="block text-sm font-medium text-paynes-gray">A quale Libreria vuoi aggiungere questo libro? *</label>
+    <div class="space-y-3 p-4 border rounded-lg border-gray-200 dark:border-gray-700 bg-[var(--bg-secondary)]">
+        <label class="block text-sm font-medium text-theme-main">Libreria di destinazione *</label>
+        
+        <p v-if="isFetchingLibraries" class="text-sm text-theme-main opacity-70 animate-pulse">caricamento librerie...</p>
+
+        <div v-else-if="!hasLibraries" class="text-center">
+            <p class="text-sm text-red-700 dark:text-red-400 mb-2">non hai ancora creato nessuna libreria</p>
+            <router-link to="/create-library" class="text-[var(--zomp)] font-bold underline text-sm">crea la tua prima libreria</router-link>
+        </div>
+
+        <div v-else-if="userLibraries.length === 1" class="flex items-center text-theme-main font-bold">
+            <i class="fa-solid fa-shop mr-2 text-[var(--zomp)]"></i>
+            <span>{{ userLibraries[0].name }}</span>
+            <input type="hidden" :value="userLibraries[0].id">
+        </div>
+
         <select 
+            v-else
             v-model="form.targetLibraryId" 
-            id="librarySelect"
-            :disabled="isFetchingLibraries || !hasLibraries"
-            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp disabled:opacity-70">
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] focus:border-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600">
             <option disabled value="">seleziona una libreria</option>
             <option v-for="lib in userLibraries" :key="lib.id" :value="lib.id">
                 {{ lib.name }}
             </option>
         </select>
-        <p v-if="isFetchingLibraries" class="text-sm text-paynes-gray/70">caricamento librerie...</p>
-        <p v-else-if="!hasLibraries" class="text-sm text-red-700">non hai librerie. premi il pulsante in basso per crearne una.</p>
     </div>
 
-    <hr v-if="form.targetLibraryId && hasLibraries" class="border-thistle" />
+    <hr v-if="form.targetLibraryId && hasLibraries" class="border-gray-200 dark:border-gray-700" />
 
     <div class="grid grid-cols-2 gap-4" v-if="form.targetLibraryId && hasLibraries">
         <button
-            @click="inputMode = 'manual'"
-            :class="inputMode === 'manual' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'"
-            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+            @click="switchMode('manual')"
+            :class="inputMode === 'manual' ? 'bg-[var(--zomp)] text-white border-transparent' : 'bg-[var(--bg-secondary)] text-theme-main border-gray-200 dark:border-gray-600 hover:opacity-80'"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
             <i class="fa-solid fa-pen-to-square mb-2 text-xl"></i><br />
             Dati Manuali
         </button>
         <button
-            @click="inputMode = 'isbn'"
-            :class="inputMode === 'isbn' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'"
-            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+            @click="switchMode('isbn')"
+            :class="inputMode === 'isbn' ? 'bg-[var(--zomp)] text-white border-transparent' : 'bg-[var(--bg-secondary)] text-theme-main border-gray-200 dark:border-gray-600 hover:opacity-80'"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
             <i class="fa-solid fa-barcode mb-2 text-xl"></i><br />
             Codice ISBN
         </button>
     </div>
     
-    <hr class="border-thistle" v-if="inputMode !== null && hasLibraries" />
+    <hr class="border-gray-200 dark:border-gray-700" v-if="inputMode !== null && hasLibraries" />
 
-    <div v-if="inputMode === 'manual' && hasLibraries" class="space-y-4">
-        <h2 class="text-xl font-display text-paynes-gray">Dettagli Opera</h2>
+    <div v-if="inputMode === 'isbn' && hasLibraries" class="space-y-4 text-center p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-[var(--bg-secondary)]">
+        <h2 class="text-xl font-display text-theme-main">Ricerca ISBN</h2>
 
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label for="title" class="block text-sm font-medium text-paynes-gray">Titolo *</label>
-                <input v-model="form.title" id="title" type="text" required placeholder="es. L'ombra del vento"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+        <div v-if="!isScanning" class="flex flex-col md:flex-row gap-4">
+            
+            <div class="w-full md:w-1/2 flex flex-col items-start text-left">
+                
+                <div class="flex items-center gap-2 mb-1">
+                    <label for="isbnCode" class="block text-sm font-medium text-theme-main">
+                        Codice ISBN
+                    </label>
+                    
+                    <div class="relative group z-50">
+                        <button class="w-5 h-5 rounded-full bg-[var(--paynes-gray)] text-white text-xs flex items-center justify-center font-bold cursor-help shadow-sm">
+                            ?
+                        </button>
+                        <div class="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-3 bg-theme-primary text-theme-main border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl hidden group-hover:block z-50">
+                            <p class="text-xs text-theme-main mb-2 text-left leading-snug">
+                                L'ISBN è un codice di 13 cifre che identifica univocamente un libro. Lo trovi sul retro della copertina vicino al codice a barre.
+                            </p>
+                            <div class="absolute top-1/2 -left-2 -mt-1 border-8 border-transparent border-r-gray-200 dark:border-r-gray-600"></div>
+                        </div>
+                    </div>
+                    </div>
+
+                <div class="flex gap-2 w-full">
+                    <input v-model="form.isbn" id="isbnCode" type="text" placeholder="es. 978..."
+                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] focus:border-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
+                    <button @click="fetchBookByIsbn" :disabled="!isIsbnValid"
+                        class="bg-[var(--paynes-gray)] text-white px-3 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 shadow-sm transition">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                </div>
             </div>
-            <div>
-                <label for="author" class="block text-sm font-medium text-paynes-gray">Autore *</label>
-                <input v-model="form.author" id="author" type="text" required placeholder="es. Carlos Ruiz Zafón"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+            
+            <div class="w-full md:w-1/2 flex flex-col justify-end">
+                <button @click="handleStartScan"
+                    class="w-full bg-[var(--paynes-gray)] text-white py-2 px-4 rounded-lg shadow hover:bg-[var(--zomp)] transition font-semibold flex items-center justify-center gap-2 border border-transparent">
+                    <i class="fa-solid fa-camera"></i>
+                    Avvia Scanner
+                </button>
             </div>
         </div>
+
+        <div v-else class="space-y-4 animate-fade-in">
+            <div ref="scannerContainer" class="border-2 border-[var(--zomp)] rounded-lg overflow-hidden h-64 relative scanner-video-container bg-black">
+                <div v-if="isLoadingCamera" class="absolute inset-0 flex items-center justify-center text-white/70 z-10">
+                    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> avvio fotocamera...
+                </div>
+                <div v-else class="scanning-bar"></div> 
+            </div>
+            
+            <button @click="handleStopScan"
+                class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-bold text-sm shadow">
+                Ferma Scanner
+            </button>
+
+            <p class="text-xs text-theme-main">
+                Inquadra il codice a barre ISBN sul retro del libro
+            </p>
+        </div>
+
+        <p v-if="isbnError" class="text-sm text-red-700 font-medium mt-2">errore: {{ isbnError }}</p>
+    </div>
+
+    <div v-if="(inputMode === 'manual' || bookDetailsFound) && hasLibraries" class="space-y-6">
         
-        <p v-if="isFetchingDetails" class="text-sm text-paynes-gray/70">ricerca dati in corso...</p>
-        <p v-else-if="bookDetailsFound" class="text-sm text-zomp font-semibold">dettagli trovati! isbn: {{ form.isbn || 'n/a' }}</p>
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-display text-theme-main">Dati Bibliografici</h2>
+            <span v-if="isbnLocked" class="text-xs bg-[var(--zomp)] text-white px-2 py-1 rounded shadow-sm">
+                <i class="fa-solid fa-lock mr-1"></i>Dati da ISBN
+            </span>
+        </div>
 
-        <div class="space-y-3 p-4 border rounded-lg border-thistle">
-            <h3 class="text-md font-semibold text-paynes-gray">Dati Statici (Opera)</h3>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label for="isbnManual" class="block text-sm font-medium text-paynes-gray">ISBN (Univoco)</label>
-                    <input v-model="form.isbn" id="isbnManual" type="text" placeholder="es. 978-8804689498"
-                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                </div>
-                <div>
-                    <label for="year" class="block text-sm font-medium text-paynes-gray">Anno Pubblicazione</label>
-                    <input v-model.number="form.publicationYear" id="year" type="number" placeholder="es. 2001"
-                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-theme-main mb-1">Titolo *</label>
+                <input v-model="form.title" type="text" :readonly="isbnLocked"
+                    :class="isbnLocked ? 'opacity-60 cursor-not-allowed' : ''"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
             </div>
 
             <div>
-                <label for="cover" class="block text-sm font-medium text-paynes-gray">Copertina (Opzionale)</label>
-                <input @change="handleCoverUpload" id="cover" type="file" accept="image/*"
-                    class="w-full text-sm text-paynes-gray file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-ash-gray/30 file:text-paynes-gray hover:file:bg-ash-gray/50" />
-                <p v-if="uploadError" class="text-xs text-red-700 font-medium mt-1">errore: {{ uploadError }}</p>
+                <label class="block text-sm font-medium text-theme-main mb-1">Autore *</label>
+                <input v-model="form.author" type="text" :readonly="isbnLocked"
+                    :class="isbnLocked ? 'opacity-60 cursor-not-allowed' : ''"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
             </div>
 
-        </div>
-    </div>
-    
-    <div v-else-if="inputMode === 'isbn' && hasLibraries" class="space-y-4 text-center p-4 bg-ash-gray/20 rounded-lg">
-        <h2 class="text-xl font-display text-paynes-gray">Cerca per Codice ISBN</h2>
+            <div>
+                <label class="block text-sm font-medium text-theme-main mb-1">Editore</label>
+                <input v-model="form.publisher" type="text" :readonly="isbnLocked"
+                    :class="isbnLocked ? 'opacity-60 cursor-not-allowed' : ''"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
+            </div>
 
-        <div class="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">
-            <div class="w-full md:w-1/2">
-                <label for="isbnCode" class="block text-sm font-medium text-paynes-gray mb-1">Codice ISBN *</label>
-                <input v-model="form.isbn" id="isbnCode" type="text" placeholder="es. 978-..."
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                <button @click="fetchBookByIsbn" :disabled="!isIsbnValid"
-                    class="w-full mt-2 bg-paynes-gray text-white py-2 rounded-lg hover:bg-paynes-gray/80 transition duration-150 disabled:opacity-50 font-semibold">
-                    Cerca Dettagli
-                </button>
+            <div>
+                <label class="block text-sm font-medium text-theme-main mb-1">Anno</label>
+                <input v-model.number="form.publicationYear" type="number" :readonly="isbnLocked"
+                    :class="isbnLocked ? 'opacity-60 cursor-not-allowed' : ''"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-theme-main mb-1">Lingua</label>
+                <input v-model="form.language" type="text" list="languages" :readonly="isbnLocked"
+                    :class="isbnLocked ? 'opacity-60 cursor-not-allowed' : ''"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
+                <datalist id="languages">
+                    <option value="Italiano"></option>
+                    <option value="Inglese"></option>
+                    <option value="Francese"></option>
+                    <option value="Spagnolo"></option>
+                    <option value="Tedesco"></option>
+                </datalist>
             </div>
             
-            <div class="w-full md:w-1/2 flex flex-col justify-between">
-                <p class="text-sm text-paynes-gray/70 mb-1">o scansiona:</p>
-                <button @click="openCameraScanner" disabled
-                    class="w-full bg-thistle text-paynes-gray py-4 rounded-lg shadow-md font-semibold disabled:opacity-50 cursor-not-allowed">
-                    <i class="fa-solid fa-camera mb-1 text-xl"></i><br />
-                    Scanner (TODO)
-                </button>
+             <div class="md:col-span-2" v-if="form.isbn">
+                <label class="block text-sm font-medium text-theme-main mb-1">ISBN Associato</label>
+                <input v-model="form.isbn" type="text"
+                    class="w-full px-3 py-2 border rounded-lg opacity-70 font-mono text-sm bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600" />
             </div>
         </div>
 
-        <p v-if="isbnError" class="text-sm text-red-700 font-medium mt-2">errore ricerca: {{ isbnError }}</p>
-        <p v-if="isFetchingIsbnDetails" class="text-sm text-paynes-gray/70 mt-2">ricerca in corso per {{ form.isbn }}...</p>
-        <p v-if="isBookDataAvailable" class="text-sm text-zomp font-semibold mt-2">dettagli libro trovati. completa i dati copia in basso.</p>
+        <div class="space-y-2">
+            <div class="flex justify-between items-end">
+                <label class="block text-sm font-medium text-theme-main">Copertina</label>
+                <a v-if="form.title" :href="googleSearchUrl" target="_blank" class="text-xs text-theme-main hover:text-[var(--zomp)] flex items-center gap-1 transition">
+                    <i class="fa-brands fa-google"></i>
+                    Cerca su Google
+                </a>
+            </div>
+            
+            <div 
+                @dragenter.prevent="isDragging = true" 
+                @dragover.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false"
+                @drop.prevent="handleDrop"
+                :class="isDragging ? 'border-[var(--zomp)] bg-[var(--zomp)]/10' : 'border-gray-300 dark:border-gray-600 bg-theme-primary'"
+                class="border-2 border-dashed rounded-xl p-6 transition-all text-center relative flex flex-col items-center justify-center min-h-[160px]">
+                
+                <div v-if="previewUrl" class="relative group mb-2">
+                    <img :src="previewUrl" class="h-32 object-contain rounded shadow-sm" />
+                    <button @click="removeCover" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow hover:bg-red-600">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div v-else class="space-y-2 pointer-events-none">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-theme-main opacity-50"></i>
+                    <p class="text-sm text-theme-main">
+                        Trascina qui l'immagine o 
+                        <span class="text-[var(--zomp)] font-bold">clicca per sfogliare</span>
+                    </p>
+                </div>
+
+                <input type="file" accept="image/*" @change="handleCoverUpload" 
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                    :disabled="!!previewUrl" />
+            </div>
+            
+            <p v-if="!previewUrl" class="text-[10px] text-theme-main opacity-60 text-right italic">
+                * se non carichi un'immagine, verrà assegnata una copertina casuale.
+            </p>
+            <p v-if="uploadError" class="text-xs text-red-700 font-medium">{{ uploadError }}</p>
+        </div>
+
     </div>
     
-    
-    <div v-if="isBookDataAvailable && hasLibraries" class="space-y-4 pt-4">
-        <hr class="border-thistle" />
-        <h2 class="text-xl font-display text-paynes-gray">Dati della tua Copia</h2>
+    <div v-if="(inputMode === 'manual' || bookDetailsFound) && hasLibraries" class="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-display text-theme-main">Dati della tua Copia</h2>
 
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label class="block text-sm font-medium text-paynes-gray mb-1">Condizione *</label>
+                <label class="block text-sm font-medium text-theme-main mb-1">Condizione *</label>
                 <div class="space-y-1">
-                    <label v-for="cond in conditions" :key="cond" class="flex items-center text-sm text-paynes-gray">
-                        <input type="radio" v-model="copyForm.condition" :value="cond" required class="form-radio text-zomp" />
-                        <span class="ml-2">{{ cond }}</span>
+                    <label v-for="cond in conditions" :key="cond" class="flex items-center text-sm text-theme-main cursor-pointer">
+                        <input type="radio" v-model="copyForm.condition" :value="cond" required class="form-radio text-[var(--zomp)] focus:ring-[var(--zomp)]" />
+                        <span class="ml-2 capitalize">{{ cond }}</span>
                     </label>
                 </div>
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-paynes-gray mb-1">Stato *</label>
+                <label class="block text-sm font-medium text-theme-main mb-1">Stato *</label>
                 <div class="space-y-1">
-                    <label v-for="stat in statuses" :key="stat.value" class="flex items-center text-sm text-paynes-gray">
-                        <input type="radio" v-model="copyForm.status" :value="stat.value" required class="form-radio text-zomp" />
-                        <span class="ml-2">{{ stat.label }}</span>
+                    <label v-for="stat in statuses" :key="stat.value" class="flex items-center text-sm text-theme-main cursor-pointer">
+                        <input type="radio" v-model="copyForm.status" :value="stat.value" required class="form-radio text-[var(--zomp)] focus:ring-[var(--zomp)]" />
+                        <span class="ml-2 capitalize">{{ stat.label }}</span>
                     </label>
                 </div>
             </div>
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-paynes-gray mb-1">Tag/Generi (Opzionale)</label>
-            <div class="flex flex-wrap gap-2">
-                <button v-for="tag in availableTags" :key="tag" @click="toggleTag(tag)"
-                    :class="copyForm.tags.includes(tag) ? 'bg-paynes-gray text-white' : 'bg-ash-gray/30 text-paynes-gray hover:bg-ash-gray/50'"
-                    class="px-3 py-1 text-sm rounded-full transition duration-150">
+            <label class="block text-sm font-medium text-theme-main mb-2">Tag/Generi</label>
+            <div class="flex flex-wrap gap-2 items-center">
+                <button v-for="tag in allDisplayTags" :key="tag" @click="toggleTag(tag)"
+                    :class="copyForm.tags.includes(tag) ? 'bg-[var(--paynes-gray)] text-white border-[var(--paynes-gray)]' : 'bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600 opacity-60 hover:opacity-100'"
+                    class="px-3 py-1 text-sm rounded-full transition duration-150 capitalize border shadow-sm">
                     {{ tag }}
                 </button>
+
+                <div class="relative flex items-center">
+                    <button v-if="!showTagInput" 
+                        @click="showTagInput = true" 
+                        :disabled="customTagsCount >= 2"
+                        class="w-8 h-8 rounded-full bg-[var(--zomp)] text-white flex items-center justify-center shadow hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+
+                    <div v-else class="flex items-center animate-fade-in">
+                        <input 
+                            ref="tagInputRef"
+                            v-model="newCustomTag"
+                            @keyup.enter="addCustomTag"
+                            @blur="cancelTagInput"
+                            placeholder="nuovo tag..."
+                            maxlength="32"
+                            class="px-3 py-1 text-sm border rounded-l-full focus:outline-none focus:border-[var(--zomp)] w-28 bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600"
+                        />
+                        <button @click="addCustomTag" class="bg-[var(--zomp)] text-white px-2 py-1 text-sm rounded-r-full hover:opacity-90 h-[30px] border-y border-r border-[var(--zomp)]">
+                            OK
+                        </button>
+                    </div>
+                </div>
             </div>
+            <p v-if="tagError" class="text-xs text-red-500 mt-1">{{ tagError }}</p>
         </div>
 
         <div>
-            <label for="ownerNotes" class="block text-sm font-medium text-paynes-gray">Note Personali (max 250 parole)</label>
-            <textarea v-model="copyForm.ownerNotes" id="ownerNotes" rows="4" maxlength="250"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp"></textarea>
+            <label class="block text-sm font-medium text-theme-main">Note Personali</label>
+            <textarea v-model="copyForm.ownerNotes" rows="3" maxlength="250"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--zomp)] resize-none bg-theme-primary text-theme-main border-gray-300 dark:border-gray-600"></textarea>
         </div>
     </div>
 
+    <div v-if="hasLibraries" class="pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-4">
+        
+        <button v-if="isFirstLibrary" @click="skip"
+            class="w-1/3 bg-[var(--thistle)] text-[var(--paynes-gray)] py-3 rounded-lg hover:opacity-80 transition duration-150 font-bold text-lg shadow-sm">
+            Salta
+        </button>
 
-    <hr class="border-thistle" v-if="form.targetLibraryId && hasLibraries" />
-
-    <button 
-      @click="handleFinalAction" 
-      :disabled="!isReadyToSave && hasLibraries" 
-      :class="[!hasLibraries || (isReadyToSave && hasLibraries) ? 'bg-zomp text-white' : 'bg-ash-gray/70 text-paynes-gray']"
-      class="w-full py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
-      {{ hasLibraries ? 'Aggiungi Copia' : 'Crea la Tua Prima Libreria' }}
-    </button>
+        <button 
+        @click="submitBook" 
+        :disabled="!isReadyToSave" 
+        :class="[
+            isReadyToSave ? 'bg-[var(--zomp)] text-white hover:bg-[var(--paynes-gray)] border-[var(--paynes-gray)]' : 'bg-[var(--ash-gray)] opacity-60 text-white cursor-not-allowed border-transparent',
+            isFirstLibrary ? 'w-2/3' : 'w-full'
+        ]"
+        class="py-3 rounded-lg transition duration-150 font-bold text-lg shadow-md border-2">
+        Salva Libro e Copia
+        </button>
+    </div>
     
   </div>
 </template>
+
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { apiClient } from '@/services/apiClient'; 
-import { useAuthStore } from '@/stores/authStore';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { apiClient } from '@/services/apiClient'
+import { useAuthStore } from '@/stores/authStore'
+import { startScanner, stopScanner } from '@/services/scannerService'
 
-const authStore = useAuthStore();
-const route = useRoute();
+const authStore = useAuthStore()
+const route = useRoute()
+const router = useRouter()
 
-// --- STATI DATI UTENTE E LIBRERIA ---
-const userLibraries = ref([]);
-const isFetchingLibraries = ref(false);
-const currentUserId = computed(() => authStore.userId); // ID Utente loggato
+// stati generali
+const userLibraries = ref([])
+const isFetchingLibraries = ref(false)
+const generalError = ref(null)
+const inputMode = ref(null)
 
-// --- STATI UI ---
-const inputMode = ref(null); 
-const generalError = ref(null);
-const isbnError = ref(null);
-
-// --- MODELLO DATI LIBRO (statico) ---
+// stati specifici form
 const form = ref({
-  targetLibraryId: route.query.libraryId || '', // Inizializzato dall'URL o vuoto
+  targetLibraryId: '', 
   isbn: '',
   title: '',
   author: '',
+  publisher: '',
+  language: '',
   publicationYear: null,
-  coverFile: null, // oggetto file
-});
+  coverFile: null
+})
 
-// --- MODELLO DATI COPIA (dinamico) ---
 const copyForm = ref({
-    status: 'available', // Default: Disponibile
-    condition: null, // Obbligatorio
+    status: 'available',
+    condition: null,
     ownerNotes: '',
-    tags: [],
-});
+    tags: []
+})
 
-// dati statici per il form copia
-const conditions = ['ottima', 'buona', 'accettabile', 'usurata'];
+// stati ui
+const isDragging = ref(false)
+const uploadError = ref(null)
+const previewUrl = ref(null)
+const isbnLocked = ref(false) 
+const isbnError = ref(null)
+const bookDetailsFound = ref(false)
+
+// stati tag
+const newCustomTag = ref('')
+const showTagInput = ref(false)
+const tagError = ref(null)
+const tagInputRef = ref(null)
+
+// stati scanner
+const isScanning = ref(false)
+const scannerContainer = ref(null)
+const isLoadingCamera = ref(false)
+
+// dati statici
+const conditions = ['ottima', 'buona', 'accettabile', 'usurata']
 const statuses = [
     { label: 'disponibile', value: 'available' },
-    { label: 'in prestito', value: 'on_loan' },
-];
-const availableTags = ['fiction', 'fantasy', 'thriller', 'storico', 'saggio', 'scientifico', 'biografia', 'poesia'];
+    { label: 'in prestito', value: 'on_loan' }
+]
+const availableTags = ['fiction', 'fantasy', 'thriller', 'storico', 'saggio', 'scientifico', 'biografia', 'poesia', 'arte', 'manualistica']
 
-// --- STATI RICERCA E CARICAMENTO ---
-const isFetchingDetails = ref(false); 
-const isFetchingIsbnDetails = ref(false); 
-
-// --- FUNZIONI DI UTILITÀ ---
-
-// funzione per l'autenticazione (richiesta all'arrivo della pagina)
 onMounted(() => {
-    // se l'id libreria è nell'url, lo impostiamo come target predefinito
-    if (libraryId.value) {
-        form.value.targetLibraryId = libraryId.value;
-        inputMode.value = 'manual';
+    const queryLibId = route.query.libraryId
+    if (queryLibId) {
+        form.value.targetLibraryId = queryLibId
     }
-    fetchUserLibraries(); // carica le librerie dell'utente loggato
-});
+    fetchUserLibraries()
+})
 
-// recupera le librerie dell'utente (necessario per il menù a tendina)
+onUnmounted(() => {
+    if (isScanning.value) {
+        stopScanner()
+    }
+})
+
+// watcher per sblocco manuale se isbn viene cancellato
+watch(() => form.value.isbn, (newVal) => {
+    if (!newVal || newVal.trim() === '') {
+        isbnLocked.value = false
+    }
+})
+
+// focus input tag quando appare
+watch(showTagInput, (val) => {
+    if (val) {
+        nextTick(() => tagInputRef.value?.focus())
+    }
+})
+
+const hasLibraries = computed(() => userLibraries.value.length > 0)
+const isFirstLibrary = computed(() => userLibraries.value.length === 1)
+
+const isIsbnValid = computed(() => {
+    const s = form.value.isbn
+    return s && (s.length === 10 || s.length === 13)
+})
+
+const isReadyToSave = computed(() => {
+    const baseValid = form.value.title && form.value.author && form.value.targetLibraryId
+    const copyValid = copyForm.value.condition
+    return baseValid && copyValid
+})
+
+const googleSearchUrl = computed(() => {
+    const query = `${form.value.title || ''} ${form.value.author || ''} cover libro`.trim()
+    return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}`
+})
+
+// logica tag mista (predefiniti + custom)
+const allDisplayTags = computed(() => {
+    const custom = copyForm.value.tags.filter(t => !availableTags.includes(t))
+    return [...availableTags, ...custom]
+})
+
+const customTagsCount = computed(() => {
+    return copyForm.value.tags.filter(t => !availableTags.includes(t)).length
+})
+
+function addCustomTag() {
+    tagError.value = null
+    const val = newCustomTag.value.trim().toLowerCase()
+    
+    if (!val) {
+        showTagInput.value = false
+        return
+    }
+
+    if (val.includes(' ')) {
+        tagError.value = "usa una parola singola"
+        return
+    }
+    if (val.length > 32) {
+        tagError.value = "max 32 caratteri"
+        return
+    }
+    if (copyForm.value.tags.includes(val)) {
+        newCustomTag.value = ''
+        showTagInput.value = false
+        return
+    }
+
+    copyForm.value.tags.push(val)
+    newCustomTag.value = ''
+    showTagInput.value = false
+}
+
+function cancelTagInput() {
+    setTimeout(() => {
+        if (!newCustomTag.value) showTagInput.value = false
+    }, 200)
+}
+
+function toggleTag(tag) {
+    const idx = copyForm.value.tags.indexOf(tag)
+    if (idx === -1) copyForm.value.tags.push(tag)
+    else copyForm.value.tags.splice(idx, 1)
+}
+
+function switchMode(mode) {
+    inputMode.value = mode
+    if (mode === 'manual') {
+        if (!bookDetailsFound.value) {
+            isbnLocked.value = false
+        }
+    }
+}
+
 async function fetchUserLibraries() {
     isFetchingLibraries.value = true
-    generalError.value = null // resetta l'errore generale
-
     try {
-        const response = await apiClient.get('/users/me/libraries')
+        const res = await apiClient.get('/users/me/libraries')
+        const libs = res.results || res.libraries || (Array.isArray(res) ? res : [])
+        userLibraries.value = libs
+
+        if (libs.length === 1) form.value.targetLibraryId = libs[0].id
         
-        // il be ritorna: { libraries: [...], count: N }
-        if (response && Array.isArray(response.libraries)) {
-            userLibraries.value = response.libraries
-
-            // se c'è solo una libreria e non è stata scelta la seleziona automaticamente
-            if (userLibraries.value.length === 1 && !form.value.targetLibraryId) {
-                form.value.targetLibraryId = userLibraries.value[0].id
-            }
-
-        } else {
-            // se la risposta è success (200 OK) ma malformata
-            userLibraries.value = []
-            generalError.value = "risposta be malformata durante il caricamento delle librerie."
+        if (form.value.targetLibraryId && !libs.find(l => l.id === form.value.targetLibraryId)) {
+            form.value.targetLibraryId = ''
+        } else if (form.value.targetLibraryId && !inputMode.value) {
+            inputMode.value = 'manual'
         }
-
-    } catch (error) {
-        // cattura errori 401/500 lanciati da apiClient
-        const errorMsg = error.message || "errore di rete non specificato."
-        generalError.value = "impossibile caricare la lista delle librerie: " + errorMsg
-        console.error("errore be librerie:", error)
+    } catch (e) {
+        generalError.value = "errore caricamento librerie"
     } finally {
         isFetchingLibraries.value = false
     }
 }
-// gestisce il toggle dei tag
-function toggleTag(tag) {
-    const index = copyForm.value.tags.indexOf(tag);
-    if (index === -1) {
-        copyForm.value.tags.push(tag);
-    } else {
-        copyForm.value.tags.splice(index, 1);
+
+function handleDrop(e) {
+    isDragging.value = false
+    uploadError.value = null
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+        processFile(files[0])
     }
 }
 
-// gestisce l'upload della copertina
-function handleCoverUpload(event) {
-  uploadError.value = null;
-  const file = event.target.files[0];
-  if (!file) return;
-
-  if (file.size > 2 * 1024 * 1024) { // limite 2mb
-    uploadError.value = "l'immagine è troppo grande (max 2mb).";
-    form.value.coverFile = null;
-    return;
-  }
-  
-  form.value.coverFile = file;
-  console.log("file copertina selezionato:", file.name);
+function handleCoverUpload(e) {
+    uploadError.value = null
+    const files = e.target.files
+    if (files.length > 0) {
+        processFile(files[0])
+    }
 }
 
-
-// --- LOGICA DI VALIDAZIONE E RICERCA ---
-
-const isBookDataAvailable = computed(() => {
-    return form.value.title.trim() !== '' && form.value.author.trim() !== '';
-});
-
-const isIsbnValid = computed(() => {
-    const isbn = form.value.isbn;
-    return isbn && (isbn.length === 10 || isbn.length === 13);
-});
-
-const isCopyFormValid = computed(() => {
-    // verifica se la condizione è stata selezionata
-    return copyForm.value.condition !== null;
-});
-
-const isReadyToSave = computed(() => {
-    // pronto se: libro statico è disponibile, target libreria è scelto, e dati copia validi
-    return isBookDataAvailable.value && form.value.targetLibraryId !== '' && isCopyFormValid.value;
-});
-
-const hasLibraries = computed(() => userLibraries.value.length > 0);
-
-// watcher per la ricerca automatica
-watch([() => form.value.title, () => form.value.author], ([newTitle, newAuthor]) => {
-  if (inputMode.value === 'manual' && newTitle && newTitle.trim().length > 3 && newAuthor && newAuthor.trim().length > 3) {
-    fetchBookDetails(newTitle.trim(), newAuthor.trim());
-  }
-});
-
-// funzione per cercare dettagli (precompilazione)
-async function fetchBookDetails(title, author) {
-  isFetchingDetails.value = true;
-
-  // [apiClient.get('/external/book-details?title=' + title + '&author=' + author)]
-  await new Promise(resolve => setTimeout(resolve, 1000)); // simulazione be
-
-  // [Rimuovi Dati Mock]
-  const isbnData = '978-0143039952';
-  const yearData = 2006;
-  
-  // applica risultati solo se l'utente non ha modificato i campi nel frattempo
-  if (form.value.title.trim() === title && form.value.author.trim() === author) {
-    form.value.isbn = isbnData;
-    form.value.publicationYear = yearData;
-  }
-  
-  isFetchingDetails.value = false;
+function processFile(file) {
+    if (!file.type.startsWith('image/')) {
+        uploadError.value = "il file deve essere un'immagine"
+        return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        uploadError.value = "immagine troppo grande (max 5mb)"
+        return
+    }
+    
+    form.value.coverFile = file
+    previewUrl.value = URL.createObjectURL(file)
 }
 
-// funzione per cercare dettagli tramite isbn
+function removeCover() {
+    form.value.coverFile = null
+    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+    previewUrl.value = null
+}
+
+async function handleStartScan() {
+    isbnError.value = null
+    isScanning.value = true
+    isLoadingCamera.value = true
+
+    try {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        if (!scannerContainer.value) {
+            throw new Error('container scanner non trovato')
+        }
+
+        await startScanner(scannerContainer.value, onIsbnDetected)
+    } catch (error) {
+        console.error(error)
+        isbnError.value = "impossibile accedere alla fotocamera. verifica i permessi."
+        isScanning.value = false
+    } finally {
+        isLoadingCamera.value = false
+    }
+}
+
+async function handleStopScan() {
+    await stopScanner()
+    isScanning.value = false
+}
+
+function onIsbnDetected(code) {
+    form.value.isbn = code
+    handleStopScan()
+    fetchBookByIsbn()
+}
+
 async function fetchBookByIsbn() {
-  isbnError.value = null;
-  generalError.value = null;
-  if (!isIsbnValid.value) {
-    isbnError.value = "inserisci un isbn valido di 10 o 13 cifre.";
-    return;
-  }
-  
-  isFetchingIsbnDetails.value = true;
-
-  // [apiClient.get('/external/book-by-isbn/' + form.value.isbn)]
-  await new Promise(resolve => setTimeout(resolve, 1500)); // simulazione be
-
-  // [Rimuovi Dati Mock]
-  const titleData = 'il nome del vento';
-  const authorData = 'patrick rothfuss';
-  const yearData = 2007;
-
-  // applica i risultati e passa a modalità manuale per i controlli finali
-  form.value.title = titleData;
-  form.value.author = authorData;
-  form.value.publicationYear = yearData;
-  inputMode.value = 'manual'; // passa a manuale per visualizzare e completare
-
-  isFetchingIsbnDetails.value = false;
+    if (!isIsbnValid.value) return
+    isbnError.value = null
+    
+    console.log("ricerca isbn", form.value.isbn)
+    
+    setTimeout(() => {
+        form.value.title = "Il Signore degli Anelli"
+        form.value.author = "J.R.R. Tolkien"
+        form.value.publisher = "Bompiani"
+        form.value.language = "Italiano"
+        form.value.publicationYear = 2003
+        
+        bookDetailsFound.value = true
+        isbnLocked.value = true 
+        inputMode.value = 'manual' 
+    }, 1000)
 }
 
+function skip() {
+    router.push('/dashboard')
+}
 
-// --- LOGICA FINALE SALVATAGGIO ---
-
-async function addBookToLibrary() {
-  if (!isReadyToSave.value) {
-    generalError.value = "assicurati di aver selezionato la libreria, titolo, autore e condizione.";
-    return;
-  }
-  
-  generalError.value = null;
-
-  // 1. Dati Statici del Libro (BOOK)
-  const bookPayload = {
-    isbn: form.value.isbn, // obbligatorio se trovato, altrimenti può essere nullo
-    title: form.value.title,
-    author: form.value.author,
-    publicationYear: form.value.publicationYear,
-  };
-  
-  // 2. Dati della Copia (COPIES)
-  const copyPayload = {
-    libraryId: form.value.targetLibraryId,
-    status: copyForm.value.status,
-    condition: copyForm.value.condition,
-    ownerNotes: copyForm.value.ownerNotes,
-    tags: copyForm.value.tags,
-  };
-
-  // Logica di salvataggio: in un'architettura completa, questo sarebbe un multipart form
-  // che include bookPayload, copyPayload e form.coverFile.
-  
-  try {
-    // [apiClient.post('/books/add-copy-and-book', { book: bookPayload, copy: copyPayload })] // mock call
-    await new Promise(resolve => setTimeout(resolve, 2000)); 
+async function submitBook() {
+    if (!isReadyToSave.value) return
     
-    alert(`libro '${form.value.title}' aggiunto con successo alla libreria!`);
-    
-    // reset del form per aggiungere un nuovo libro
-    form.value = { targetLibraryId: form.value.targetLibraryId, isbn: '', title: '', author: '', publicationYear: null, coverFile: null };
-    copyForm.value = { status: 'available', condition: null, ownerNotes: '', tags: [] };
-
-  } catch (error) {
-    generalError.value = "errore be durante l'aggiunta del libro.";
-    console.error("errore be:", error);
-  }
+    console.log("salvataggio", { ...form.value, ...copyForm.value })
+    alert("Funzionalità di salvataggio backend da implementare")
 }
 </script>
+
+<style scoped>
+.scanner-video-container :deep(video), 
+.scanner-video-container :deep(canvas) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scanning-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #fac8cd; 
+    box-shadow: 0 0 8px 2px rgba(250, 200, 205, 1);
+    z-index: 5;
+    animation: scan-animation 2s linear infinite;
+}
+
+@keyframes scan-animation {
+    0% { top: 5%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 95%; opacity: 0; }
+}
+</style>
