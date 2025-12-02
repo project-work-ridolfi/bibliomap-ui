@@ -14,7 +14,7 @@
 
         <div v-else-if="!hasLibraries" class="text-center">
             <p class="text-sm text-red-700 dark:text-red-400 mb-2">non hai ancora creato nessuna libreria</p>
-            <router-link to="/create-library" class="text-[var(--zomp)] font-bold underline text-sm">crea la tua prima libreria</router-link>
+            <router-link to="/library" class="text-[var(--zomp)] font-bold underline text-sm">crea la tua prima libreria</router-link>
         </div>
 
         <div v-else-if="userLibraries.length === 1" class="flex items-center text-theme-main font-bold">
@@ -578,19 +578,38 @@ async function fetchBookByIsbn() {
     if (!isIsbnValid.value) return
     isbnError.value = null
     
-    console.log("ricerca isbn", form.value.isbn)
+    // reset stati ui
+    bookDetailsFound.value = false
     
-    setTimeout(() => {
-        form.value.title = "Il Signore degli Anelli"
-        form.value.author = "J.R.R. Tolkien"
-        form.value.publisher = "Bompiani"
-        form.value.language = "Italiano"
-        form.value.publicationYear = 2003
+    try {
+        //chiamata al backend
+        const res = await apiClient.get('/books/external/lookup-metadata', {
+            params: { isbn: form.value.isbn }
+        })
+
+
+        // popola campi
+        form.value.title = res.title || ''
+        form.value.author = res.author || ''
+        form.value.publisher = res.publisher || ''
+        form.value.publicationYear = res.publicationYear || ''
+        
+        if (res.language) form.value.language = res.language
+
+        // gestisce copertina se presente
+        if (res.coverUrl) {
+            previewUrl.value = res.coverUrl.replace('http:', 'https:')
+            form.value.coverFile = null 
+        }
         
         bookDetailsFound.value = true
         isbnLocked.value = true 
         inputMode.value = 'manual' 
-    }, 1000)
+
+    } catch (e) {
+        console.error(e)
+        isbnError.value = "impossibile recuperare i dati per questo isbn"
+    }
 }
 
 function skip() {
