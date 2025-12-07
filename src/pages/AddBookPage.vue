@@ -326,20 +326,21 @@
 
     <div v-if="hasLibraries" class="pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-4">
         
-        <button v-if="isFirstLibrary" @click="skip"
-            class="w-1/3 bg-[var(--thistle)] text-[var(--paynes-gray)] py-3 rounded-lg hover:opacity-80 transition duration-150 font-bold text-lg shadow-sm">
+        <button v-if="isFirstLibrary" @click="skip" :disabled="isSubmitting"
+            class="w-1/3 bg-[var(--thistle)] text-[var(--paynes-gray)] py-3 rounded-lg hover:opacity-80 transition duration-150 font-bold text-lg shadow-sm disabled:opacity-50">
             Salta
         </button>
 
         <button 
         @click="submitBook" 
-        :disabled="!isReadyToSave" 
+        :disabled="!isReadyToSave || isSubmitting" 
         :class="[
-            isReadyToSave ? 'bg-[var(--zomp)] text-white hover:bg-[var(--paynes-gray)] border-[var(--paynes-gray)]' : 'bg-[var(--ash-gray)] opacity-60 text-white cursor-not-allowed border-transparent',
+            isReadyToSave && !isSubmitting ? 'bg-[var(--zomp)] text-white hover:bg-[var(--paynes-gray)] border-[var(--paynes-gray)]' : 'bg-[var(--ash-gray)] opacity-60 text-white cursor-not-allowed border-transparent',
             isFirstLibrary ? 'w-2/3' : 'w-full'
         ]"
-        class="py-3 rounded-lg transition duration-150 font-bold text-lg shadow-md border-2">
-        Salva Libro e Copia
+        class="py-3 rounded-lg transition duration-150 font-bold text-lg shadow-md border-2 flex justify-center items-center">
+            <span v-if="isSubmitting"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Salvataggio...</span>
+            <span v-else>Salva Libro e Copia</span>
         </button>
     </div>
 
@@ -413,6 +414,7 @@ const userLibraries = ref([])
 const isFetchingLibraries = ref(false)
 const generalError = ref(null)
 const inputMode = ref(null)
+const isSubmitting = ref(false)
 
 // form specific states
 const form = ref({
@@ -816,10 +818,57 @@ function skip() {
 }
 
 async function submitBook() {
-    if (!isReadyToSave.value) return
+    if (!isReadyToSave.value || isSubmitting.value) return
     
-    console.log("salvataggio", { ...form.value, ...copyForm.value })
-    alert("Funzionalità di salvataggio backend da implementare")
+    isSubmitting.value = true
+    generalError.value = null
+    
+    try {
+        // prepare form data
+        const fd = new FormData()
+        
+        // append book details
+        fd.append('title', form.value.title)
+        fd.append('author', form.value.author)
+        if (form.value.isbn) fd.append('isbn', form.value.isbn)
+        if (form.value.publisher) fd.append('publisher', form.value.publisher)
+        if (form.value.publicationYear) fd.append('publication_year', form.value.publicationYear)
+        if (form.value.language) fd.append('language', form.value.language)
+        
+        // handle cover image
+        if (form.value.coverFile) {
+            fd.append('cover', form.value.coverFile)
+        } else if (previewUrl.value && isFieldSuggested('cover')) {
+            fd.append('cover_url', previewUrl.value)
+        }
+
+        // append copy details
+        fd.append('library_id', form.value.targetLibraryId)
+        fd.append('condition', copyForm.value.condition)
+        fd.append('status', copyForm.value.status)
+        if (copyForm.value.ownerNotes) fd.append('notes', copyForm.value.ownerNotes)
+        
+        // append tags
+        if (copyForm.value.tags.length > 0) {
+            fd.append('tags', JSON.stringify(copyForm.value.tags))
+        }
+
+        // send request
+        await apiClient.post('/books/save', fd, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+
+        // redirect on success
+        router.push('/dashboard')
+        
+    } catch (e) {
+        console.error(e)
+        generalError.value = "errore durante il salvataggio. riprova."
+    } finally {
+        isSubmitting.value = false
+    }
 }
 </script>
 
