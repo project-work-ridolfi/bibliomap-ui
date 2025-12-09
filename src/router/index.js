@@ -18,6 +18,11 @@ const routes = [
     component: () => import('@/pages/LoginPage.vue')
   },
   {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('@/pages/DashboardPage.vue')
+  },
+  {
     path: '/map',
     name: 'map',
     component: () => import('@/pages/MapPage.vue'),
