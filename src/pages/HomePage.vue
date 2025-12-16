@@ -170,7 +170,7 @@
                   class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--paynes-gray)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2">
                   <i class="fa-solid fa-eye"></i> Vedi
                 </button>
-                <button v-if="authStore.isAuthenticated" @click.stop="requestLoan(book.id)"
+                <button v-if="authStore.isAuthenticated" @click.stop="openConfirmModal(book)"
                   class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2">
                   <i class="fa-solid fa-hand-holding-hand"></i> Richiedi
                 </button>
@@ -209,6 +209,54 @@
 
     </main>
   </div>
+  
+  <app-modal :is-open="isConfirmModalOpen" title="Conferma Richiesta di Prestito" @close="isConfirmModalOpen = false">
+    <div v-if="bookToRequest" class="space-y-4 text-theme-main">
+      <p class="text-sm">
+        Stai per richiedere in prestito una copia di:
+      </p>
+      <div class="p-3 bg-gray-100 border border-[var(--border-color)] rounded-lg">
+        <p class="font-bold text-base">{{ bookToRequest.title }}</p>
+        <p class="text-xs italic opacity-80">{{ bookToRequest.author }}</p>
+        <p class="text-xs mt-2">
+          Proprietario: <span class="font-semibold">{{ bookToRequest.ownerName }}</span>
+        </p>
+      </div>
+      
+      <p class="text-xs font-semibold text-red-500">
+        La richiesta verrà inviata direttamente al proprietario per l'approvazione.
+      </p>
+      
+      <div class="flex justify-end gap-3 pt-2">
+        <button @click="isConfirmModalOpen = false" 
+          class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--ash-gray)]/20">
+          Annulla
+        </button>
+        <button @click="confirmLoanRequest" 
+          :disabled="isSending"
+          class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          <i v-if="isSending" class="fa-solid fa-circle-notch fa-spin"></i>
+          {{ isSending ? 'Invio...' : 'Conferma Richiesta' }}
+        </button>
+      </div>
+    </div>
+  </app-modal>
+  
+  <app-modal :is-open="isResultModalOpen" :title="modalResultTitle" @close="isResultModalOpen = false">
+    <div class="space-y-4">
+      <div v-if="modalResultIcon" class="flex justify-center text-4xl">
+        <i class="fa-solid" :class="modalResultIcon"></i>
+      </div>
+      <p class="text-sm text-theme-main text-center">{{ modalResultMessage }}</p>
+      
+      <div class="flex justify-center pt-2">
+        <button @click="isResultModalOpen = false" 
+          class="bg-[var(--paynes-gray)] text-white px-4 py-2 rounded-lg hover:bg-[var(--zomp)] transition text-sm font-bold">
+          OK
+        </button>
+      </div>
+    </div>
+  </app-modal>
 </template>
 
 <script setup>
@@ -218,6 +266,7 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useAuthStore } from '@/stores/authStore'
 import { apiClient } from '@/services/apiClient'
+import AppModal from '@/components/AppModal.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -249,6 +298,15 @@ const sortField = ref(null)
 const sortDirection = ref(null)
 
 const books = ref([])
+
+// stati per le modali di prestito
+const isConfirmModalOpen = ref(false) // modale 1: conferma richiesta
+const isResultModalOpen = ref(false) // modale 2: risultato
+const bookToRequest = ref(null) // libro selezionato per la richiesta
+const isSending = ref(false) // stato di caricamento invio richiesta
+const modalResultTitle = ref('') // titolo risultato
+const modalResultMessage = ref('') // messaggio risultato
+const modalResultIcon = ref(null) // icona risultato
 
 const DEFAULT_COVERS = [
   '/images/cover_default_1.png',
@@ -662,12 +720,60 @@ const updateMapMarkers = () => {
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++ }
 const prevPage = () => { if (currentPage.value > 1) currentPage.value-- }
 const goToBookDetails = (id) => router.push(`/books/${id}`)
-const requestLoan = (id) => console.log("prestito", id)
 const goToLibrary = (ownerId) => alert("todo libreria")
 
 const zoomToBook = (book) => {
   if (map.value) {
     map.value.flyTo({ center: [book.lng, book.lat], zoom: 16, speed: 1.5 })
+  }
+}
+
+// funzione per aprire la modale di conferma
+const openConfirmModal = (book) => {
+  if (!authStore.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+  bookToRequest.value = book
+  isConfirmModalOpen.value = true
+}
+
+// funzione che invia la richiesta dopo la conferma
+const confirmLoanRequest = async () => {
+  if (!bookToRequest.value) return
+  
+  const copyId = bookToRequest.value.id
+  isConfirmModalOpen.value = false // chiude la modale di conferma
+  isSending.value = true // attiva lo stato di invio
+  
+  // resetta risultati precedenti
+  modalResultTitle.value = ''
+  modalResultMessage.value = ''
+  modalResultIcon.value = null
+
+  try {
+    // chiamata al be per creare richiesta di prestito
+    const response = await apiClient.post(`/loan/${copyId}`, {})
+    console.log("prestito richiesto con successo", response.loanId)
+    
+    // gestisce successo con modale
+    modalResultTitle.value = 'Richiesta Inviata'
+    modalResultMessage.value = `La tua richiesta di prestito per il libro '${bookToRequest.value.title}' è stata inviata al proprietario. Sarai notificato quando sarà accettata. ID richiesta: ${response.loanId}`
+    modalResultIcon.value = 'fa-circle-check text-green-500'
+
+  } catch (error) {
+    console.error("errore richiesta prestito", error)
+    const errorMessage = error.response?.data?.message || 'Errore generico durante la richiesta di prestito'
+    
+    // gestisce errore con modale
+    modalResultTitle.value = 'Errore Richiesta'
+    modalResultMessage.value = `Si è verificato un problema: ${errorMessage}`
+    modalResultIcon.value = 'fa-circle-xmark text-red-500'
+
+  } finally {
+    isSending.value = false // disattiva lo stato di invio
+    isResultModalOpen.value = true // apre la modale di risultato
+    bookToRequest.value = null
   }
 }
 </script>

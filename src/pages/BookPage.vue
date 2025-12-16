@@ -154,7 +154,7 @@
                         </div>
 
                         <div v-else>
-                            <button v-if="book.status === 'available'" @click="requestLoan"
+                            <button v-if="book.status === 'available'" @click="openLoanConfirmModal"
                                 class="bg-zomp text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-opacity-90 transition transform hover:-translate-y-0.5 flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zomp">
                                 <i class="fa-solid fa-hand-holding-heart mr-2" aria-hidden="true"></i>
                                 Chiedi in Prestito
@@ -234,6 +234,54 @@
 
         </AppModal>
 
+        <AppModal :isOpen="isLoanConfirmModalOpen" title="Richiesta di Prestito" @close="isLoanConfirmModalOpen = false">
+            <div v-if="book" class="space-y-4 text-paynes-gray">
+                <p class="text-sm">
+                    Confermi di voler inviare una richiesta di prestito per il libro:
+                </p>
+                <div class="p-3 bg-gray-100 border border-thistle rounded-lg">
+                    <p class="font-bold text-base">{{ book.title }}</p>
+                    <p class="text-xs italic opacity-80">di {{ book.author }}</p>
+                    <p class="text-xs mt-2">
+                        Proprietario: <span class="font-semibold">{{ book.ownerName }}</span>
+                    </p>
+                </div>
+
+                <p class="text-xs font-semibold text-red-500">
+                    Il proprietario riceverà una notifica e dovrà approvare la richiesta.
+                </p>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button @click="isLoanConfirmModalOpen = false"
+                        class="px-4 py-2 rounded-lg transition text-sm font-bold border border-gray-300 hover:bg-gray-50">
+                        Annulla
+                    </button>
+                    <button @click="confirmLoanRequest"
+                        :disabled="isSendingLoan"
+                        class="bg-zomp text-white px-4 py-2 rounded-lg hover:bg-paynes-gray transition text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                        <i v-if="isSendingLoan" class="fa-solid fa-circle-notch fa-spin"></i>
+                        {{ isSendingLoan ? 'Invio...' : 'Conferma Richiesta' }}
+                    </button>
+                </div>
+            </div>
+        </AppModal>
+
+        <AppModal :isOpen="isLoanResultModalOpen" :title="loanResultTitle" @close="isLoanResultModalOpen = false">
+            <div class="space-y-4">
+                <div v-if="loanResultIcon" class="flex justify-center text-4xl">
+                    <i class="fa-solid" :class="loanResultIcon"></i>
+                </div>
+                <p class="text-sm text-paynes-gray text-center">{{ loanResultMessage }}</p>
+
+                <div class="flex justify-center pt-2">
+                    <button @click="isLoanResultModalOpen = false"
+                        class="bg-paynes-gray text-white px-4 py-2 rounded-lg hover:bg-zomp transition text-sm font-bold">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </AppModal>
+
     </main>
 </template>
 
@@ -252,6 +300,14 @@ const authStore = useAuthStore()
 const book = ref(null)
 const isLoading = ref(true)
 const error = ref(null)
+
+// stati per le modali di prestito
+const isLoanConfirmModalOpen = ref(false) // modale 1: conferma richiesta
+const isLoanResultModalOpen = ref(false) // modale 2: risultato
+const isSendingLoan = ref(false) // stato di caricamento invio richiesta
+const loanResultTitle = ref('') // titolo risultato
+const loanResultMessage = ref('') // messaggio risultato
+const loanResultIcon = ref(null) // icona risultato
 
 // computed
 const isOwner = computed(() => {
@@ -282,6 +338,7 @@ async function fetchBookDetails() {
     error.value = null
 
     try {
+        // endpoint /books/{id} restituisce i dettagli della copia e del libro, incluso l'ownerId
         const response = await apiClient.get(`/books/${bookId}`)
         book.value = response
     } catch (err) {
@@ -292,19 +349,48 @@ async function fetchBookDetails() {
     }
 }
 
-async function requestLoan() {
+// gestisce l'apertura della modale di conferma
+function openLoanConfirmModal() {
     if (!authStore.isAuthenticated) {
         router.push('/login')
         return
     }
+    isLoanConfirmModalOpen.value = true
+}
 
-    if (!confirm("Vuoi inviare una richiesta di prestito al proprietario?")) return
+// funzione che invia la richiesta dopo la conferma
+async function confirmLoanRequest() {
+    if (!book.value || book.value.status !== 'available') return
+
+    isLoanConfirmModalOpen.value = false // chiude la modale di conferma
+    isSendingLoan.value = true // attiva lo stato di invio
+
+    // resetta risultati precedenti
+    loanResultTitle.value = ''
+    loanResultMessage.value = ''
+    loanResultIcon.value = null
 
     try {
-        // [apiClient.post(`/loans/request`, { bookId: book.value.id })]
-        alert("Richiesta inviata con successo.")
+        // copia id è book.id in questo contesto (dettagli copia)
+        await apiClient.post(`/loan/${book.value.id}`, {})
+        
+        // gestisce successo con modale
+        loanResultTitle.value = 'Richiesta Inviata'
+        loanResultMessage.value = `La tua richiesta di prestito per il libro '${book.value.title}' è stata inviata al proprietario ${book.value.ownerName}. Sarai notificato quando sarà accettata.`
+        loanResultIcon.value = 'fa-circle-check text-green-500'
+
     } catch (e) {
-        alert("Errore nell'invio della richiesta.")
+        console.error("errore richiesta prestito", e)
+        const errorMessage = e.response?.data?.message || 'Errore generico durante l\'invio della richiesta'
+
+        // gestisce errore con modale
+        loanResultTitle.value = 'Errore Richiesta'
+        loanResultMessage.value = `Si è verificato un problema: ${errorMessage}`
+        loanResultIcon.value = 'fa-circle-xmark text-red-500'
+
+    } finally {
+        isSendingLoan.value = false // disattiva lo stato di invio
+        isLoanResultModalOpen.value = true // apre la modale di risultato
     }
 }
 
@@ -313,6 +399,7 @@ async function moveBook() {
     alert("Funzionalità 'Sposta in altra libreria' in arrivo.")
 }
 
+// Funzioni per l'eliminazione (esistenti)
 const showDeleteModal = ref(false)
 const deleteStep = ref('confirm') // 'confirm', 'loading', 'success', 'error'
 
