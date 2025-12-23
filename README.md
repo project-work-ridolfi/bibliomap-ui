@@ -58,8 +58,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] cambia visibilità
 - [ ] gestione profilo
 - [ ] home
-- [ ] left handle bar
-- [ ] header
+- [x] sidebar
+- [x] header
 - [ ] css - fonts - notte
 - [ ] footer
 - [ ] modale richiesta libro
