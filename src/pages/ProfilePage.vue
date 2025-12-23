@@ -241,7 +241,16 @@ async function handleDelete() {
     await apiClient.delete(`/users/me`)
     authStore.logout()
     window.location.href = '/'
-  } catch (e) {}
+  } catch (e) {
+    confirmDelete.value = false
+    if (e.response?.status === 409) {
+       modalState.value = {
+         open: true,
+         title: "Azione Bloccata",
+         content: "Non puoi eliminare l'account perché hai dei prestiti attivi. Ti abbiamo inviato un'email con i dettagli dei libri da restituire."
+       }
+    }
+  }
 }
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('it-IT') : ''
