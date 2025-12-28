@@ -23,12 +23,6 @@ const routes = [
     component: () => import('@/pages/DashboardPage.vue')
   },
   {
-    path: '/map',
-    name: 'map',
-    component: () => import('@/pages/MapPage.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/add-book',
     name: 'add-book',
     component: () => import('@/pages/AddBookPage.vue'),
@@ -54,22 +48,29 @@ const routes = [
   {
     path: '/books/:id',
     name: 'BookDetail',
-    component: () => import('@/pages/BookPage.vue'),
+    component: () => import('@/pages/BookPage.vue')
   },
   {
     path: '/libraries/:id',
     name: 'LibraryDetail',
-    component: () => import('@/pages/LibraryDetailsPage.vue'),
+    component: () => import('@/pages/LibraryDetailsPage.vue')
   },
   {
     path: '/books/:id/edit',
     name: 'BookEdit',
-    component: () => import('@/pages/BookEdit.vue'),
+    component: () => import('@/pages/BookEdit.vue')
   },
    {
     path: '/libraries/:id/edit',
     name: 'LibraryEdit',
-    component: () => import('@/pages/LibraryEdit.vue'),
+    component: () => import('@/pages/LibraryEdit.vue')
+  }
+  ,
+   {
+    path: '/libraries',
+    name: 'MyLibraries',
+    component: () => import('@/pages/MyLibrariesPage.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

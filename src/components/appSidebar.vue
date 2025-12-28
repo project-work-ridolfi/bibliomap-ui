@@ -73,8 +73,7 @@ const menuItems = computed(() => {
   if (authStore.isAuthenticated) {
     items.push(
       { path: '/dashboard', label: 'Dashboard', icon: 'grid' },
-      { path: '/map', label: 'Mappa', icon: 'map-pin' },
-      { path: '/library', label: 'Le mie Librerie', icon: 'book-open' },
+      { path: '/libraries', label: 'Le mie Librerie', icon: 'book-open' },
       { path: '/add-book', label: 'Aggiungi Libro', icon: 'plus-circle' },
       { path: '/profile', label: 'Profilo', icon: 'user' }
     )
