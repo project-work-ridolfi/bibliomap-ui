@@ -89,3 +89,5 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - Aggiungere badge visivo se `status == 'on_loan'`
     - Disabilitare tasto cancellazione se il libro è in prestito attivo
 - [ ] fix switch light/dark
+- [ ] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
+2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
