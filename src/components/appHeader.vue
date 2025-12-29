@@ -1,6 +1,6 @@
 <template>
   <header class="bg-theme-primary sticky top-0 z-40 border-b border-thistle">
-    <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="flex items-center justify-between h-auto">
         <div class="flex items-center space-x-3">
           <button @click="emit('toggle-sidebar')" class="header-icon" title="Menu">
@@ -9,8 +9,7 @@
         </div>
 
         <router-link to="/" class="header-center-title">
-          <h1 class="header-title-main text-paynes-gray">BIBLIOMAP</h1>
-          <p class="header-subtitle-main text-paynes-gray lowercase">trova libri vicini a te!</p>
+          <h1 class="header-title-main text-paynes-gray uppercase">BIBLIOMAP</h1>
         </router-link>
 
         <div class="flex items-center space-x-3">
@@ -185,7 +184,7 @@ const vClickOutside = {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--paynes-gray);
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   border: 2px solid var(--ash-gray);
   text-decoration: none;
@@ -201,14 +200,17 @@ const vClickOutside = {
 
 .header-title-main {
   font-family: "Mochiy Pop P One", cursive;
-  font-size: min(3.5em, 5vw);
+  /* dimezzato */
+  font-size: min(1.75em, 5vw);
   margin: 0;
+  line-height: 1;
 }
 
 .header-subtitle-main {
   font-family: "Quicksand", sans-serif;
-  font-size: min(0.9em, 3vw);
-  margin-top: 5px;
+  /* ridotto */
+  font-size: min(0.65em, 3vw);
+  margin-top: 2px;
 }
 
 .fade-slide-enter-active, .fade-slide-leave-active {
@@ -220,7 +222,7 @@ const vClickOutside = {
 }
 
 @media (max-width: 768px) {
-  .header-title-main { font-size: min(2em, 8vw); }
+  .header-title-main { font-size: min(1.3em, 8vw); }
   .login-btn-header { display: none; }
 }
 </style>

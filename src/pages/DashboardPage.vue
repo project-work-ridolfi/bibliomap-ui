@@ -3,15 +3,15 @@
     
     <div v-if="overdueLoans.length > 0" class="bg-red-100 border-2 border-red-500 p-6 rounded-2xl animate-pulse">
       <h3 class="text-red-700 font-black flex items-center gap-2 uppercase tracking-tighter">
-        <i class="fa-solid fa-triangle-exclamation"></i> attenzione: prestiti scaduti!
+        <i class="fa-solid fa-triangle-exclamation"></i> attenzione prestiti scaduti
       </h3>
       <div class="mt-4 space-y-3">
         <div v-for="loan in overdueLoans" :key="loan.id" class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/50 p-4 rounded-xl border border-red-200">
           <div>
-            <p class="text-sm font-bold text-red-800 lowercase">devi restituire: {{ loan.title }}</p>
-            <p class="text-xs text-red-600 lowercase">scaduto il: {{ formatDate(loan.expectedReturnDate) }}</p>
+            <p class="text-sm font-bold text-red-800 lowercase">devi restituire {{ loan.title }}</p>
+            <p class="text-xs text-red-600 lowercase">scaduto il {{ formatDate(loan.expectedReturnDate) }}</p>
           </div>
-          <button @click="contactOwner(loan)" class="mt-3 md:mt-0 bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-700 transition lowercase">
+          <button @click="openContactModal(loan)" class="mt-3 md:mt-0 bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-700 transition lowercase">
             contatta proprietario
           </button>
         </div>
@@ -20,28 +20,33 @@
 
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
-        <h1 class="text-3xl font-display text-theme-main lowercase">
-          ciao <span class="text-[var(--zomp)]">{{ userData?.username || "persona cara" }}</span>!
+        <h1 class="text-3xl font-display text-theme-main">
+          Ciao <span class="text-[var(--zomp)]">{{ userData?.username || "" }}</span>!
         </h1>
-        <p class="opacity-80 text-sm lowercase">panoramica attivita</p>
+        <p class="opacity-80 text-sm">panoramica attività</p>
       </div>
-      <router-link to="/add-book" class="bg-[var(--zomp)] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition transform hover:scale-105 flex items-center gap-2">
+      <router-link to="/add-book" class="bg-[var(--zomp)] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition transform hover:scale-105 flex items-center gap-2 no-underline">
         <i class="fa-solid fa-plus"></i> nuovo libro
       </router-link>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="md:col-span-2 rounded-2xl shadow-md border border-[var(--thistle)] overflow-hidden bg-theme-primary">
-        <div @click="toggleStats" class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group">
+        <div @click="isStatsOpen = !isStatsOpen" class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group">
           <h3 class="text-lg font-bold text-theme-main flex items-center group-hover:text-[var(--zomp)] lowercase">
-            <i class="fa-solid fa-chart-pie mr-2 text-[var(--zomp)]"></i> riepilogo
+            <i class="fa-solid fa-chart-line mr-2 text-[var(--zomp)]"></i> riepilogo e analisi
           </h3>
-          <i class="fa-solid fa-chevron-down transition-transform duration-300" :class="isStatsOpen ? 'rotate-180 text-[var(--zomp)]' : 'text-gray-400'"></i>
+          <i class="fa-solid fa-chevron-down transition-transform duration-300" :class="isStatsOpen ? 'rotate-180 text-[var(--zomp)]' : ''"></i>
         </div>
-        <div v-if="!isStatsOpen" class="px-6 pb-6 grid grid-cols-3 gap-4 text-center">
+        
+        <div v-if="isStatsOpen" class="px-6 pb-6 border-t border-thistle pt-6">
+          <Stats :userId="userData?.id" />
+        </div>
+
+        <div v-else class="px-6 pb-6 grid grid-cols-3 gap-4 text-center">
           <div v-for="stat in statCards" :key="stat.label" class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
             <div class="text-2xl font-display" :class="stat.color">{{ stat.value }}</div>
-            <div class="text-xs opacity-70 font-bold tracking-wider lowercase">{{ stat.label }}</div>
+            <div class="text-[10px] opacity-70 font-bold tracking-wider uppercase">{{ stat.label }}</div>
           </div>
         </div>
       </div>
@@ -106,9 +111,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="space-y-4">
-        <h3 class="text-xl font-display text-theme-main lowercase border-b border-[var(--thistle)] pb-2">
-          libri in lettura
-        </h3>
+        <h3 class="text-xl font-display text-theme-main lowercase border-b border-[var(--thistle)] pb-2">libri in lettura</h3>
         <div v-if="borrowedBooks.length === 0" class="text-xs opacity-50 italic lowercase">nessun libro ricevuto</div>
         <div v-for="loan in borrowedBooks" :key="loan.id" class="bg-theme-primary p-4 rounded-xl shadow-sm border border-[var(--thistle)]/30">
           <div class="flex justify-between items-start">
@@ -127,18 +130,21 @@
       </div>
 
       <div class="space-y-4">
-        <h3 class="text-xl font-display text-theme-main lowercase border-b border-[var(--thistle)] pb-2">
-          libri prestati
-        </h3>
+        <h3 class="text-xl font-display text-theme-main lowercase border-b border-[var(--thistle)] pb-2">libri prestati</h3>
         <div v-if="lentBooks.length === 0" class="text-xs opacity-50 italic lowercase">nessun libro prestato</div>
         <div v-for="loan in lentBooks" :key="loan.id" class="bg-theme-primary p-4 rounded-xl shadow-sm border border-[var(--thistle)]/30">
           <div class="flex justify-between items-start">
             <div class="flex-grow">
               <h4 class="font-bold text-[var(--paynes-gray)]">{{ loan.title }}</h4>
               <p class="text-[10px] opacity-60 lowercase">a: {{ loan.requesterUsername }}</p>
-              <button @click="returnBook(loan.id)" class="mt-2 text-[10px] font-bold text-[var(--zomp)] border border-[var(--zomp)] px-2 py-1 rounded hover:bg-[var(--zomp)] hover:text-white transition lowercase">
-                segnala come restituito
-              </button>
+              <div class="mt-3 flex gap-2">
+                <button @click="returnBook(loan.id)" class="text-[9px] font-bold text-[var(--zomp)] border border-[var(--zomp)] px-2 py-1 rounded hover:bg-[var(--zomp)] hover:text-white transition lowercase">
+                  restituito
+                </button>
+                <button @click="extendLoan(loan.id)" class="text-[9px] font-bold text-[var(--paynes-gray)] border border-[var(--paynes-gray)] px-2 py-1 rounded hover:bg-[var(--paynes-gray)] hover:text-white transition lowercase">
+                  allunga
+                </button>
+              </div>
             </div>
             <div class="text-right ml-4">
               <p class="text-[9px] uppercase font-black opacity-30">rientro</p>
@@ -165,9 +171,9 @@
       </div>
     </div>
 
-    <AppModal :is-open="isManageModalOpen" title="gestione richiesta" @close="isManageModalOpen = false">
+    <AppModal :is-open="isManageModalOpen" :title="modalTitle" @close="isManageModalOpen = false">
       <div class="p-6 space-y-6">
-        <div class="flex gap-4">
+        <div v-if="!isContactMode" class="flex gap-4">
           <button @click="modalForm.action = 'ACCEPT'" :class="modalForm.action === 'ACCEPT' ? 'bg-[var(--zomp)] text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase">accetta</button>
           <button @click="modalForm.action = 'REJECT'" :class="modalForm.action === 'REJECT' ? 'bg-red-500 text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase">rifiuta</button>
         </div>
@@ -175,8 +181,8 @@
           <label class="text-[10px] font-black uppercase opacity-40">messaggio</label>
           <textarea v-model="modalForm.notes" class="w-full p-3 border border-[var(--thistle)] rounded-xl outline-none text-sm" rows="3" placeholder="scrivi un messaggio"></textarea>
         </div>
-        <div v-if="modalForm.action === 'ACCEPT'" class="space-y-4">
-          <label class="text-[10px] font-black uppercase opacity-40">disponibilita</label>
+        <div v-if="modalForm.action === 'ACCEPT' || isContactMode" class="space-y-4">
+          <label class="text-[10px] font-black uppercase opacity-40">proponi disponibilita</label>
           <div class="flex flex-wrap gap-2">
             <button v-for="day in days" :key="day" @click="toggleDay(day)" :class="modalForm.selectedDays.includes(day) ? 'bg-[var(--tea-rose)] text-theme-main' : 'border-gray-200'" class="px-3 py-1 border rounded-full text-[10px] font-bold lowercase">{{ day }}</button>
           </div>
@@ -185,8 +191,8 @@
           </div>
         </div>
         <div class="pt-4 border-t border-thistle">
-          <button @click="submitLoanManagement" :disabled="!modalForm.action" class="w-full bg-[var(--paynes-gray)] text-white py-4 rounded-xl font-bold hover:opacity-90 disabled:opacity-30 transition shadow-lg lowercase">
-            invia risposta
+          <button @click="handleModalSubmit" :disabled="!isContactMode && !modalForm.action" class="w-full bg-[var(--paynes-gray)] text-white py-4 rounded-xl font-bold hover:opacity-90 disabled:opacity-30 transition shadow-lg lowercase">
+            {{ isContactMode ? 'invia messaggio' : 'invia risposta' }}
           </button>
         </div>
       </div>
@@ -199,57 +205,74 @@ import { ref, onMounted, computed, reactive } from "vue"
 import { apiClient } from "@/services/apiClient"
 import LibraryAccordion from "@/components/LibraryAccordion.vue"
 import AppModal from "@/components/AppModal.vue"
+import Stats from "@/components/stats.vue"
 
-// stato
+// stato dashboard
 const userData = ref(null)
-const isLoadingLibs = ref(true)
-const libraries = ref([])
+const isStatsOpen = ref(false)
+const myTotalBooks = ref(0)
+const totalLoansIn = ref(0)
+const totalLoansOut = ref(0)
+
+const activeLoans = ref([])
 const pendingRequests = ref([])
 const acceptedLoans = ref([])
-const activeLoans = ref([])
-const activeLoansCount = ref(0)
-const isStatsOpen = ref(false)
+const isLoadingLibs = ref(true)
+const libraries = ref([])
 
-// modale
+// stato modale
 const isManageModalOpen = ref(false)
+const isContactMode = ref(false)
 const selectedRequest = ref(null)
 const modalForm = reactive({ action: '', notes: '', selectedDays: [], selectedSlots: [] })
 
+const modalTitle = computed(() => isContactMode.value ? "contatta proprietario" : "gestione richiesta")
 const days = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom']
 const timeSlots = ['mattina 08-12', 'pranzo 12-14', 'pomeriggio 14-18', 'sera 18-20']
 
-// calcolati
-const borrowedBooks = computed(() => 
-  activeLoans.value.filter(l => l.requesterId === userData.value?.id && l.status === 'ON_LOAN')
-)
-const lentBooks = computed(() => 
-  activeLoans.value.filter(l => l.ownerId === userData.value?.id && l.status === 'ON_LOAN')
-)
-const overdueLoans = computed(() => 
-  borrowedBooks.value.filter(l => isOverdue(l.expectedReturnDate))
-)
-const quickStats = computed(() => ({
-  totalBooks: libraries.value.reduce((acc, lib) => acc + (lib.bookCount || 0), 0),
-  activeLoans: activeLoansCount.value,
-  pendingRequests: pendingRequests.value.length
-}))
+// calcolo cards riepilogo
 const statCards = computed(() => [
-  { label: 'libri', value: quickStats.value.totalBooks, color: 'text-theme-main' },
-  { label: 'prestiti', value: quickStats.value.activeLoans, color: 'text-[var(--zomp)]' },
-  { label: 'richieste', value: quickStats.value.pendingRequests, color: 'text-[var(--tea-rose)]' }
+  { label: 'i tuoi libri', value: myTotalBooks.value, color: 'text-theme-main' },
+  { label: 'ricevuti', value: totalLoansIn.value, color: 'text-[var(--zomp)]' },
+  { label: 'prestati', value: totalLoansOut.value, color: 'text-[var(--paynes-gray)]' }
 ])
 
-// avvio
-onMounted(async () => {
-  await Promise.all([fetchUserMe(), fetchLibraries(), fetchIncomingRequests(), fetchActiveLoans(), fetchAcceptedLoans()])
-})
+// filtri prestiti
+const borrowedBooks = computed(() => activeLoans.value.filter(l => l.requesterId === userData.value?.id && l.status === 'ON_LOAN'))
+const lentBooks = computed(() => activeLoans.value.filter(l => l.ownerId === userData.value?.id && l.status === 'ON_LOAN'))
+const overdueLoans = computed(() => borrowedBooks.value.filter(l => isOverdue(l.expectedReturnDate)))
 
 // utility
 const isOverdue = (d) => d ? new Date(d) < new Date() : false
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('it-IT') : '-'
-const toggleStats = () => (isStatsOpen.value = !isStatsOpen.value)
 
-// api
+// caricamento dati
+onMounted(async () => {
+  await fetchUserMe()
+  await Promise.all([
+    fetchUserCounts(),
+    fetchLibraries(),
+    fetchIncomingRequests(),
+    fetchActiveLoans(),
+    fetchAcceptedLoans()
+  ])
+})
+
+// chiamate api conteggi
+async function fetchUserCounts() {
+  try {
+    const [books, loansIn, loansOut] = await Promise.all([
+      apiClient.get("/users/me/books/count"),
+      apiClient.get("/loan/total/in"),
+      apiClient.get("/loan/total/out")
+    ])
+    myTotalBooks.value = books
+    totalLoansIn.value = loansIn
+    totalLoansOut.value = loansOut
+  } catch (e) {}
+}
+
+// chiamate api liste
 async function fetchUserMe() { try { userData.value = await apiClient.get("/users/me") } catch (e) {} }
 async function fetchLibraries() {
   isLoadingLibs.value = true
@@ -262,35 +285,76 @@ async function fetchIncomingRequests() { try { pendingRequests.value = await api
 async function fetchActiveLoans() { try { activeLoans.value = await apiClient.get("/loan/active") || []; activeLoansCount.value = activeLoans.value.length } catch (e) {} }
 async function fetchAcceptedLoans() { try { const all = await apiClient.get("/loan/all"); acceptedLoans.value = all.filter(l => l.status === 'ACCEPTED') } catch (e) {} }
 
-// azioni
-function openManageModal(req) { selectedRequest.value = req; Object.assign(modalForm, { action: '', notes: '', selectedDays: [], selectedSlots: [] }); isManageModalOpen.value = true }
-function toggleDay(d) { const i = modalForm.selectedDays.indexOf(d); i === -1 ? modalForm.selectedDays.push(d) : modalForm.selectedDays.splice(i, 1) }
-function toggleSlot(s) { const i = modalForm.selectedSlots.indexOf(s); i === -1 ? modalForm.selectedSlots.push(s) : modalForm.selectedSlots.splice(i, 1) }
+// gestione modale
+function openManageModal(req) {
+  selectedRequest.value = req
+  isContactMode.value = false
+  Object.assign(modalForm, { action: '', notes: '', selectedDays: [], selectedSlots: [] })
+  isManageModalOpen.value = true
+}
+
+function openContactModal(loan) {
+  selectedRequest.value = loan
+  isContactMode.value = true
+  modalForm.action = 'CONTACT'
+  Object.assign(modalForm, { notes: '', selectedDays: [], selectedSlots: [] })
+  isManageModalOpen.value = true
+}
+
+async function handleModalSubmit() {
+  if (isContactMode.value) await submitContact()
+  else await submitLoanManagement()
+}
+
+async function submitContact() {
+  try {
+    await apiClient.post(`/loan/${selectedRequest.value.id}/contact`, {
+      notes: modalForm.notes,
+      days: modalForm.selectedDays.join(', '),
+      slots: modalForm.selectedSlots.join(', ')
+    })
+    isManageModalOpen.value = false
+  } catch (e) {}
+}
 
 async function submitLoanManagement() {
   try {
-    await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, { action: modalForm.action, notes: modalForm.notes, days: modalForm.selectedDays.join(', '), slots: modalForm.selectedSlots.join(', ') })
+    await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, {
+      action: modalForm.action,
+      notes: modalForm.notes,
+      days: modalForm.selectedDays.join(', '),
+      slots: modalForm.selectedSlots.join(', ')
+    })
     await Promise.all([fetchIncomingRequests(), fetchAcceptedLoans()])
     isManageModalOpen.value = false
   } catch (e) {}
 }
 
+// azioni prestiti
 async function confirmExchange(id) {
   try { await apiClient.post(`/loan/${id}/start`); await Promise.all([fetchAcceptedLoans(), fetchActiveLoans()]) } catch (e) {}
 }
 
 async function returnBook(id) {
-  try { await apiClient.post(`/loan/${id}/return`, { condition: 'buono' }); await fetchActiveLoans() } catch (e) {}
+  try { await apiClient.post(`/loan/${id}/return`, { condition: 'ottimo' }); await fetchActiveLoans() } catch (e) {}
 }
 
-async function contactOwner(loan) {
-  try { await apiClient.post(`/loan/${loan.id}/contact`); alert('richiesta di contatto inviata al proprietario') } catch (e) { alert('errore invio contatto') }
+async function extendLoan(id) {
+  try { await apiClient.patch(`/loan/${id}/status`, { action: 'EXTEND' }); await fetchActiveLoans() } catch (e) {}
 }
 
+// accordion
 async function toggleLibrary(id) {
   const lib = libraries.value.find(l => l.id === id); if (!lib) return; lib.isOpen = !lib.isOpen
-  if (lib.isOpen && !lib.books.length) { lib.isLoadingBooks = true; try { const res = await apiClient.get(`/libraries/${id}`); lib.books = res.books || []; lib.bookCount = lib.books.length } finally { lib.isLoadingBooks = false } }
+  if (lib.isOpen && !lib.books.length) { 
+    lib.isLoadingBooks = true
+    try { const res = await apiClient.get(`/libraries/${id}`); lib.books = res.books || []; lib.bookCount = lib.books.length } 
+    finally { lib.isLoadingBooks = false } 
+  }
 }
 
 async function moveBook({ bookId, toLibraryId }) { try { await apiClient.patch(`/books/${bookId}/move`, { libraryId: toLibraryId }); await fetchLibraries() } catch (e) {} }
+
+function toggleDay(d) { const i = modalForm.selectedDays.indexOf(d); i === -1 ? modalForm.selectedDays.push(d) : modalForm.selectedDays.splice(i, 1) }
+function toggleSlot(s) { const i = modalForm.selectedSlots.indexOf(s); i === -1 ? modalForm.selectedSlots.push(s) : modalForm.selectedSlots.splice(i, 1) }
 </script>
