@@ -50,42 +50,42 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] /setlocation
   - [ ] set location non nella registrazione
   - [ ] se vai nella mappa esci e ci torni la mappa e' vuota
-- [ ] create library
-- [ ] add book
-    - [ ] fix css, migliora distanze e togli righe brutte
+- [x] create library
+- [x] add book
+    - [x] fix css, migliora distanze e togli righe brutte
 - [ ] password dimenticata
 - [ ] metriche utilizzo
 - [ ] cambia visibilità
-- [ ] gestione profilo
-- [ ] home
+- [x] gestione profilo
+- [x] home
 - [x] sidebar
 - [x] header
 - [ ] css - fonts - notte
 - [ ] footer
-- [ ] modale richiesta libro
-- [ ] Aggiornare `apiClient` per includere gli endpoint `/loans` definiti nel BE
-- [ ] Aggiornare `DashboardPage.vue` per caricare le liste prestiti (requests e active)
-- [ ] Modificare logica pulsante principale:
+- [x] modale richiesta libro
+- [x] Aggiornare `apiClient` per includere gli endpoint `/loans` definiti nel BE
+- [x] Aggiornare `DashboardPage.vue` per caricare le liste prestiti (requests e active)
+- [x] Modificare logica pulsante principale:
     - Se `currentUser == owner`: Mostra "Modifica"
     - Se `copy.status == 'available'`: Mostra "Richiedi Prestito"
     - Se `copy.status == 'on_loan'`: Mostra "Non disponibile (In prestito)"
     - Se richiesta già fatta (`pending`): Mostra "Richiesta inviata" (Disabilitato)
-- [ ] Collegare click "Richiedi Prestito" alla chiamata `POST /api/loans/request`
-- [ ] Creare componente/sezione "Richieste in Arrivo":
+- [x] Collegare click "Richiedi Prestito" alla chiamata `POST /api/loans/request`
+- [x] Creare componente/sezione "Richieste in Arrivo":
     - Lista card con: Nome Richiedente, Titolo Libro
     - Bottoni azione: [Accetta] [Rifiuta]
     - Collegare alle chiamate API `PATCH status`
-- [ ] Creare Tab/Sezione "Libri che ho prestato" (Owner View):
+- [x] Creare Tab/Sezione "Libri che ho prestato" (Owner View):
     - Se stato `ACCEPTED`: Mostra bottone [Consegna Libro] (Start Loan)
     - Se stato `ON_LOAN`: Mostra info scadenza e bottone [Segna Restituito]
     - Collegare [Consegna Libro] a `POST /start`
-- [ ] Creare modale "Conferma Restituzione":
+- [x] Creare modale "Conferma Restituzione":
     - Input select per nuova condizione (ottima/buona/ecc)
     - Collegare a `POST /return`
-- [ ] Creare Tab/Sezione "Libri che sto leggendo" (Requester View):
+- [x] Creare Tab/Sezione "Libri che sto leggendo" (Requester View):
     - Lista libri presi in prestito
     - Visualizzazione chiara della data di scadenza (countdown se vicina)
-- [ ] Aggiornare card libro in `LibraryPage`:
+- [x] Aggiornare card libro in `LibraryPage`:
     - Aggiungere badge visivo se `status == 'on_loan'`
     - Disabilitare tasto cancellazione se il libro è in prestito attivo
 - [ ] fix switch light/dark
@@ -96,3 +96,9 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] aggiungi icona occhio al libro
 - [ ] sidebar con tutte le librerie?
 - [ ] stats
+- [ ] mappa nella pagina libreria
+- [ ] cerca libri per available non funge
+- [ ] controllo cover
+- [ ] allunga prestito
+- [ ] prestito restituito
+- [ ] stats settimana null
