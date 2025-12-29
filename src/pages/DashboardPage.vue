@@ -1,13 +1,11 @@
 <template>
   <div class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main">
+    
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
         <h1 class="text-3xl font-display text-theme-main">
           ciao
-          <span class="text-[var(--zomp)]">{{
-            userData?.username || "persona cara"
-          }}</span
-          >!
+          <span class="text-[var(--zomp)]">{{ userData?.username || "persona cara" }}</span>!
         </h1>
         <p class="opacity-80 text-sm">ecco la panoramica della tua attività</p>
       </div>
@@ -19,71 +17,53 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div
-        class="md:col-span-2 rounded-2xl shadow-md border border-[var(--thistle)] overflow-hidden bg-theme-primary">
+      
+      <div class="md:col-span-2 rounded-2xl shadow-md border border-[var(--thistle)] overflow-hidden bg-theme-primary">
         <div
           @click="toggleStats"
           class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group">
-          <h3
-            class="text-lg font-bold text-theme-main flex items-center group-hover:text-[var(--zomp)]">
+          <h3 class="text-lg font-bold text-theme-main flex items-center group-hover:text-[var(--zomp)]">
             <i class="fa-solid fa-chart-pie mr-2 text-[var(--zomp)]"></i>
             riepilogo attivita'
           </h3>
           <i
             class="fa-solid fa-chevron-down transition-transform duration-300"
-            :class="
-              isStatsOpen ? 'rotate-180 text-[var(--zomp)]' : 'text-gray-400'
-            "></i>
+            :class="isStatsOpen ? 'rotate-180 text-[var(--zomp)]' : 'text-gray-400'"></i>
         </div>
 
-        <div
-          v-if="!isStatsOpen"
-          class="px-6 pb-6 grid grid-cols-3 gap-4 text-center">
-          <div
-            class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
+        <div v-if="!isStatsOpen" class="px-6 pb-6 grid grid-cols-3 gap-4 text-center">
+          <div class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
             <div class="text-2xl font-display text-theme-main">
               {{ quickStats.totalBooks }}
             </div>
-            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">
-              libri
-            </div>
+            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">libri</div>
           </div>
-          <div
-            class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
+          <div class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
             <div class="text-2xl font-display text-[var(--zomp)]">
               {{ quickStats.activeLoans }}
             </div>
-            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">
-              in prestito
-            </div>
+            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">in prestito</div>
           </div>
-          <div
-            class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
+          <div class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
             <div class="text-2xl font-display text-[var(--tea-rose)]">
               {{ quickStats.pendingRequests }}
             </div>
-            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">
-              richieste
-            </div>
+            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">richieste</div>
           </div>
         </div>
       </div>
 
-      <div
-        class="bg-theme-primary p-6 rounded-2xl shadow-md border border-[var(--thistle)] flex flex-col justify-between">
+      <div class="bg-theme-primary p-6 rounded-2xl shadow-md border border-[var(--thistle)] flex flex-col justify-between">
         <div>
-          <h3 class="text-lg font-bold text-theme-main mb-2">
-            visibilita' mappa
-          </h3>
+          <h3 class="text-lg font-bold text-theme-main mb-2">visibilita' mappa</h3>
           <div v-if="userData?.id" class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-[var(--zomp)] text-[var(--zomp)]">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-[var(--zomp)] text-[var(--zomp)]">
               <i class="fa-solid fa-eye"></i>
             </div>
             <div>
               <p class="font-bold text-sm text-theme-main">profilo attivo</p>
               <p class="text-xs opacity-70">
-                visibilita': {{ userData.visibility || "standard" }}
+                visibilita: {{ userData.visibility || "standard" }}
               </p>
             </div>
           </div>
@@ -96,12 +76,9 @@
       </div>
     </div>
 
-    <div
-      v-if="pendingRequests.length > 0"
-      class="bg-[var(--tea-rose)]/20 border-l-4 border-[var(--tea-rose)] p-4 rounded-r-xl">
+    <div v-if="pendingRequests.length > 0" class="bg-[var(--tea-rose)]/20 border-l-4 border-[var(--tea-rose)] p-4 rounded-r-xl animate-bounce-subtle">
       <h3 class="font-bold text-theme-main mb-3 flex items-center">
-        <i class="fa-solid fa-bell mr-2 text-[var(--tea-rose)]"></i> richieste
-        da gestire ({{ pendingRequests.length }})
+        <i class="fa-solid fa-bell mr-2 text-[var(--tea-rose)]"></i> richieste da gestire ({{ pendingRequests.length }})
       </h3>
       <div class="space-y-2">
         <div
@@ -109,21 +86,20 @@
           :key="req.id"
           class="flex justify-between items-center bg-theme-primary p-3 rounded-lg shadow-sm border border-[var(--thistle)]/50">
           <div class="text-sm">
-            <span class="font-bold text-theme-main">{{
-              req.requesterName
-            }}</span>
-            desidera
+            <span class="font-bold text-theme-main">{{ req.requesterName || 'Un utente' }}</span> desidera 
             <span class="italic text-[var(--zomp)]">{{ req.title }}</span>
           </div>
           <div class="flex gap-2">
             <button
               @click="handleLoanStatus(req.id, 'REJECT')"
-              class="text-red-500 hover:bg-red-50 p-2 rounded-full transition">
+              class="text-red-500 hover:bg-red-50 p-2 rounded-full transition"
+              title="Rifiuta">
               <i class="fa-solid fa-times"></i>
             </button>
             <button
               @click="handleLoanStatus(req.id, 'ACCEPT')"
-              class="text-[var(--zomp)] hover:bg-green-50 p-2 rounded-full transition">
+              class="text-[var(--zomp)] hover:bg-green-50 p-2 rounded-full transition"
+              title="Accetta">
               <i class="fa-solid fa-check"></i>
             </button>
           </div>
@@ -171,6 +147,7 @@ import { ref, onMounted, computed } from "vue"
 import { apiClient } from "@/services/apiClient"
 import LibraryAccordion from "@/components/LibraryAccordion.vue"
 
+// --- Stato ---
 const userData = ref(null)
 const isLoadingLibs = ref(true)
 const libraries = ref([])
@@ -178,12 +155,10 @@ const pendingRequests = ref([])
 const activeLoansCount = ref(0)
 const isStatsOpen = ref(false)
 
+// --- Computeds ---
 const quickStats = computed(() => {
   const total = libraries.value.reduce((acc, lib) => {
-    return (
-      acc +
-      (lib.bookCount !== undefined ? lib.bookCount : lib.books.length || 0)
-    )
+    return acc + (lib.bookCount !== undefined ? lib.bookCount : (lib.books?.length || 0))
   }, 0)
 
   return {
@@ -193,15 +168,18 @@ const quickStats = computed(() => {
   }
 })
 
+// --- Lifecycle ---
 onMounted(async () => {
+  // Caricamento dati parallelo
   await Promise.all([
     fetchUserMe(),
     fetchLibraries(),
-    fetchIncomingRequests(),
-    fetchActiveLoans(),
+    fetchIncomingRequests(), // Chiama /api/loan/requests/incoming 
+    fetchActiveLoans(),      // Chiama /api/loan/active 
   ])
 })
 
+// --- Metodi API ---
 async function fetchUserMe() {
   try {
     userData.value = await apiClient.get("/users/me")
@@ -231,15 +209,16 @@ async function fetchLibraries() {
 
 async function fetchIncomingRequests() {
   try {
-    pendingRequests.value =
-      (await apiClient.get("/loan/requests/incoming")) || []
+    // Riferimento al metodo getIncomingRequests 
+    pendingRequests.value = await apiClient.get("/loan/requests/incoming") || []
   } catch (e) {
-    console.error("errore richieste")
+    console.error("errore richieste in entrata")
   }
 }
 
 async function fetchActiveLoans() {
   try {
+    // Riferimento al metodo getActiveLoans 
     const res = await apiClient.get("/loan/active")
     activeLoansCount.value = Array.isArray(res) ? res.length : 0
   } catch (e) {
@@ -248,19 +227,38 @@ async function fetchActiveLoans() {
 }
 
 async function handleLoanStatus(loanId, action) {
+  // debug immediato: vediamo se l'id arriva
+  console.log("Tentativo gestione prestito:", { loanId, action });
+
+  if (!loanId) {
+    console.error("ID prestito mancante! Controlla la mappatura del backend.");
+    return;
+  }
+
   try {
-    await apiClient.patch(`/loan/${loanId}/status`, { action })
+    const payload = { action: action.toUpperCase() };
+    await apiClient.patch(`/loan/${loanId}/status`, payload);
+    
+    // se il server risponde 200, aggiorniamo l'interfaccia
     pendingRequests.value = pendingRequests.value.filter(
       (r) => r.id !== loanId
-    )
-    if (action === "ACCEPT") fetchActiveLoans()
+    );
+    
+    if (action === "ACCEPT") {
+      await fetchActiveLoans();
+    }
+    
+    console.log("Richiesta gestita con successo");
   } catch (e) {
-    console.error("errore aggiornamento prestito")
+    console.error("Errore durante l'aggiornamento del prestito:", e.response?.data || e.message);
   }
 }
 
+// --- UI Logic ---
 async function toggleLibrary(libId) {
   const lib = libraries.value.find((l) => l.id === libId)
+  if (!lib) return
+  
   lib.isOpen = !lib.isOpen
   if (lib.isOpen && lib.books.length === 0) {
     lib.isLoadingBooks = true
@@ -274,12 +272,10 @@ async function toggleLibrary(libId) {
   }
 }
 
-// gestisce lo spostamento del libro tramite drag and drop
 async function moveBook({ bookId, toLibraryId }) {
   try {
     await apiClient.patch(`/books/${bookId}/move`, { libraryId: toLibraryId })
-    // aggiorniamo i conteggi locali senza ricaricare tutto
-    fetchLibraries()
+    await fetchLibraries()
   } catch (e) {
     console.error("errore spostamento libro")
   }

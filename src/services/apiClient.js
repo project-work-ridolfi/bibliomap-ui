@@ -113,6 +113,7 @@ export const apiClient = {
         body: data, 
         ...options 
     }),
+    patch: (endpoint, data) => apiFetch(endpoint, { method: 'PATCH', body: data }),
     
     delete: (endpoint, options = {}) => apiFetch(endpoint, { method: 'DELETE', ...options }),
 };
