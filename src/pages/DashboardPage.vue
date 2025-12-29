@@ -159,7 +159,7 @@
       <div class="flex justify-between items-end mb-6">
         <h2 class="text-2xl font-display text-theme-main lowercase">librerie</h2>
         <div class="flex gap-4">
-          <router-link to="/create-library" class="text-sm text-[var(--zomp)] font-bold hover:underline lowercase">crea</router-link>
+          <router-link to="/library" class="text-sm text-[var(--zomp)] font-bold hover:underline lowercase">crea</router-link>
           <router-link to="/libraries" class="text-sm text-[var(--paynes-gray)] font-bold hover:underline lowercase">tutte</router-link>
         </div>
       </div>

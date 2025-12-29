@@ -1,143 +1,109 @@
 <template>
-    <main class="max-w-4xl mx-auto p-6 space-y-8 relative">
-
-        <div class="flex justify-between items-center mb-4">
-            <button @click="goBack" class="flex items-center text-paynes-gray hover:text-zomp transition font-medium">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Annulla
-            </button>
-            <h1 class="font-display text-2xl text-paynes-gray">Modifica Copia</h1>
-        </div>
-
-        <div v-if="isLoading" class="text-center py-10">
-            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-paynes-gray"></i>
-        </div>
-        <div v-else-if="error" class="p-4 bg-red-50 text-red-700 rounded text-center">{{ error }}</div>
-
-        <article v-else-if="form"
-            class="bg-white shadow-xl rounded-2xl border-2 border-thistle overflow-hidden animate-fade-in">
-
-            <div class="md:grid md:grid-cols-3">
-
-                <section
-                    class="bg-ash-gray/10 p-6 md:col-span-1 flex flex-col items-center border-b md:border-b-0 md:border-r border-thistle gap-4">
-
-                    <div class="relative w-48 h-72 shadow-lg rounded-lg overflow-hidden bg-white group">
-
-                        <img :src="previewCover || form.coverUrl || '/images/cover_placeholder.png'"
-                            class="w-full h-full object-cover transition duration-300 group-hover:opacity-50"
-                            alt="anteprima copertina" />
-
-                        <div
-                            class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 gap-2">
-                            <label
-                                class="cursor-pointer bg-zomp text-white px-3 py-1 rounded-full text-xs font-bold shadow hover:scale-105 transition">
-                                <i class="fa-solid fa-upload mr-1"></i> Carica
-                                <input type="file" accept="image/*" class="hidden" @change="handleFileUpload">
-                            </label>
-
-                            <button @click="openDefaultCovers"
-                                class="bg-paynes-gray text-white px-3 py-1 rounded-full text-xs font-bold shadow hover:scale-105 transition">
-                                <i class="fa-solid fa-image mr-1"></i> Default
-                            </button>
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-paynes-gray opacity-70 text-center px-4">
-                        formati supportati: jpg, png. max 2mb.
-                    </p>
-
-                    <div class="w-full mt-2">
-                        <label class="block text-xs font-bold text-paynes-gray uppercase mb-1 ml-1">Stato</label>
-                        <select v-model="form.status"
-                            class="w-full p-2 rounded-lg border border-thistle bg-white focus:outline-none focus:ring-2 focus:ring-zomp text-sm">
-                            <option value="available">Disponibile</option>
-                            <option value="loaned">In Prestito</option>
-                            <option value="maintenance">Non Disponibile</option>
-                        </select>
-                    </div>
-                </section>
-
-                <section class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
-
-                    <header class="border-b border-thistle pb-4">
-                        <h2 class="text-2xl font-display text-paynes-gray opacity-60">{{ form.title }}</h2>
-                        <p class="text-sm text-paynes-gray/60">Modifica i dettagli della tua copia</p>
-                    </header>
-
-                    <div class="space-y-4">
-
-                        <div>
-                            <label class="block text-xs font-bold text-paynes-gray uppercase mb-1">Condizioni</label>
-                            <select v-model="form.condition"
-                                class="w-full p-2 rounded-lg border border-thistle bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zomp transition">
-                                <option value="nuovo">Nuovo / Come Nuovo</option>
-                                <option value="ottime">Ottime Condizioni</option>
-                                <option value="buone">Buone Condizioni</option>
-                                <option value="accettabili">Accettabili / Rovinato</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-paynes-gray uppercase mb-1">Tags (premi
-                                invio)</label>
-                            <div
-                                class="flex flex-wrap gap-2 p-2 border border-thistle rounded-lg bg-white min-h-[42px]">
-                                <span v-for="(tag, idx) in form.tags" :key="idx"
-                                    class="bg-ash-gray/30 text-paynes-gray text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                                    #{{ tag }}
-                                    <button @click="removeTag(idx)" class="hover:text-red-500"><i
-                                            class="fa-solid fa-xmark"></i></button>
-                                </span>
-                                <input v-model="newTag" @keydown.enter.prevent="addTag" placeholder="aggiungi tag..."
-                                    class="flex-grow bg-transparent outline-none text-sm min-w-[80px]">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-paynes-gray uppercase mb-1">Note
-                                Personali</label>
-                            <div class="relative">
-                                <i class="fa-solid fa-pen absolute top-3 left-3 text-gray-400 text-xs"></i>
-                                <textarea v-model="form.ownerNotes" rows="4"
-                                    class="w-full pl-8 p-2 rounded-lg border border-thistle bg-yellow-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zomp text-sm transition"
-                                    placeholder="Scrivi qui eventuali note sulla tua copia (es. dedica, pagine piegate)..."></textarea>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="pt-4 border-t border-thistle flex justify-end gap-3">
-                        <button @click="saveChanges" :disabled="isSaving"
-                            class="bg-zomp text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-opacity-90 transition flex items-center gap-2 disabled:opacity-50">
-                            <span v-if="isSaving"><i class="fa-solid fa-circle-notch fa-spin"></i> Salvataggio...</span>
-                            <span v-else><i class="fa-solid fa-floppy-disk"></i> Salva Modifiche</span>
-                        </button>
-                    </div>
-
-                </section>
-            </div>
-        </article>
-
-        <div v-if="showDefaultsModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in"
-            @click.self="showDefaultsModal = false">
-            <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
-                <h3 class="font-display text-xl text-paynes-gray mb-4">Scegli copertina default</h3>
-
-                <div class="grid grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-2">
-                    <button v-for="(cover, idx) in DEFAULT_COVERS" :key="idx" @click="selectDefault(cover)"
-                        class="rounded-lg overflow-hidden border-2 border-transparent hover:border-zomp transition focus:outline-none focus:ring-2 focus:ring-zomp">
-                        <img :src="cover" class="w-full h-auto object-cover aspect-[2/3]">
-                    </button>
-                </div>
-
-                <button @click="resetToBookCover"
-                    class="w-full mt-4 py-2 border border-dashed border-gray-400 text-gray-500 rounded hover:bg-gray-50 text-sm">
-                    Usa copertina originale del libro
+    <main class="max-w-4xl mx-auto p-6 space-y-10 relative">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="font-display text-2xl text-paynes-gray">modifica copia</h1>
+            <div class="flex gap-4">
+                <button @click="goBack" class="px-4 py-2 text-sm font-bold text-paynes-gray hover:text-zomp transition">
+                    annulla
+                </button>
+                <button @click="saveChanges" :disabled="isSaving"
+                    class="bg-zomp text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:opacity-90 transition disabled:opacity-50">
+                    <span v-if="isSaving font-bold text-xs uppercase tracking-widest">salvataggio...</span>
+                    <span v-else>salva</span>
                 </button>
             </div>
         </div>
 
+        <div v-if="isLoading" class="text-center py-20">
+            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-paynes-gray"></i>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-10 animate-fade-in">
+            <section class="space-y-6 flex flex-col items-center">
+                <div class="relative w-full aspect-[2/3] shadow-2xl rounded-2xl overflow-hidden bg-ash-gray/10 group">
+                    <img :src="previewCover || form.coverUrl || '/images/cover_placeholder.png'"
+                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                        alt="anteprima" />
+                    
+                    <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-3">
+                        <label class="cursor-pointer bg-white text-paynes-gray px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-zomp hover:text-white transition">
+                            carica file
+                            <input type="file" accept="image/*" class="hidden" @change="handleFileUpload">
+                        </label>
+                        
+                        <button @click="startCamera" class="bg-white text-paynes-gray px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-zomp hover:text-white transition">
+                            scatta foto
+                        </button>
+
+                        <button @click="removeCurrentCover" class="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-red-600 transition">
+                            rimuovi
+                        </button>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-2">
+                    <label class="block text-[10px] font-black text-paynes-gray uppercase tracking-widest ml-1">stato prestito</label>
+                    <select v-model="form.status" class="w-full p-3 rounded-xl border border-thistle bg-white focus:ring-2 focus:ring-zomp outline-none text-sm">
+                        <option value="available">disponibile</option>
+                        <option value="loaned">in prestito</option>
+                        <option value="maintenance">non disponibile</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="md:col-span-2 space-y-8">
+                <div class="space-y-1">
+                    <h2 class="text-3xl font-display text-paynes-gray">{{ form.title }}</h2>
+                    <p class="text-sm opacity-60">gestisci i dettagli della tua copia fisica</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-paynes-gray uppercase tracking-widest mb-2">condizioni</label>
+                        <select v-model="form.condition" class="w-full p-4 rounded-xl border border-thistle bg-white focus:ring-2 focus:ring-zomp outline-none transition">
+                            <option value="nuovo">nuovo / come nuovo</option>
+                            <option value="ottime">ottime condizioni</option>
+                            <option value="buone">buone condizioni</option>
+                            <option value="accettabili">accettabili / rovinato</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-paynes-gray uppercase tracking-widest mb-2">tags</label>
+                        <div class="flex flex-wrap gap-2 p-3 border border-thistle rounded-xl bg-white min-h-[50px]">
+                            <span v-for="(tag, idx) in form.tags" :key="idx" class="bg-zomp/10 text-zomp text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2">
+                                {{ tag }}
+                                <button @click="removeTag(idx)" class="hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+                            </span>
+                            <input v-model="newTag" @keydown.enter.prevent="addTag" placeholder="aggiungi tag..." class="flex-grow bg-transparent outline-none text-sm p-1">
+                        </div>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <button v-for="tag in commonTags" :key="tag" @click="addSuggestedTag(tag)" class="text-[9px] font-bold uppercase border border-thistle px-2 py-1 rounded hover:bg-thistle transition">
+                                + {{ tag }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-paynes-gray uppercase tracking-widest mb-2">note personali</label>
+                        <textarea v-model="form.ownerNotes" rows="5" class="w-full p-4 rounded-xl border border-thistle bg-white focus:ring-2 focus:ring-zomp outline-none text-sm transition" placeholder="scrivi qui dettagli sulla tua copia..."></textarea>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div v-if="isCameraOpen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4">
+            <video ref="video" autoplay playsinline class="max-w-full max-h-[70vh] rounded-2xl shadow-2xl"></video>
+            <div class="mt-8 flex gap-6">
+                <button @click="captureImage" class="w-16 h-16 bg-white rounded-full border-4 border-zomp flex items-center justify-center shadow-xl">
+                    <i class="fa-solid fa-camera text-2xl text-zomp"></i>
+                </button>
+                <button @click="stopCamera" class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-xl">
+                    <i class="fa-solid fa-xmark text-2xl text-white"></i>
+                </button>
+            </div>
+            <canvas ref="canvas" class="hidden"></canvas>
+        </div>
     </main>
 </template>
 
@@ -159,34 +125,26 @@ const form = reactive({
     coverUrl: '',
 })
 
-// file handling states
+const commonTags = ['fantascienza', 'romanzo', 'classico', 'riferimento', 'thriller']
 const previewCover = ref(null)
 const selectedFile = ref(null)
 const useDefault = ref(false)
-
-// ui states
 const isLoading = ref(true)
 const isSaving = ref(false)
-const error = ref(null)
 const newTag = ref('')
-const showDefaultsModal = ref(false)
 
-// path alle immagini statiche nel public folder
-const DEFAULT_COVERS = [
-    '/images/cover_default_1.png',
-    '/images/cover_default_2.png',
-    '/images/cover_default_3.png',
-    '/images/cover_default_4.png'
-]
+// camera states
+const isCameraOpen = ref(false)
+const video = ref(null)
+const canvas = ref(null)
+const stream = ref(null)
 
 function goBack() { router.back() }
 
-// fetch dati copia
 async function loadData() {
     isLoading.value = true
     try {
         const data = await apiClient.get(`/books/${route.params.id}`)
-
         form.id = data.id
         form.title = data.title
         form.status = data.status || 'available'
@@ -194,76 +152,80 @@ async function loadData() {
         form.ownerNotes = data.ownerNotes || ''
         form.tags = data.tags || []
         form.coverUrl = data.coverUrl
-
     } catch (e) {
-        error.value = "errore caricamento dati"
-        console.error(e)
+        console.error("errore caricamento")
     } finally {
         isLoading.value = false
     }
 }
 
 function addTag() {
-    const val = newTag.value.trim()
-    if (val && !form.tags.includes(val)) {
-        form.tags.push(val)
-    }
+    const val = newTag.value.trim().toLowerCase()
+    if (val && !form.tags.includes(val)) form.tags.push(val)
     newTag.value = ''
 }
-function removeTag(idx) {
-    form.tags.splice(idx, 1)
+
+function addSuggestedTag(tag) {
+    if (!form.tags.includes(tag)) form.tags.push(tag)
 }
 
-function openDefaultCovers() { showDefaultsModal.value = true }
+function removeTag(idx) { form.tags.splice(idx, 1) }
 
-// gestisce upload da file system
+// rimpiazza immagine attuale o quella di google
+function removeCurrentCover() {
+    previewCover.value = '/images/cover_placeholder.png'
+    selectedFile.value = null
+    useDefault.value = true
+}
+
 function handleFileUpload(event) {
     const file = event.target.files[0]
     if (!file) return
-
-    if (file.size > 2 * 1024 * 1024) {
-        alert("file troppo grande (max 2mb)")
-        return
-    }
+    if (file.size > 2 * 1024 * 1024) return alert("max 2mb")
 
     selectedFile.value = file
     useDefault.value = false
-
     const reader = new FileReader()
     reader.onload = (e) => { previewCover.value = e.target.result }
     reader.readAsDataURL(file)
 }
 
-// gestisce selezione cover default
-// converte l'asset statico in un file blob per l'upload
-async function selectDefault(path) {
+// logica fotocamera
+async function startCamera() {
+    isCameraOpen.value = true
     try {
-        // fetch file from public folder
-        const response = await fetch(path)
-        const blob = await response.blob()
-        const file = new File([blob], "default_cover.png", { type: "image/png" })
-
-        selectedFile.value = file
-        previewCover.value = path
-        useDefault.value = false
-        showDefaultsModal.value = false
+        stream.value = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        video.value.srcObject = stream.value
     } catch (e) {
-        console.error("errore caricamento default", e)
+        alert("fotocamera non disponibile")
+        isCameraOpen.value = false
     }
 }
 
-// ripristina cover originale del libro
-// useDefault true dice al be di settare null su customCover
-function resetToBookCover() {
-    selectedFile.value = null
-    previewCover.value = null
-    useDefault.value = true
-    showDefaultsModal.value = false
+function stopCamera() {
+    if (stream.value) {
+        stream.value.getTracks().forEach(track => track.stop())
+    }
+    isCameraOpen.value = false
+}
+
+function captureImage() {
+    const context = canvas.value.getContext('2d')
+    canvas.value.width = video.value.videoWidth
+    canvas.value.height = video.value.videoHeight
+    context.drawImage(video.value, 0, 0)
+    
+    canvas.value.toBlob((blob) => {
+        const file = new File([blob], "photo_cover.jpg", { type: "image/jpeg" })
+        selectedFile.value = file
+        previewCover.value = URL.createObjectURL(blob)
+        useDefault.value = false
+        stopCamera()
+    }, 'image/jpeg', 0.8)
 }
 
 async function saveChanges() {
     isSaving.value = true
-
     try {
         const formData = new FormData()
         formData.append('status', form.status)
@@ -279,12 +241,9 @@ async function saveChanges() {
         await apiClient.put(`/copies/${form.id}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
-
         router.push(`/books/${form.id}`)
-
     } catch (e) {
         alert("errore salvataggio")
-        console.error(e)
     } finally {
         isSaving.value = false
     }
@@ -292,3 +251,7 @@ async function saveChanges() {
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.font-display { font-family: 'Mochiy Pop P One', cursive; }
+</style>

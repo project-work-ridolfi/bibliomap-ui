@@ -91,3 +91,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] fix switch light/dark
 - [ ] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
 2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
+- [ ] controlla condizioni
+- [ ] aggiungi icona occhio a libreria che porta a libraries/id
+- [ ] aggiungi icona occhio al libro
+- [ ] sidebar con tutte le librerie?
+- [ ] stats
