@@ -1,12 +1,12 @@
 <template>
-  <div class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main">
+  <div class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
     
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
         <h1 class="text-3xl font-display text-theme-main">
           ciao <span class="text-[var(--zomp)]">{{ userData?.username || "persona cara" }}</span>!
         </h1>
-        <p class="opacity-80 text-sm lowercase">ecco la panoramica della tua attivita</p>
+        <p class="opacity-80 text-sm lowercase">panoramica attivita</p>
       </div>
       <router-link to="/add-book" class="bg-[var(--zomp)] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition transform hover:scale-105 flex items-center gap-2">
         <i class="fa-solid fa-plus"></i> nuovo libro
@@ -17,7 +17,7 @@
       <div class="md:col-span-2 rounded-2xl shadow-md border border-[var(--thistle)] overflow-hidden bg-theme-primary">
         <div @click="toggleStats" class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group">
           <h3 class="text-lg font-bold text-theme-main flex items-center group-hover:text-[var(--zomp)] lowercase">
-            <i class="fa-solid fa-chart-pie mr-2 text-[var(--zomp)]"></i> riepilogo attivita
+            <i class="fa-solid fa-chart-pie mr-2 text-[var(--zomp)]"></i> riepilogo
           </h3>
           <i class="fa-solid fa-chevron-down transition-transform duration-300" :class="isStatsOpen ? 'rotate-180 text-[var(--zomp)]' : 'text-gray-400'"></i>
         </div>
@@ -32,34 +32,55 @@
 
       <div class="bg-theme-primary p-6 rounded-2xl shadow-md border border-[var(--thistle)] flex flex-col justify-between">
         <div>
-          <h3 class="text-lg font-bold text-theme-main mb-2 lowercase">visibilita mappa</h3>
+          <h3 class="text-lg font-bold text-theme-main mb-2 lowercase">mappa</h3>
           <div v-if="userData?.id" class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-[var(--zomp)] text-[var(--zomp)]">
               <i class="fa-solid fa-eye"></i>
             </div>
             <div>
               <p class="font-bold text-sm text-theme-main lowercase">profilo attivo</p>
-              <p class="text-xs opacity-70 lowercase">visibilita: {{ userData.visibility || "standard" }}</p>
+              <p class="text-xs opacity-70 lowercase">visibilita {{ userData.visibility || "standard" }}</p>
             </div>
           </div>
         </div>
         <router-link to="/profile" class="text-center text-sm text-[var(--zomp)] font-bold hover:underline border-t border-[var(--thistle)] pt-3 mt-4 lowercase">
-          gestisci privacy <i class="fa-solid fa-arrow-right ml-1"></i>
+          privacy <i class="fa-solid fa-arrow-right ml-1"></i>
         </router-link>
       </div>
     </div>
 
     <div v-if="pendingRequests.length > 0" class="bg-[var(--tea-rose)]/20 border-l-4 border-[var(--tea-rose)] p-4 rounded-r-xl">
       <h3 class="font-bold text-theme-main mb-3 flex items-center lowercase">
-        <i class="fa-solid fa-bell mr-2 text-[var(--tea-rose)]"></i> richieste da gestire ({{ pendingRequests.length }})
+        <i class="fa-solid fa-bell mr-2 text-[var(--tea-rose)]"></i> nuove richieste ({{ pendingRequests.length }})
       </h3>
       <div class="space-y-2">
         <div v-for="req in pendingRequests" :key="req.id" class="flex justify-between items-center bg-theme-primary p-3 rounded-lg shadow-sm border border-[var(--thistle)]/50">
           <div class="text-sm">
-            <span class="font-bold text-theme-main">{{ req.requesterUsername }}</span> desidera <span class="italic text-[var(--zomp)]">{{ req.title }}</span>
+            <span class="font-bold text-theme-main">{{ req.requesterUsername }}</span> chiede <span class="italic text-[var(--zomp)]">{{ req.title }}</span>
           </div>
           <button @click="openManageModal(req)" class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition lowercase">
-            gestisci richiesta
+            gestisci
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="acceptedLoans.length > 0" class="bg-[var(--zomp)]/10 border-l-4 border-[var(--zomp)] p-4 rounded-r-xl space-y-3">
+      <h3 class="font-bold text-theme-main flex items-center lowercase">
+        <i class="fa-solid fa-handshake mr-2 text-[var(--zomp)]"></i> scambi da confermare ({{ acceptedLoans.length }})
+      </h3>
+      <div class="space-y-2">
+        <div v-for="loan in acceptedLoans" :key="loan.id" class="flex justify-between items-center bg-theme-primary p-3 rounded-lg shadow-sm border border-[var(--thistle)]/50">
+          <div class="text-sm">
+            <template v-if="loan.ownerId === userData?.id">
+              consegna <span class="italic font-bold">{{ loan.title }}</span> a <span class="text-[var(--zomp)]">{{ loan.requesterUsername }}</span>
+            </template>
+            <template v-else>
+              ricevi <span class="italic font-bold">{{ loan.title }}</span> da <span class="text-[var(--zomp)]">{{ loan.ownerUsername }}</span>
+            </template>
+          </div>
+          <button @click="confirmExchange(loan.id)" class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg text-[10px] font-bold hover:opacity-90 transition lowercase">
+            conferma scambio
           </button>
         </div>
       </div>
@@ -69,10 +90,10 @@
 
     <div>
       <div class="flex justify-between items-end mb-6">
-        <h2 class="text-2xl font-display text-theme-main lowercase">le tue librerie</h2>
+        <h2 class="text-2xl font-display text-theme-main lowercase">librerie</h2>
         <div class="flex gap-4">
-          <router-link to="/create-library" class="text-sm text-[var(--zomp)] font-bold hover:underline lowercase">crea nuova</router-link>
-          <router-link to="/libraries" class="text-sm text-[var(--paynes-gray)] font-bold hover:underline lowercase">gestisci tutte</router-link>
+          <router-link to="/create-library" class="text-sm text-[var(--zomp)] font-bold hover:underline lowercase">crea</router-link>
+          <router-link to="/libraries" class="text-sm text-[var(--paynes-gray)] font-bold hover:underline lowercase">tutte</router-link>
         </div>
       </div>
       <div v-if="isLoadingLibs" class="text-center py-10 opacity-60">
@@ -83,29 +104,33 @@
       </div>
     </div>
 
-    <AppModal :is-open="isManageModalOpen" title="gestione richiesta prestito" @close="isManageModalOpen = false">
-      <div class="p-6 space-y-6 font-sans">
+    <AppModal :is-open="isManageModalOpen" title="gestione richiesta" @close="isManageModalOpen = false">
+      <div class="p-6 space-y-6">
         <div class="flex gap-4">
-          <button @click="modalForm.action = 'ACCEPT'" :class="modalForm.action === 'ACCEPT' ? 'bg-[var(--zomp)] text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase">accetta</button>
-          <button @click="modalForm.action = 'REJECT'" :class="modalForm.action === 'REJECT' ? 'bg-red-500 text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase">rifiuta</button>
+          <button @click="modalForm.action = 'ACCEPT'" :class="modalForm.action === 'ACCEPT' ? 'bg-[var(--zomp)] text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase shadow-sm">accetta</button>
+          <button @click="modalForm.action = 'REJECT'" :class="modalForm.action === 'REJECT' ? 'bg-red-500 text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase shadow-sm">rifiuta</button>
         </div>
 
         <div class="space-y-2">
-          <label class="text-xs font-bold uppercase opacity-60">messaggio per il richiedente</label>
-          <textarea v-model="modalForm.notes" class="w-full p-3 border border-[var(--thistle)] rounded-xl focus:ring-2 focus:ring-[var(--zomp)] outline-none transition" rows="3" placeholder="scrivi qui eventuali note o accordi..."></textarea>
+          <label class="text-[10px] font-black uppercase opacity-40 tracking-widest">messaggio</label>
+          <textarea v-model="modalForm.notes" class="w-full p-3 border border-[var(--thistle)] rounded-xl focus:ring-2 focus:ring-[var(--zomp)] outline-none transition text-sm" rows="3" placeholder="scrivi un messaggio..."></textarea>
         </div>
 
         <div v-if="modalForm.action === 'ACCEPT'" class="space-y-4 animate-fade-in">
-          <label class="text-xs font-bold uppercase opacity-60">disponibilita per lo scambio</label>
+          <label class="text-[10px] font-black uppercase opacity-40 tracking-widest">disponibilita</label>
           <div class="flex flex-wrap gap-2">
-            <button v-for="day in days" :key="day" @click="toggleDay(day)" :class="modalForm.selectedDays.includes(day) ? 'bg-[var(--tea-rose)] text-theme-main border-[var(--tea-rose)]' : 'border-gray-200'" class="px-3 py-1 border rounded-full text-xs font-bold transition lowercase">{{ day }}</button>
+            <button v-for="day in days" :key="day" @click="toggleDay(day)" :class="modalForm.selectedDays.includes(day) ? 'bg-[var(--tea-rose)] text-theme-main border-[var(--tea-rose)]' : 'border-gray-200'" class="px-3 py-1 border rounded-full text-[10px] font-bold transition lowercase">{{ day }}</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <button v-for="slot in timeSlots" :key="slot" @click="toggleSlot(slot)" :class="modalForm.selectedSlots.includes(slot) ? 'bg-[var(--tea-rose)] text-theme-main border-[var(--tea-rose)]' : 'border-gray-200'" class="p-2 border rounded-lg text-[10px] font-bold transition lowercase">{{ slot }}</button>
+            <button v-for="slot in timeSlots" :key="slot" @click="toggleSlot(slot)" :class="modalForm.selectedSlots.includes(slot) ? 'bg-[var(--tea-rose)] text-theme-main border-[var(--tea-rose)]' : 'border-gray-200'" class="p-2 border rounded-lg text-[10px] font-bold transition lowercase text-left">{{ slot }}</button>
           </div>
         </div>
 
-        <button @click="submitLoanManagement" :disabled="!modalForm.action" class="w-full bg-theme-main text-white py-4 rounded-xl font-bold hover:opacity-90 disabled:opacity-30 transition lowercase">conferma decisione</button>
+        <div class="pt-4 border-t border-thistle">
+          <button @click="submitLoanManagement" :disabled="!modalForm.action" class="w-full bg-[var(--paynes-gray)] text-white py-4 rounded-xl font-bold hover:opacity-90 disabled:opacity-30 transition shadow-lg lowercase">
+            invia risposta
+          </button>
+        </div>
       </div>
     </AppModal>
   </div>
@@ -117,23 +142,24 @@ import { apiClient } from "@/services/apiClient"
 import LibraryAccordion from "@/components/LibraryAccordion.vue"
 import AppModal from "@/components/AppModal.vue"
 
-// variabili stato
+// stato dashboard
 const userData = ref(null)
 const isLoadingLibs = ref(true)
 const libraries = ref([])
 const pendingRequests = ref([])
+const acceptedLoans = ref([])
 const activeLoansCount = ref(0)
 const isStatsOpen = ref(false)
 
-// stato modale gestione
+// stato modale
 const isManageModalOpen = ref(false)
 const selectedRequest = ref(null)
 const modalForm = reactive({ action: '', notes: '', selectedDays: [], selectedSlots: [] })
 
 const days = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom']
-const timeSlots = ['mattina 08-12', 'pausa pranzo 12-14', 'pomeriggio 14-18', 'sera 18-20']
+const timeSlots = ['mattina 08-12', 'pranzo 12-14', 'pomeriggio 14-18', 'sera 18-20']
 
-// calcolo statistiche dashboard
+// calcolo statistiche
 const quickStats = computed(() => ({
   totalBooks: libraries.value.reduce((acc, lib) => acc + (lib.bookCount || 0), 0),
   activeLoans: activeLoansCount.value,
@@ -142,17 +168,24 @@ const quickStats = computed(() => ({
 
 const statCards = computed(() => [
   { label: 'libri', value: quickStats.value.totalBooks, color: 'text-theme-main' },
-  { label: 'in prestito', value: quickStats.value.activeLoans, color: 'text-[var(--zomp)]' },
+  { label: 'prestiti', value: quickStats.value.activeLoans, color: 'text-[var(--zomp)]' },
   { label: 'richieste', value: quickStats.value.pendingRequests, color: 'text-[var(--tea-rose)]' }
 ])
 
-// caricamento iniziale dati
+// caricamento dati
 onMounted(async () => {
-  await Promise.all([fetchUserMe(), fetchLibraries(), fetchIncomingRequests(), fetchActiveLoans()])
+  await Promise.all([
+    fetchUserMe(), 
+    fetchLibraries(), 
+    fetchIncomingRequests(), 
+    fetchActiveLoans(),
+    fetchAcceptedLoans()
+  ])
 })
 
-// funzioni recupero dati api
-async function fetchUserMe() { try { userData.value = await apiClient.get("/users/me") } catch (e) {}}
+// chiamate api
+async function fetchUserMe() { try { userData.value = await apiClient.get("/users/me") } catch (e) {} }
+
 async function fetchLibraries() {
   isLoadingLibs.value = true
   try {
@@ -160,47 +193,65 @@ async function fetchLibraries() {
     libraries.value = res.libraries.map(l => ({ ...l, isOpen: false, books: [], isLoadingBooks: false, bookCount: l.count || 0 }))
   } finally { isLoadingLibs.value = false }
 }
-async function fetchIncomingRequests() { try { pendingRequests.value = await apiClient.get("/loan/requests/incoming") || [] } catch (e) {}}
-async function fetchActiveLoans() { try { const res = await apiClient.get("/loan/active"); activeLoansCount.value = res.length || 0 } catch (e) {}}
 
-// logica apertura modale gestione
+async function fetchIncomingRequests() { 
+  try { pendingRequests.value = await apiClient.get("/loan/requests/incoming") || [] } catch (e) {} 
+}
+
+async function fetchActiveLoans() { 
+  try { 
+    const res = await apiClient.get("/loan/active")
+    activeLoansCount.value = res.length || 0 
+  } catch (e) {} 
+}
+
+async function fetchAcceptedLoans() {
+  try {
+    const all = await apiClient.get("/loan/all")
+    // filtriamo per stato accepted per gestire lo scambio fisico
+    acceptedLoans.value = all.filter(l => l.status === 'ACCEPTED')
+  } catch (e) {}
+}
+
+// gestione azione richiesta
 function openManageModal(req) {
   selectedRequest.value = req
-  modalForm.action = ''
-  modalForm.notes = ''
-  modalForm.selectedDays = []
-  modalForm.selectedSlots = []
+  Object.assign(modalForm, { action: '', notes: '', selectedDays: [], selectedSlots: [] })
   isManageModalOpen.value = true
 }
 
-// selezione giorni e orari
 function toggleDay(day) {
   const index = modalForm.selectedDays.indexOf(day)
   index === -1 ? modalForm.selectedDays.push(day) : modalForm.selectedDays.splice(index, 1)
 }
+
 function toggleSlot(slot) {
   const index = modalForm.selectedSlots.indexOf(slot)
   index === -1 ? modalForm.selectedSlots.push(slot) : modalForm.selectedSlots.splice(index, 1)
 }
 
-// invio gestione prestito al server
 async function submitLoanManagement() {
   try {
-    const availabilityStr = `giorni: ${modalForm.selectedDays.join(', ')} | orari: ${modalForm.selectedSlots.join(', ')}`
-    const finalNotes = modalForm.notes + (modalForm.selectedDays.length ? `\n\ndisponibilita: ${availabilityStr}` : '')
-    
     await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, {
       action: modalForm.action,
-      notes: finalNotes
+      notes: modalForm.notes,
+      days: modalForm.selectedDays.join(', '),
+      slots: modalForm.selectedSlots.join(', ')
     })
-    
-    pendingRequests.value = pendingRequests.value.filter(r => r.id !== selectedRequest.value.id)
-    if (modalForm.action === 'ACCEPT') await fetchActiveLoans()
+    await Promise.all([fetchIncomingRequests(), fetchAcceptedLoans()])
     isManageModalOpen.value = false
   } catch (e) {}
 }
 
-// logica librerie accordion
+// conferma scambio avvenuto
+async function confirmExchange(loanId) {
+  try {
+    await apiClient.post(`/loan/${loanId}/start`)
+    await Promise.all([fetchAcceptedLoans(), fetchActiveLoans()])
+  } catch (e) {}
+}
+
+// accordion
 async function toggleLibrary(libId) {
   const lib = libraries.value.find(l => l.id === libId)
   if (!lib) return
