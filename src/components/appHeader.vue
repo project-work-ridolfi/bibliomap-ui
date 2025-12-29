@@ -1,9 +1,9 @@
 <template>
-  <header class="bg-theme-primary sticky top-0 z-40 transition-colors duration-300 border-b border-thistle">
+  <header class="bg-theme-primary sticky top-0 z-40 border-b border-thistle">
     <div class="max-w-7xl mx-auto px-4 py-4">
       <div class="flex items-center justify-between h-auto">
         <div class="flex items-center space-x-3">
-          <button @click="emit('toggle-sidebar')" class="header-icon" aria-label="apri menu laterale" title="Menu">
+          <button @click="emit('toggle-sidebar')" class="header-icon" title="Menu">
             <VueFeather type="menu" size="24"></VueFeather>
           </button>
         </div>
@@ -14,24 +14,33 @@
         </router-link>
 
         <div class="flex items-center space-x-3">
-          <button @click="toggleTheme" class="header-icon" :aria-label="isDarkTheme ? 'modalità giorno' : 'modalità notte'" title="Cambia Tema">
+          <button @click="toggleTheme" class="header-icon" title="Cambia Tema">
             <VueFeather :type="isDarkTheme ? 'sun' : 'moon'" size="24"></VueFeather>
           </button>
 
           <template v-if="authStore.isAuthenticated">
             <div class="relative" v-click-outside="closeUserMenu">
-              <button @click="toggleUserMenu" class="header-icon" aria-label="menu utente" title="Profilo">
+              <button @click="toggleUserMenu" class="header-icon" title="Profilo">
                 <VueFeather type="user" size="24"></VueFeather>
               </button>
 
               <transition name="fade-slide">
                 <div v-if="isUserMenuOpen" class="user-dropdown">
+                  <div class="user-info-header">
+                    <span class="username-display">
+                      CIAO, {{ authStore.user?.username || authStore.username || 'utente' }}
+                    </span>
+                  </div>
+                  
+                  <div class="dropdown-divider"></div>
+
                   <router-link to="/profile" @click="closeUserMenu" class="dropdown-item">
-                    <VueFeather type="settings" size="16" class="mr-2"></VueFeather>
+                    <VueFeather type="settings" size="16" class="icon-margin"></VueFeather>
                     visualizza profilo
                   </router-link>
+                  
                   <button @click="handleLogout" class="dropdown-item text-red-500">
-                    <VueFeather type="log-out" size="16" class="mr-2"></VueFeather>
+                    <VueFeather type="log-out" size="16" class="icon-margin"></VueFeather>
                     logout
                   </button>
                 </div>
@@ -40,7 +49,7 @@
           </template>
 
           <template v-else>
-            <router-link to="/login" class="login-btn-header" aria-label="accedi" title="Accedi">
+            <router-link to="/login" class="login-btn-header">
               Accedi
             </router-link>
           </template>
@@ -62,32 +71,22 @@ const emit = defineEmits(["toggle-sidebar"])
 const isDarkTheme = ref(false)
 const isUserMenuOpen = ref(false)
 
-// gestione menu utente
-const toggleUserMenu = () => {
-  isUserMenuOpen.value = !isUserMenuOpen.value
-}
+const toggleUserMenu = () => { isUserMenuOpen.value = !isUserMenuOpen.value }
+const closeUserMenu = () => { isUserMenuOpen.value = false }
 
-const closeUserMenu = () => {
-  isUserMenuOpen.value = false
-}
-
-// gestione logout
 async function handleLogout() {
   closeUserMenu()
   await authStore.logout()
   router.push("/")
 }
 
-// tema
 const applyTheme = (isDark) => {
   isDarkTheme.value = isDark
   document.documentElement.classList.toggle("dark", isDark)
   localStorage.setItem("theme", isDark ? "dark" : "light")
 }
 
-const toggleTheme = () => {
-  applyTheme(!isDarkTheme.value)
-}
+const toggleTheme = () => applyTheme(!isDarkTheme.value)
 
 onMounted(() => {
   const savedTheme = localStorage.getItem("theme")
@@ -95,7 +94,6 @@ onMounted(() => {
   applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark))
 })
 
-// direttiva custom per cliccare fuori (v-click-outside)
 const vClickOutside = {
   mounted(el, binding) {
     el.clickOutsideEvent = (event) => {
@@ -128,27 +126,46 @@ const vClickOutside = {
 
 .user-dropdown {
   position: absolute;
-  top: 120%;
+  top: calc(100% + 10px);
   right: 0;
-  width: 200px;
+  width: 220px;
   background-color: var(--bg-primary);
   border: 2px solid var(--thistle);
   border-radius: 1rem;
   padding: 0.5rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  z-index: 50;
+  z-index: 100;
+}
+
+.user-info-header {
+  padding: 0.8rem 1rem 0.6rem 1rem;
+}
+
+.username-display {
+  color: var(--zomp);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dropdown-divider {
+  height: 2px;
+  background-color: var(--thistle);
+  margin: 0.25rem 0.75rem 0.75rem 0.75rem;
+  opacity: 0.5;
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--paynes-gray);
-  border-radius: 0.5rem;
+  border-radius: 0.6rem;
   transition: background-color 0.2s;
   text-decoration: none;
   border: none;
@@ -157,7 +174,11 @@ const vClickOutside = {
 }
 
 .dropdown-item:hover {
-  background-color: rgba(152, 182, 177, 0.1); /* ash-gray trasparente */
+  background-color: rgba(152, 182, 177, 0.1);
+}
+
+.icon-margin {
+  margin-right: 0.85rem;
 }
 
 .login-btn-header {
@@ -181,7 +202,7 @@ const vClickOutside = {
 .header-title-main {
   font-family: "Mochiy Pop P One", cursive;
   font-size: min(3.5em, 5vw);
-  line-height: 1;
+  margin: 0;
 }
 
 .header-subtitle-main {
@@ -190,7 +211,6 @@ const vClickOutside = {
   margin-top: 5px;
 }
 
-/* animazione menu */
 .fade-slide-enter-active, .fade-slide-leave-active {
   transition: all 0.2s ease;
 }
