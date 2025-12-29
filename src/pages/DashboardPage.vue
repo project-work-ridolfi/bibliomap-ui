@@ -1,9 +1,26 @@
 <template>
   <div class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
     
+    <div v-if="overdueLoans.length > 0" class="bg-red-100 border-2 border-red-500 p-6 rounded-2xl animate-pulse">
+      <h3 class="text-red-700 font-black flex items-center gap-2 uppercase tracking-tighter">
+        <i class="fa-solid fa-triangle-exclamation"></i> attenzione: prestiti scaduti!
+      </h3>
+      <div class="mt-4 space-y-3">
+        <div v-for="loan in overdueLoans" :key="loan.id" class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/50 p-4 rounded-xl border border-red-200">
+          <div>
+            <p class="text-sm font-bold text-red-800 lowercase">devi restituire: {{ loan.title }}</p>
+            <p class="text-xs text-red-600 lowercase">scaduto il: {{ formatDate(loan.expectedReturnDate) }}</p>
+          </div>
+          <button @click="contactOwner(loan)" class="mt-3 md:mt-0 bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-700 transition lowercase">
+            contatta proprietario
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
-        <h1 class="text-3xl font-display text-theme-main">
+        <h1 class="text-3xl font-display text-theme-main lowercase">
           ciao <span class="text-[var(--zomp)]">{{ userData?.username || "persona cara" }}</span>!
         </h1>
         <p class="opacity-80 text-sm lowercase">panoramica attivita</p>
@@ -21,11 +38,10 @@
           </h3>
           <i class="fa-solid fa-chevron-down transition-transform duration-300" :class="isStatsOpen ? 'rotate-180 text-[var(--zomp)]' : 'text-gray-400'"></i>
         </div>
-
         <div v-if="!isStatsOpen" class="px-6 pb-6 grid grid-cols-3 gap-4 text-center">
           <div v-for="stat in statCards" :key="stat.label" class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--thistle)]/30">
             <div class="text-2xl font-display" :class="stat.color">{{ stat.value }}</div>
-            <div class="text-xs opacity-70 uppercase font-bold tracking-wider">{{ stat.label }}</div>
+            <div class="text-xs opacity-70 font-bold tracking-wider lowercase">{{ stat.label }}</div>
           </div>
         </div>
       </div>
@@ -56,7 +72,7 @@
       <div class="space-y-2">
         <div v-for="req in pendingRequests" :key="req.id" class="flex justify-between items-center bg-theme-primary p-3 rounded-lg shadow-sm border border-[var(--thistle)]/50">
           <div class="text-sm">
-            <span class="font-bold text-theme-main">{{ req.requesterUsername }}</span> chiede <span class="italic text-[var(--zomp)]">{{ req.title }}</span>
+            <span class="font-bold text-theme-main lowercase">{{ req.requesterUsername }}</span> chiede <span class="italic text-[var(--zomp)]">{{ req.title }}</span>
           </div>
           <button @click="openManageModal(req)" class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition lowercase">
             gestisci
@@ -88,6 +104,51 @@
 
     <hr class="border-[var(--thistle)]" />
 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="space-y-4">
+        <h3 class="text-xl font-display text-theme-main lowercase border-b border-[var(--thistle)] pb-2">
+          libri in lettura
+        </h3>
+        <div v-if="borrowedBooks.length === 0" class="text-xs opacity-50 italic lowercase">nessun libro ricevuto</div>
+        <div v-for="loan in borrowedBooks" :key="loan.id" class="bg-theme-primary p-4 rounded-xl shadow-sm border border-[var(--thistle)]/30">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-bold text-[var(--zomp)]">{{ loan.title }}</h4>
+              <p class="text-[10px] opacity-60 lowercase">da: {{ loan.ownerUsername }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[9px] uppercase font-black opacity-30">scadenza</p>
+              <p class="text-sm font-mono" :class="isOverdue(loan.expectedReturnDate) ? 'text-red-500 font-bold' : ''">
+                {{ formatDate(loan.expectedReturnDate) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-xl font-display text-theme-main lowercase border-b border-[var(--thistle)] pb-2">
+          libri prestati
+        </h3>
+        <div v-if="lentBooks.length === 0" class="text-xs opacity-50 italic lowercase">nessun libro prestato</div>
+        <div v-for="loan in lentBooks" :key="loan.id" class="bg-theme-primary p-4 rounded-xl shadow-sm border border-[var(--thistle)]/30">
+          <div class="flex justify-between items-start">
+            <div class="flex-grow">
+              <h4 class="font-bold text-[var(--paynes-gray)]">{{ loan.title }}</h4>
+              <p class="text-[10px] opacity-60 lowercase">a: {{ loan.requesterUsername }}</p>
+              <button @click="returnBook(loan.id)" class="mt-2 text-[10px] font-bold text-[var(--zomp)] border border-[var(--zomp)] px-2 py-1 rounded hover:bg-[var(--zomp)] hover:text-white transition lowercase">
+                segnala come restituito
+              </button>
+            </div>
+            <div class="text-right ml-4">
+              <p class="text-[9px] uppercase font-black opacity-30">rientro</p>
+              <p class="text-sm font-mono lowercase">{{ formatDate(loan.expectedReturnDate) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div>
       <div class="flex justify-between items-end mb-6">
         <h2 class="text-2xl font-display text-theme-main lowercase">librerie</h2>
@@ -107,25 +168,22 @@
     <AppModal :is-open="isManageModalOpen" title="gestione richiesta" @close="isManageModalOpen = false">
       <div class="p-6 space-y-6">
         <div class="flex gap-4">
-          <button @click="modalForm.action = 'ACCEPT'" :class="modalForm.action === 'ACCEPT' ? 'bg-[var(--zomp)] text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase shadow-sm">accetta</button>
-          <button @click="modalForm.action = 'REJECT'" :class="modalForm.action === 'REJECT' ? 'bg-red-500 text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase shadow-sm">rifiuta</button>
+          <button @click="modalForm.action = 'ACCEPT'" :class="modalForm.action === 'ACCEPT' ? 'bg-[var(--zomp)] text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase">accetta</button>
+          <button @click="modalForm.action = 'REJECT'" :class="modalForm.action === 'REJECT' ? 'bg-red-500 text-white' : 'bg-gray-100'" class="flex-1 py-3 rounded-xl font-bold transition lowercase">rifiuta</button>
         </div>
-
         <div class="space-y-2">
-          <label class="text-[10px] font-black uppercase opacity-40 tracking-widest">messaggio</label>
-          <textarea v-model="modalForm.notes" class="w-full p-3 border border-[var(--thistle)] rounded-xl focus:ring-2 focus:ring-[var(--zomp)] outline-none transition text-sm" rows="3" placeholder="scrivi un messaggio..."></textarea>
+          <label class="text-[10px] font-black uppercase opacity-40">messaggio</label>
+          <textarea v-model="modalForm.notes" class="w-full p-3 border border-[var(--thistle)] rounded-xl outline-none text-sm" rows="3" placeholder="scrivi un messaggio"></textarea>
         </div>
-
-        <div v-if="modalForm.action === 'ACCEPT'" class="space-y-4 animate-fade-in">
-          <label class="text-[10px] font-black uppercase opacity-40 tracking-widest">disponibilita</label>
+        <div v-if="modalForm.action === 'ACCEPT'" class="space-y-4">
+          <label class="text-[10px] font-black uppercase opacity-40">disponibilita</label>
           <div class="flex flex-wrap gap-2">
-            <button v-for="day in days" :key="day" @click="toggleDay(day)" :class="modalForm.selectedDays.includes(day) ? 'bg-[var(--tea-rose)] text-theme-main border-[var(--tea-rose)]' : 'border-gray-200'" class="px-3 py-1 border rounded-full text-[10px] font-bold transition lowercase">{{ day }}</button>
+            <button v-for="day in days" :key="day" @click="toggleDay(day)" :class="modalForm.selectedDays.includes(day) ? 'bg-[var(--tea-rose)] text-theme-main' : 'border-gray-200'" class="px-3 py-1 border rounded-full text-[10px] font-bold lowercase">{{ day }}</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <button v-for="slot in timeSlots" :key="slot" @click="toggleSlot(slot)" :class="modalForm.selectedSlots.includes(slot) ? 'bg-[var(--tea-rose)] text-theme-main border-[var(--tea-rose)]' : 'border-gray-200'" class="p-2 border rounded-lg text-[10px] font-bold transition lowercase text-left">{{ slot }}</button>
+            <button v-for="slot in timeSlots" :key="slot" @click="toggleSlot(slot)" :class="modalForm.selectedSlots.includes(slot) ? 'bg-[var(--tea-rose)] text-theme-main' : 'border-gray-200'" class="p-2 border rounded-lg text-[10px] font-bold lowercase text-left">{{ slot }}</button>
           </div>
         </div>
-
         <div class="pt-4 border-t border-thistle">
           <button @click="submitLoanManagement" :disabled="!modalForm.action" class="w-full bg-[var(--paynes-gray)] text-white py-4 rounded-xl font-bold hover:opacity-90 disabled:opacity-30 transition shadow-lg lowercase">
             invia risposta
@@ -142,16 +200,17 @@ import { apiClient } from "@/services/apiClient"
 import LibraryAccordion from "@/components/LibraryAccordion.vue"
 import AppModal from "@/components/AppModal.vue"
 
-// stato dashboard
+// stato
 const userData = ref(null)
 const isLoadingLibs = ref(true)
 const libraries = ref([])
 const pendingRequests = ref([])
 const acceptedLoans = ref([])
+const activeLoans = ref([])
 const activeLoansCount = ref(0)
 const isStatsOpen = ref(false)
 
-// stato modale
+// modale
 const isManageModalOpen = ref(false)
 const selectedRequest = ref(null)
 const modalForm = reactive({ action: '', notes: '', selectedDays: [], selectedSlots: [] })
@@ -159,33 +218,39 @@ const modalForm = reactive({ action: '', notes: '', selectedDays: [], selectedSl
 const days = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom']
 const timeSlots = ['mattina 08-12', 'pranzo 12-14', 'pomeriggio 14-18', 'sera 18-20']
 
-// calcolo statistiche
+// calcolati
+const borrowedBooks = computed(() => 
+  activeLoans.value.filter(l => l.requesterId === userData.value?.id && l.status === 'ON_LOAN')
+)
+const lentBooks = computed(() => 
+  activeLoans.value.filter(l => l.ownerId === userData.value?.id && l.status === 'ON_LOAN')
+)
+const overdueLoans = computed(() => 
+  borrowedBooks.value.filter(l => isOverdue(l.expectedReturnDate))
+)
 const quickStats = computed(() => ({
   totalBooks: libraries.value.reduce((acc, lib) => acc + (lib.bookCount || 0), 0),
   activeLoans: activeLoansCount.value,
   pendingRequests: pendingRequests.value.length
 }))
-
 const statCards = computed(() => [
   { label: 'libri', value: quickStats.value.totalBooks, color: 'text-theme-main' },
   { label: 'prestiti', value: quickStats.value.activeLoans, color: 'text-[var(--zomp)]' },
   { label: 'richieste', value: quickStats.value.pendingRequests, color: 'text-[var(--tea-rose)]' }
 ])
 
-// caricamento dati
+// avvio
 onMounted(async () => {
-  await Promise.all([
-    fetchUserMe(), 
-    fetchLibraries(), 
-    fetchIncomingRequests(), 
-    fetchActiveLoans(),
-    fetchAcceptedLoans()
-  ])
+  await Promise.all([fetchUserMe(), fetchLibraries(), fetchIncomingRequests(), fetchActiveLoans(), fetchAcceptedLoans()])
 })
 
-// chiamate api
-async function fetchUserMe() { try { userData.value = await apiClient.get("/users/me") } catch (e) {} }
+// utility
+const isOverdue = (d) => d ? new Date(d) < new Date() : false
+const formatDate = (d) => d ? new Date(d).toLocaleDateString('it-IT') : '-'
+const toggleStats = () => (isStatsOpen.value = !isStatsOpen.value)
 
+// api
+async function fetchUserMe() { try { userData.value = await apiClient.get("/users/me") } catch (e) {} }
 async function fetchLibraries() {
   isLoadingLibs.value = true
   try {
@@ -193,85 +258,39 @@ async function fetchLibraries() {
     libraries.value = res.libraries.map(l => ({ ...l, isOpen: false, books: [], isLoadingBooks: false, bookCount: l.count || 0 }))
   } finally { isLoadingLibs.value = false }
 }
+async function fetchIncomingRequests() { try { pendingRequests.value = await apiClient.get("/loan/requests/incoming") || [] } catch (e) {} }
+async function fetchActiveLoans() { try { activeLoans.value = await apiClient.get("/loan/active") || []; activeLoansCount.value = activeLoans.value.length } catch (e) {} }
+async function fetchAcceptedLoans() { try { const all = await apiClient.get("/loan/all"); acceptedLoans.value = all.filter(l => l.status === 'ACCEPTED') } catch (e) {} }
 
-async function fetchIncomingRequests() { 
-  try { pendingRequests.value = await apiClient.get("/loan/requests/incoming") || [] } catch (e) {} 
-}
-
-async function fetchActiveLoans() { 
-  try { 
-    const res = await apiClient.get("/loan/active")
-    activeLoansCount.value = res.length || 0 
-  } catch (e) {} 
-}
-
-async function fetchAcceptedLoans() {
-  try {
-    const all = await apiClient.get("/loan/all")
-    // filtriamo per stato accepted per gestire lo scambio fisico
-    acceptedLoans.value = all.filter(l => l.status === 'ACCEPTED')
-  } catch (e) {}
-}
-
-// gestione azione richiesta
-function openManageModal(req) {
-  selectedRequest.value = req
-  Object.assign(modalForm, { action: '', notes: '', selectedDays: [], selectedSlots: [] })
-  isManageModalOpen.value = true
-}
-
-function toggleDay(day) {
-  const index = modalForm.selectedDays.indexOf(day)
-  index === -1 ? modalForm.selectedDays.push(day) : modalForm.selectedDays.splice(index, 1)
-}
-
-function toggleSlot(slot) {
-  const index = modalForm.selectedSlots.indexOf(slot)
-  index === -1 ? modalForm.selectedSlots.push(slot) : modalForm.selectedSlots.splice(index, 1)
-}
+// azioni
+function openManageModal(req) { selectedRequest.value = req; Object.assign(modalForm, { action: '', notes: '', selectedDays: [], selectedSlots: [] }); isManageModalOpen.value = true }
+function toggleDay(d) { const i = modalForm.selectedDays.indexOf(d); i === -1 ? modalForm.selectedDays.push(d) : modalForm.selectedDays.splice(i, 1) }
+function toggleSlot(s) { const i = modalForm.selectedSlots.indexOf(s); i === -1 ? modalForm.selectedSlots.push(s) : modalForm.selectedSlots.splice(i, 1) }
 
 async function submitLoanManagement() {
   try {
-    await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, {
-      action: modalForm.action,
-      notes: modalForm.notes,
-      days: modalForm.selectedDays.join(', '),
-      slots: modalForm.selectedSlots.join(', ')
-    })
+    await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, { action: modalForm.action, notes: modalForm.notes, days: modalForm.selectedDays.join(', '), slots: modalForm.selectedSlots.join(', ') })
     await Promise.all([fetchIncomingRequests(), fetchAcceptedLoans()])
     isManageModalOpen.value = false
   } catch (e) {}
 }
 
-// conferma scambio avvenuto
-async function confirmExchange(loanId) {
-  try {
-    await apiClient.post(`/loan/${loanId}/start`)
-    await Promise.all([fetchAcceptedLoans(), fetchActiveLoans()])
-  } catch (e) {}
+async function confirmExchange(id) {
+  try { await apiClient.post(`/loan/${id}/start`); await Promise.all([fetchAcceptedLoans(), fetchActiveLoans()]) } catch (e) {}
 }
 
-// accordion
-async function toggleLibrary(libId) {
-  const lib = libraries.value.find(l => l.id === libId)
-  if (!lib) return
-  lib.isOpen = !lib.isOpen
-  if (lib.isOpen && !lib.books.length) {
-    lib.isLoadingBooks = true
-    try {
-      const res = await apiClient.get(`/libraries/${libId}`)
-      lib.books = res.books || []
-      lib.bookCount = lib.books.length
-    } finally { lib.isLoadingBooks = false }
-  }
+async function returnBook(id) {
+  try { await apiClient.post(`/loan/${id}/return`, { condition: 'buono' }); await fetchActiveLoans() } catch (e) {}
 }
 
-async function moveBook({ bookId, toLibraryId }) {
-  try {
-    await apiClient.patch(`/books/${bookId}/move`, { libraryId: toLibraryId })
-    await fetchLibraries()
-  } catch (e) {}
+async function contactOwner(loan) {
+  try { await apiClient.post(`/loan/${loan.id}/contact`); alert('richiesta di contatto inviata al proprietario') } catch (e) { alert('errore invio contatto') }
 }
 
-const toggleStats = () => (isStatsOpen.value = !isStatsOpen.value)
+async function toggleLibrary(id) {
+  const lib = libraries.value.find(l => l.id === id); if (!lib) return; lib.isOpen = !lib.isOpen
+  if (lib.isOpen && !lib.books.length) { lib.isLoadingBooks = true; try { const res = await apiClient.get(`/libraries/${id}`); lib.books = res.books || []; lib.bookCount = lib.books.length } finally { lib.isLoadingBooks = false } }
+}
+
+async function moveBook({ bookId, toLibraryId }) { try { await apiClient.patch(`/books/${bookId}/move`, { libraryId: toLibraryId }); await fetchLibraries() } catch (e) {} }
 </script>
