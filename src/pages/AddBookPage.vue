@@ -357,7 +357,7 @@
           ><i class="fa-solid fa-circle-notch fa-spin mr-2"></i
           >salvataggio...</span
         >
-        <span v-else>salva libro e copia</span>
+        <span v-else>salva</span>
       </button>
     </div>
 

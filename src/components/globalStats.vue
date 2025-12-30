@@ -46,7 +46,9 @@
 import { ref, reactive, onMounted, computed, nextTick, onUnmounted } from 'vue';
 import { apiClient } from '@/services/apiClient';
 import Chart from 'chart.js/auto';
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const isOpen = ref(false);
 const isLoading = ref(false);
 const counters = reactive({ books: 0, copies: 0, loans: 0 });
@@ -126,14 +128,78 @@ function renderGlobalCharts() {
   }
 
   if (canvasPareto.value) {
-    charts.push(new Chart(canvasPareto.value, {
-      type: 'bar',
-      data: {
-        labels: fullData.value.paretoBooks.labels.slice(0, 5).map(t => t.length > 20 ? t.substring(0, 20) + '..' : t),
-        datasets: [{ data: fullData.value.paretoBooks.data.slice(0, 5), backgroundColor: '#629677', borderRadius: 4 }]
-      },
-      options
-    }));
+    const labelsRaw = fullData.value.paretoBooks.labels;
+
+    const displayLabels = labelsRaw.map((label) => {
+      const parts = label.split(":");
+      const title = parts[1] || parts[0];
+      return title.length > 15 ? title.substring(0, 15) + "..." : title;
+    });
+
+    charts.push(
+      new Chart(canvasPareto.value, {
+        type: "bar",
+        data: {
+          labels: displayLabels,
+          datasets: [
+            {
+              data: fullData.value.paretoBooks.data,
+              backgroundColor: "#629677",
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          ...options,
+          // Cambia il cursore quando passi sopra una barra o un'etichetta
+          onHover: (event, chartElement) => {
+            event.native.target.style.cursor = chartElement[0]
+              ? "pointer"
+              : "default";
+          },
+          scales: {
+            ...options.scales,
+            x: {
+              ticks: {
+                color: "#629677", // Colore che richiama i link del tema (Zomp)
+                font: {
+                  weight: "bold",
+                  size: 11,
+                },
+                // Funzione per gestire il click specifico sulle etichette (labels)
+                // Nota: Chart.js nativamente gestisce meglio il click sull'area,
+                // ma con onClick generale copriamo tutto.
+              },
+            },
+          },
+          onClick: (evt, elements) => {
+            // 1. Click sulle barre
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const copyId = labelsRaw[index].split(":")[0];
+              router.push(`/books/${copyId}`);
+            }
+            // 2. Controllo click sulle etichette dell'asse X
+            else {
+              const chart = chartInstances.find(
+                (c) => c.canvas === canvasPareto.value
+              );
+              const helpers = Chart.helpers;
+              const canvasPosition = helpers.getRelativePosition(evt, chart);
+
+              // Verifichiamo se il click è avvenuto nell'area delle scale X
+              if (canvasPosition.y > chart.chartArea.bottom) {
+                const index = chart.scales.x.getValueForPixel(canvasPosition.x);
+                if (index >= 0 && labelsRaw[index]) {
+                  const copyId = labelsRaw[index].split(":")[0];
+                  router.push(`/books/${copyId}`);
+                }
+              }
+            }
+          },
+        },
+      })
+    );
   }
 }
 
