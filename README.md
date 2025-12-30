@@ -53,12 +53,37 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] create library
 - [x] add book
     - [x] fix css, migliora distanze e togli righe brutte
+    - [ ] modalita' dark aggiungi libro, tage note e riquardo per copertina sono bianchi
+- [ ] dettaglio libro modalità dark rimane bianco
+- [ ] modifica libro condizioni, tag e note in modalita' dark sono bianche
 - [ ] password dimenticata
 - [ ] metriche utilizzo
 - [ ] cambia visibilità
 - [x] gestione profilo
 - [x] home
+    - [ ] forse va cambiato il nome
+    - [ ] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
+    - [ ] versione dark da aggiustare i bottoni (forse css global)
+    - [ ] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
+- [ ] stats
+    - [ ] dark
+- [ ] loans
+    - [ ] gestione richieste nome del proprietario va visto se le opzioni di visibilita' lo consentono
 - [x] sidebar
+    - [ ] librerie con menu a tendina delle librerie effettive (in quel caso chiama libraries/:id)
+- [ ] pagina dettaglio libreria
+    - [ ] si deve far vedere la mappa (forse mettere come componente, visto che è anche nella gestione del profilo)
+    - [ ] non si deve poter eliminare un libro che non è in stato available
+    - [ ] attaccare per la richiesta prestito
+- [ ] profilo
+    - [ ] da fare completamente pagina profilo
+    - [ ] gestione richieste rivedere non si vedeno bene
+- [ ] dashboard
+    - [ ] riepilogo e analisi bloccati a 0 implementare le req giuste
+    - [ ] sui libri prestati devono funzionare i bottoni (api per allungare il tempo da fare)
+    - [ ] sulla restituzione accettata si deve aprire una modale per far aggiungere note se necessario e/o cambiare la condizione del libro
+    - [ ] i bottoni della componente library accordion non fungono dalla dashboard
+    - [ ] aggiunta mappetta
 - [x] header
 - [ ] css - fonts - notte
 - [ ] footer

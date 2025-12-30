@@ -167,7 +167,7 @@
         <i class="fa-solid fa-circle-notch fa-spin text-3xl"></i>
       </div>
       <div v-else class="space-y-1">
-        <LibraryAccordion v-for="lib in libraries" :key="lib.id" :library="lib" @toggle="toggleLibrary(lib.id)" @bookMoved="moveBook" />
+        <LibraryAccordion v-for="lib in libraries" :key="lib.id" :library="lib" @toggle="toggleLibrary(lib.id)" @bookMoved="moveBook" @delete-library="openDeleteModal('library', $event)" />
       </div>
     </div>
 
@@ -351,6 +351,19 @@ async function toggleLibrary(id) {
     try { const res = await apiClient.get(`/libraries/${id}`); lib.books = res.books || []; lib.bookCount = lib.books.length } 
     finally { lib.isLoadingBooks = false } 
   }
+}
+
+function openDeleteModal(type, data) {
+  confirmModal.value = {
+    show: true,
+    type,
+    target: data,
+    title: type === "library" ? "elimina libreria" : "elimina libro",
+    message:
+      type === "library"
+        ? `vuoi eliminare la libreria "${data.name}"?`
+        : `vuoi rimuovere "${data.book.title}"?`,
+  };
 }
 
 async function moveBook({ bookId, toLibraryId }) { try { await apiClient.patch(`/books/${bookId}/move`, { libraryId: toLibraryId }); await fetchLibraries() } catch (e) {} }

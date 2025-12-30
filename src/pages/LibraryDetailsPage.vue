@@ -67,7 +67,7 @@
           <dl class="text-sm space-y-2">
             <div>
               <dt class="font-medium text-paynes-gray/70">Proprietario:</dt>
-              <dd class="font-bold">{{ library.ownerName || "Utente N/D" }}</dd>
+              <dd class="font-bold">{{ library.ownerName || "Utente anonimo" }}</dd>
             </div>
             <div>
               <dt class="font-medium text-paynes-gray/70">Visibilità:</dt>
@@ -221,7 +221,7 @@
           <p class="text-xs mt-2">
             Proprietario:
             <span class="font-semibold">{{
-              currentBook.ownerName || "N/D"
+              currentBook.ownerName || "Utente anonimo"
             }}</span>
           </p>
         </div>
@@ -424,7 +424,7 @@ async function confirmLoanRequest() {
     const response = await apiClient.post(`/loan/${currentBook.value.id}`, {});
 
     loanResultTitle.value = "richiesta inviata";
-    loanResultMessage.value = `richiesta inviata al proprietario ${currentBook.value.ownerName}. sarai notificato quando sarà approvata. id: ${response.loanId}`;
+    loanResultMessage.value = `richiesta inviata al proprietario ${currentBook.value.ownerName || "anonimo"}. sarai notificato quando sarà approvata. id: ${response.loanId}`;
     loanResultIcon.value = "fa-circle-check text-green-500";
   } catch (e) {
     console.error("errore richiesta prestito", e);
