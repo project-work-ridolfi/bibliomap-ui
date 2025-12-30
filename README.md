@@ -72,9 +72,12 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] sidebar
     - [x] librerie con menu a tendina delle librerie effettive (in quel caso chiama libraries/:id)
 - [ ] pagina dettaglio libreria
-    - [ ] si deve far vedere la mappa (forse mettere come componente, visto che è anche nella gestione del profilo)
-    - [ ] non si deve poter eliminare un libro che non è in stato available
-    - [ ] attaccare per la richiesta prestito
+    - [x] si deve far vedere la mappa (forse mettere come componente, visto che è anche nella gestione del profilo)
+    - [x] non si deve poter eliminare un libro che non è in stato available
+    - [x] attaccare per la richiesta prestito
+- [ ] modifica libreria
+    - [ ] bottone per aprire la pagina anche dall'accordion
+    - [ ] modalità notte da aggiustare
 - [ ] profilo
     - [ ] da fare completamente pagina profilo
     - [ ] gestione richieste rivedere non si vedeno bene
