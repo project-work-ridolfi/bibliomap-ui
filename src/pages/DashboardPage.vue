@@ -54,7 +54,7 @@
           <div v-if="userData" class="flex flex-col gap-3">
              <div class="h-32 rounded-xl overflow-hidden border border-thistle bg-[var(--bg-secondary)]">
                 <MiniMap v-if="userData.latitude" :lat="userData.latitude" :lng="userData.longitude" :zoom="12" />
-                <div v-else class="w-full h-full flex items-center justify-center bg-[var(--bg-secondary)] text-[10px] opacity-50 lowercase p-4 text-center">posizione non impostata</div>
+                <div v-else class="w-full h-full flex items-center justify-center bg-[var(--bg-secondary)] text-[10px] opacity-50 lowercase p-4 text-center leading-tight">posizione non impostata</div>
              </div>
              <p class="text-[10px] uppercase font-black tracking-widest opacity-60">Visibilità: {{ formatVisibility(userData.visibility) }}</p>
           </div>
@@ -146,7 +146,7 @@
               </div>
             </div>
             <div class="mt-6 flex flex-col gap-2 border-t border-thistle pt-4">
-              <button @click="openReturnModal(loan)" class="w-full bg-[var(--zomp)] text-white py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-wider shadow-md">segnala come restituito</button>
+              <button @click="openReturnModal(loan)" class="w-full bg-[var(--zomp)] text-white py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-wider shadow-md">segnala restituito</button>
               <button @click="openExtendModal(loan)" class="w-full bg-theme-primary border border-thistle text-theme-main py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-wider">allunga prestito</button>
             </div>
           </div>
@@ -161,7 +161,15 @@
       </div>
       <div v-if="isLoadingLibs" class="text-center py-10 opacity-60"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-zomp"></i></div>
       <div v-else class="space-y-2">
-        <LibraryAccordion v-for="lib in libraries" :key="lib.id" :library="lib" @toggle="toggleLibrary(lib.id)" @bookMoved="moveBook" @delete-library="handleOpenDeleteUI('library', $event)" @delete-book="handleOpenDeleteUI('book', $event.book)" />
+        <LibraryAccordion 
+          v-for="lib in libraries" 
+          :key="lib.id" 
+          :library="lib" 
+          @toggle="toggleLibrary(lib.id)" 
+          @bookMoved="moveBook" 
+          @delete-library="handleOpenDeleteUI('library', $event)" 
+          @delete-book="handleOpenDeleteUI('book', $event.book)" 
+        />
       </div>
     </div>
 
@@ -173,7 +181,7 @@
           <p class="text-sm opacity-70 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]"><i class="fa-solid fa-circle-info mr-1"></i>Azione <strong>irreversibile</strong>.</p>
           <div class="flex gap-3 pt-4">
             <button @click="confirmModal.show = false" class="flex-1 py-3 border border-[var(--border-color)] rounded-xl hover:bg-[var(--bg-secondary)] font-bold transition">Annulla</button>
-            <button @click="handleExecuteDelete" class="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold shadow-md hover:bg-red-700 transition">{{ confirmModal.confirmBtn }}</button>
+            <button @click="handleExecuteDelete" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition">{{ confirmModal.confirmBtn }}</button>
           </div>
         </template>
         <template v-else-if="confirmModal.step === 'loading'"><i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500 mb-4 py-8"></i><p class="font-bold">Cancellazione in corso...</p></template>
@@ -243,23 +251,25 @@ import { ref, onMounted, computed, reactive } from "vue"
 import { apiClient } from "@/services/apiClient"
 import LibraryAccordion from "@/components/LibraryAccordion.vue"
 import AppModal from "@/components/AppModal.vue"
-import Stats from "@/components/stats.vue"
+import Stats from "@/components/userStats.vue"
 import MiniMap from "@/components/MiniMap.vue"
 import { deleteConfig, executeDeletion } from "@/utils/helpers"
 
-// Stato Dati
 const userData = ref(null);
 const isStatsOpen = ref(false);
+
+// Conteggi per le card in alto
 const myTotalBooks = ref(0);
 const totalLoansIn = ref(0);
 const totalLoansOut = ref(0);
+
 const activeLoans = ref([]);
 const pendingRequests = ref([]);
 const acceptedLoans = ref([]);
 const isLoadingLibs = ref(true);
 const libraries = ref([]);
 
-// Indici Carousel
+// Carousel
 const borrowedIndex = ref(0);
 const lentIndex = ref(0);
 
@@ -284,6 +294,7 @@ const extendForm = reactive({ days: 7 });
 
 const modalTitle = computed(() => isContactMode.value ? "contatta utente" : "gestione richiesta");
 const deleteModalTitle = computed(() => confirmModal.step === 'loading' ? 'Attendere...' : confirmModal.step === 'success' ? 'Completato' : confirmModal.title);
+
 const statCards = computed(() => [
   { label: 'i tuoi libri', value: myTotalBooks.value, color: 'text-theme-main' },
   { label: 'ricevuti', value: totalLoansIn.value, color: 'text-[var(--zomp)]' },
@@ -294,7 +305,6 @@ const borrowedBooks = computed(() => activeLoans.value.filter(l => l.requesterId
 const lentBooks = computed(() => activeLoans.value.filter(l => l.ownerId === userData.value?.id && l.status === 'ON_LOAN'));
 const overdueLoans = computed(() => borrowedBooks.value.filter(l => isOverdue(l.expectedReturnDate)));
 
-// Carousel Handlers
 function nextBorrowed() { if (borrowedIndex.value < borrowedBooks.value.length - 3) borrowedIndex.value++ }
 function prevBorrowed() { if (borrowedIndex.value > 0) borrowedIndex.value-- }
 function nextLent() { if (lentIndex.value < lentBooks.value.length - 3) lentIndex.value++ }
@@ -307,22 +317,44 @@ const formatVisibility = (v) => {
   return map[v] || 'Standard';
 };
 
+
 onMounted(async () => {
-  await fetchUserMe();
-  await Promise.all([fetchUserCounts(), fetchLibraries(), fetchIncomingRequests(), fetchActiveLoans(), fetchAcceptedLoans()]);
+  await fetchUserMe(); // Recupera l'utente (e il suo ID)
+  
+  await Promise.all([
+    fetchUserCounts(),      // Statistiche utente
+    fetchLibraries(),       // Accordion
+    fetchIncomingRequests(),// Notifiche
+    fetchActiveLoans(),     // Carousel
+    fetchAcceptedLoans()    // Scambi
+  ]);
 });
+
+async function fetchUserMe() { 
+  try { userData.value = await apiClient.get("/users/me") } catch (e) {} 
+}
 
 async function fetchUserCounts() {
   if (!userData.value?.id) return;
   try {
-    const stats = await apiClient.get(`/stats/user/${userData.value.id}`);
-    myTotalBooks.value = stats.myBooks || 0;
-    totalLoansIn.value = stats.loansIn || 0;
-    totalLoansOut.value = stats.loansOut || 0;
-  } catch (e) {}
+    const statsResult = await apiClient.get(`/stats/user/${userData.value.id}`);
+    
+    myTotalBooks.value = statsResult.myBooksCount || 0;
+    totalLoansIn.value = statsResult.totalLoansIn || 0;
+    totalLoansOut.value = statsResult.totalLoansOut || 0;
+    
+    console.log("Dati caricati nella Dashboard:", {
+      books: myTotalBooks.value,
+      in: totalLoansIn.value,
+      out: totalLoansOut.value
+    });
+  } catch (e) {
+    console.error("Errore recupero counter dashboard", e);
+  }
 }
 
-async function fetchUserMe() { try { userData.value = await apiClient.get("/users/me") } catch (e) {} }
+
+
 async function fetchLibraries() {
   isLoadingLibs.value = true;
   try {
@@ -330,6 +362,7 @@ async function fetchLibraries() {
     libraries.value = res.libraries.map(l => ({ ...l, isOpen: false, books: [], isLoadingBooks: false }));
   } finally { isLoadingLibs.value = false; }
 }
+
 async function fetchIncomingRequests() { try { pendingRequests.value = await apiClient.get("/loan/requests/incoming") || [] } catch (e) {} }
 async function fetchActiveLoans() { try { activeLoans.value = await apiClient.get("/loan/active") || [] } catch (e) {} }
 async function fetchAcceptedLoans() { try { const all = await apiClient.get("/loan/all"); acceptedLoans.value = all.filter(l => l.status === 'ACCEPTED') } catch (e) {} }

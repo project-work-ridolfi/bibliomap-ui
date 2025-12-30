@@ -126,7 +126,7 @@ watch(() => props.isOpen, (newVal) => {
 
 // mappatura rotte per menu
 const menuItems = computed(() => {
-  const items = [{ path: '/', label: 'home', icon: 'home' }]
+  const items = [{ path: '/', label: 'home', icon: 'home' }, { path: '/stats', label: 'statistiche', icon: 'bar-chart-2' }]
 
   if (authStore.isAuthenticated) {
     items.push(

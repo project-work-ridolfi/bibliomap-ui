@@ -71,6 +71,11 @@ const routes = [
     name: 'MyLibraries',
     component: () => import('@/pages/MyLibrariesPage.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path:'/stats',
+    name: 'Stats',
+    component: () => import('@/pages/StatsPage.vue')
   }
 ]
 
