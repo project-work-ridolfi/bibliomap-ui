@@ -47,18 +47,16 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 
 - [x] /signup
 - [x] /login
+    - [ ] password dimenticata
 - [x] /setlocation
-  - [ ] set location non nella registrazione
+  - [x] set location non nella registrazione
   - [ ] se vai nella mappa esci e ci torni la mappa e' vuota
 - [x] create library
 - [x] add book
     - [x] fix css, migliora distanze e togli righe brutte
-    - [ ] modalita' dark aggiungi libro, tage note e riquardo per copertina sono bianchi
+    - [x] modalita' dark aggiungi libro, tag, note e riquadro per copertina sono bianchi
 - [x] dettaglio libro modalità dark rimane bianco
 - [x] modifica libro condizioni, tag e note in modalita' dark sono bianche
-- [ ] password dimenticata
-- [ ] metriche utilizzo
-- [ ] cambia visibilità
 - [x] gestione profilo
 - [x] home
     - [ ] forse va cambiato il nome
@@ -66,27 +64,33 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] versione dark da aggiustare i bottoni (forse css global)
     - [x] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
 - [ ] stats
-    - [ ] dark
-- [ ] loans
-    - [ ] gestione richieste nome del proprietario va visto se le opzioni di visibilita' lo consentono
+    - [x] dark
+    - [ ] metriche utilizzo
+    - [ ] da modificare quelli che si vedono e aggiungere
+- [x] loans
+    - [x] gestione richieste nome del proprietario va visto se le opzioni di visibilita' lo consentono
 - [x] sidebar
     - [x] librerie con menu a tendina delle librerie effettive (in quel caso chiama libraries/:id)
-- [ ] pagina dettaglio libreria
+- [x] pagina dettaglio libreria
     - [x] si deve far vedere la mappa (forse mettere come componente, visto che è anche nella gestione del profilo)
     - [x] non si deve poter eliminare un libro che non è in stato available
     - [x] attaccare per la richiesta prestito
+    - [x] mappa nella pagina libreria
 - [ ] modifica libreria
-    - [ ] bottone per aprire la pagina anche dall'accordion
     - [ ] modalità notte da aggiustare
+- [ ] accordion libreira
+    - [x] bottone per aprire la pagina anche dall'accordion
+    - [ ] bottone per modificare la libreria
 - [ ] profilo
-    - [ ] da fare completamente pagina profilo
+    - [ ] cambia visibilità
+    - [ ] da fare completamente pagina profilo che riporta poi a quella che c'e' ora di gestione
     - [ ] gestione richieste rivedere non si vedeno bene
 - [ ] dashboard
-    - [ ] riepilogo e analisi bloccati a 0 implementare le req giuste
-    - [ ] sui libri prestati devono funzionare i bottoni (api per allungare il tempo da fare)
-    - [ ] sulla restituzione accettata si deve aprire una modale per far aggiungere note se necessario e/o cambiare la condizione del libro
+    - [ ] riepilogo e analisi bloccati a 0 implementare le req giuste (chiamare componente giusta)
+    - [x] sui libri prestati devono funzionare i bottoni (api per allungare il tempo da fare)
+    - [x] sulla restituzione accettata si deve aprire una modale per far aggiungere note se necessario e/o cambiare la condizione del libro
     - [ ] i bottoni della componente library accordion non fungono dalla dashboard
-    - [ ] aggiunta mappetta
+    - [x] aggiunta mappetta
 - [x] header
 - [ ] css - fonts - notte
 - [ ] footer
@@ -94,39 +98,36 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] Aggiornare `apiClient` per includere gli endpoint `/loans` definiti nel BE
 - [x] Aggiornare `DashboardPage.vue` per caricare le liste prestiti (requests e active)
 - [x] Modificare logica pulsante principale:
-    - Se `currentUser == owner`: Mostra "Modifica"
-    - Se `copy.status == 'available'`: Mostra "Richiedi Prestito"
-    - Se `copy.status == 'on_loan'`: Mostra "Non disponibile (In prestito)"
-    - Se richiesta già fatta (`pending`): Mostra "Richiesta inviata" (Disabilitato)
+    - [x] Se `currentUser == owner`: Mostra "Modifica"
+    - [x] Se `copy.status == 'available'`: Mostra "Richiedi Prestito"
+    - [x] Se `copy.status == 'on_loan'`: Mostra "Non disponibile (In prestito)"
+    - [x] Se richiesta già fatta (`pending`): Mostra "Richiesta inviata" (Disabilitato)
 - [x] Collegare click "Richiedi Prestito" alla chiamata `POST /api/loans/request`
 - [x] Creare componente/sezione "Richieste in Arrivo":
-    - Lista card con: Nome Richiedente, Titolo Libro
-    - Bottoni azione: [Accetta] [Rifiuta]
-    - Collegare alle chiamate API `PATCH status`
+    - [x] Lista card con: Nome Richiedente, Titolo Libro
+    - [x] Bottoni azione: [Accetta] [Rifiuta]
+    - [x] Collegare alle chiamate API `PATCH status`
 - [x] Creare Tab/Sezione "Libri che ho prestato" (Owner View):
-    - Se stato `ACCEPTED`: Mostra bottone [Consegna Libro] (Start Loan)
-    - Se stato `ON_LOAN`: Mostra info scadenza e bottone [Segna Restituito]
-    - Collegare [Consegna Libro] a `POST /start`
+    - [x] Se stato `ACCEPTED`: Mostra bottone [Consegna Libro] (Start Loan)
+    - [x] Se stato `ON_LOAN`: Mostra info scadenza e bottone [Segna Restituito]
+    - [x] Collegare [Consegna Libro] a `POST /start`
 - [x] Creare modale "Conferma Restituzione":
-    - Input select per nuova condizione (ottima/buona/ecc)
-    - Collegare a `POST /return`
+    - [x] Input select per nuova condizione (ottima/buona/ecc)
+    - [x] Collegare a `POST /return`
 - [x] Creare Tab/Sezione "Libri che sto leggendo" (Requester View):
-    - Lista libri presi in prestito
-    - Visualizzazione chiara della data di scadenza (countdown se vicina)
+    - [x] Lista libri presi in prestito
+    - [x] Visualizzazione chiara della data di scadenza (countdown se vicina)
 - [x] Aggiornare card libro in `LibraryPage`:
-    - Aggiungere badge visivo se `status == 'on_loan'`
-    - Disabilitare tasto cancellazione se il libro è in prestito attivo
+    - [x] Aggiungere badge visivo se `status == 'on_loan'`
+    - [x] Disabilitare tasto cancellazione se il libro è in prestito attivo
 - [ ] fix switch light/dark
 - [ ] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
 2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
 - [ ] controlla condizioni
 - [ ] aggiungi icona occhio a libreria che porta a libraries/id
 - [ ] aggiungi icona occhio al libro
-- [ ] sidebar con tutte le librerie?
-- [ ] stats
-- [ ] mappa nella pagina libreria
-- [ ] cerca libri per available non funge
-- [ ] controllo cover
-- [ ] allunga prestito
-- [ ] prestito restituito
-- [ ] stats settimana null
+- [x] sidebar con tutte le librerie?
+- [x] cerca libri per available non funge
+- [x] controllo cover
+- [x] allunga prestito
+- [x] prestito restituito
