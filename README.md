@@ -55,7 +55,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] fix css, migliora distanze e togli righe brutte
     - [ ] modalita' dark aggiungi libro, tage note e riquardo per copertina sono bianchi
 - [x] dettaglio libro modalità dark rimane bianco
-- [ ] modifica libro condizioni, tag e note in modalita' dark sono bianche
+- [x] modifica libro condizioni, tag e note in modalita' dark sono bianche
 - [ ] password dimenticata
 - [ ] metriche utilizzo
 - [ ] cambia visibilità
