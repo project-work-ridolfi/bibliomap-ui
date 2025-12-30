@@ -62,9 +62,9 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] gestione profilo
 - [x] home
     - [ ] forse va cambiato il nome
-    - [ ] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
-    - [ ] versione dark da aggiustare i bottoni (forse css global)
-    - [ ] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
+    - [x] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
+    - [x] versione dark da aggiustare i bottoni (forse css global)
+    - [x] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
 - [ ] stats
     - [ ] dark
 - [ ] loans

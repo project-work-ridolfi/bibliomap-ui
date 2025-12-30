@@ -4,19 +4,19 @@
     class="flex flex-col w-full h-[calc(100vh-80px)] lg:px-4 gap-3 overflow-hidden">
     <div
       v-if="!authStore.isAuthenticated"
-      class="shrink-0 w-full flex justify-between items-center p-3 rounded-xl bg-gradient-to-r from-[var(--tea-rose)] to-[var(--thistle)] shadow-sm px-6 h-auto border border-[var(--border-color)]">
+      class="shrink-0 w-full flex justify-between items-center p-3 rounded-xl bg-theme-primary shadow-sm px-6 h-auto border border-[var(--border-color)]">
       <div class="flex flex-col">
-        <h2 class="font-bold text-[var(--paynes-gray)] text-sm">
-          Benvenuto su Bibliomap
+        <h2 class="font-bold text-theme-main text-sm lowercase">
+          benvenuto su bibliomap
         </h2>
-        <p class="text-[var(--paynes-gray)] text-xs mt-1 max-w-2xl font-medium">
-          Accedi per funzionalita complete.
+        <p class="text-theme-main opacity-70 text-xs mt-1 max-w-2xl font-medium lowercase">
+          accedi per funzionalita complete.
         </p>
       </div>
       <router-link
         to="/login"
-        class="bg-[var(--paynes-gray)] text-white px-4 py-2 rounded-lg hover:bg-[var(--zomp)] transition text-xs font-bold whitespace-nowrap ml-4 border-none">
-        Accedi o Registrati
+        class="bg-[var(--paynes-gray)] text-white px-4 py-2 rounded-lg hover:bg-[var(--zomp)] transition text-xs font-bold whitespace-nowrap ml-4 border-none lowercase">
+        accedi o registrati
       </router-link>
     </div>
 
@@ -26,8 +26,8 @@
         class="w-full lg:w-4/12 flex flex-col rounded-xl border border-[var(--border-color)] bg-theme-primary shadow-lg overflow-hidden h-full relative">
         <div
           class="p-3 border-b border-[var(--border-color)] flex justify-between items-center shrink-0 z-20 bg-theme-primary">
-          <h2 class="font-display text-lg text-theme-main">
-            Vicini a te:
+          <h2 class="font-display text-lg text-theme-main lowercase">
+            vicini a te:
             <span class="font-bold">{{ filteredBooks.length }}</span>
           </h2>
           <button
@@ -36,7 +36,7 @@
             :class="
               showFilters
                 ? 'bg-[var(--zomp)] text-white border-[var(--zomp)]'
-                : 'bg-white text-theme-main border-[var(--border-color)] hover:border-[var(--zomp)]'
+                : 'bg-theme-primary text-theme-main border-[var(--border-color)] hover:border-[var(--zomp)]'
             ">
             <i class="fa-solid fa-filter"></i>
             filtri
@@ -49,7 +49,7 @@
           <input
             v-model="filters.searchText"
             type="text"
-            placeholder="Cerca titolo o autore..."
+            placeholder="cerca titolo o autore..."
             class="w-full p-2 rounded border border-[var(--border-color)] bg-theme-primary text-theme-main focus:outline-none focus:border-[var(--accent-color)]" />
 
           <div class="flex items-center gap-2 py-1">
@@ -60,26 +60,26 @@
               class="w-4 h-4 accent-[var(--zomp)]" />
             <label
               for="avail-filter"
-              class="font-bold text-theme-main opacity-80 cursor-pointer"
-              >Mostra solo disponibili</label
+              class="font-bold text-theme-main opacity-80 cursor-pointer lowercase"
+              >mostra solo disponibili</label
             >
           </div>
 
           <div class="flex flex-col gap-1">
             <span
-              class="text-[10px] uppercase font-bold text-theme-main opacity-70"
-              >Ordina per</span
+              class="text-[10px] uppercase font-bold text-theme-main opacity-70 lowercase"
+              >ordina per</span
             >
             <div class="flex gap-2">
               <button
                 @click="handleSort('distance')"
-                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1"
+                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1 lowercase"
                 :class="
                   sortField === 'distance'
                     ? 'bg-[var(--paynes-gray)] text-white border-transparent'
-                    : 'bg-white hover:bg-gray-50 text-theme-main'
+                    : 'bg-theme-primary hover:bg-[var(--bg-secondary)] text-theme-main'
                 ">
-                Distanza
+                distanza
                 <i
                   v-if="sortField === 'distance'"
                   class="fa-solid"
@@ -89,13 +89,13 @@
               </button>
               <button
                 @click="handleSort('title')"
-                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1"
+                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1 lowercase"
                 :class="
                   sortField === 'title'
                     ? 'bg-[var(--paynes-gray)] text-white border-transparent'
-                    : 'bg-white hover:bg-gray-50 text-theme-main'
+                    : 'bg-theme-primary hover:bg-[var(--bg-secondary)] text-theme-main'
                 ">
-                Titolo
+                titolo
                 <i
                   v-if="sortField === 'title'"
                   class="fa-solid"
@@ -105,13 +105,13 @@
               </button>
               <button
                 @click="handleSort('author')"
-                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1"
+                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1 lowercase"
                 :class="
                   sortField === 'author'
                     ? 'bg-[var(--paynes-gray)] text-white border-transparent'
-                    : 'bg-white hover:bg-gray-50 text-theme-main'
+                    : 'bg-theme-primary hover:bg-[var(--bg-secondary)] text-theme-main'
                 ">
-                Autore
+                autore
                 <i
                   v-if="sortField === 'author'"
                   class="fa-solid"
@@ -124,19 +124,19 @@
 
           <div v-if="availableTags.length > 0" class="flex flex-col gap-1">
             <span
-              class="text-[10px] uppercase font-bold text-theme-main opacity-70"
-              >Filtra per Tag</span
+              class="text-[10px] uppercase font-bold text-theme-main opacity-70 lowercase"
+              >filtra per tag</span
             >
             <div class="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
               <button
                 v-for="tag in availableTags"
                 :key="tag"
                 @click="toggleTag(tag)"
-                class="px-2 py-1 rounded-full text-[10px] border transition"
+                class="px-2 py-1 rounded-full text-[10px] border transition lowercase"
                 :class="
                   selectedTag === tag
                     ? 'bg-[var(--zomp)] text-white border-transparent'
-                    : 'bg-white border-[var(--border-color)] text-theme-main hover:border-[var(--zomp)]'
+                    : 'bg-theme-primary border-[var(--border-color)] text-theme-main hover:border-[var(--zomp)]'
                 ">
                 {{ tag }}
               </button>
@@ -157,17 +157,17 @@
           <div
             v-else-if="filteredBooks.length === 0"
             class="flex flex-col items-center justify-center mt-4 px-4 text-center">
-            <p class="text-theme-main opacity-70 text-sm mb-4">
-              Nessun libro trovato in quest'area.
+            <p class="text-theme-main opacity-70 text-sm mb-4 lowercase">
+              nessun libro trovato in quest area.
             </p>
             <div
               class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)]">
               <div class="flex justify-between items-center">
                 <span
-                  class="text-[10px] uppercase font-bold text-theme-main opacity-80"
-                  >Espandi raggio</span
+                  class="text-[10px] uppercase font-bold text-theme-main opacity-80 lowercase"
+                  >espandi raggio</span
                 >
-                <span class="text-xs font-bold text-[var(--zomp)]">{{
+                <span class="text-xs font-bold text-[var(--zomp)] lowercase">{{
                   expansionRadius >= 1000
                     ? (expansionRadius / 1000).toFixed(1) + " km"
                     : expansionRadius + " m"
@@ -196,7 +196,7 @@
                   <img
                     :src="book.coverUrl"
                     class="w-full h-full object-cover"
-                    alt="Copertina"
+                    alt="copertina"
                     @error="
                       (e) => (e.target.src = assignDefaultCover(book.id))
                     " />
@@ -205,10 +205,10 @@
                   class="flex-grow ml-3 flex flex-col min-h-[96px] text-left">
                   <div>
                     <p
-                      class="font-bold text-theme-main text-sm leading-tight mb-0.5">
+                      class="font-bold text-theme-main text-sm leading-tight mb-0.5 lowercase">
                       {{ book.title }}
                     </p>
-                    <p class="text-xs text-theme-main opacity-80 italic">
+                    <p class="text-xs text-theme-main opacity-80 italic lowercase">
                       {{ book.author }}
                     </p>
                   </div>
@@ -218,7 +218,7 @@
                     <span
                       v-for="t in book.tags"
                       :key="t"
-                      class="text-[9px] bg-[var(--ash-gray)]/30 px-1.5 py-0.5 rounded text-theme-main opacity-80"
+                      class="text-[9px] bg-[var(--ash-gray)]/30 px-1.5 py-0.5 rounded text-theme-main opacity-80 lowercase"
                       >{{ t }}</span
                     >
                   </div>
@@ -227,7 +227,7 @@
                       v-if="book.libraryName"
                       class="flex items-center text-xs text-theme-main opacity-70 font-medium">
                       <i class="fa-solid fa-shop mr-1.5 text-[10px]"></i>
-                      <span class="truncate">{{ book.libraryName }}</span>
+                      <span class="truncate lowercase">{{ book.libraryName }}</span>
                     </div>
                     <div
                       class="flex items-center text-xs text-theme-main opacity-60">
@@ -241,14 +241,14 @@
                 class="flex gap-2 mt-1 border-t border-[var(--border-color)] pt-2 opacity-90">
                 <button
                   @click.stop="goToBookDetails(book.id)"
-                  class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--paynes-gray)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-eye"></i> Vedi
+                  class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--paynes-gray)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2 lowercase">
+                  <i class="fa-solid fa-eye"></i> vedi
                 </button>
                 <button
                   v-if="authStore.isAuthenticated"
                   @click.stop="openConfirmModal(book)"
-                  class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-hand-holding-hand"></i> Richiedi
+                  class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2 lowercase">
+                  <i class="fa-solid fa-hand-holding-hand"></i> richiedi
                 </button>
               </div>
             </div>
@@ -263,7 +263,7 @@
             class="w-8 h-8 flex items-center justify-center rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white disabled:opacity-30 transition">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
-          <span>Pag {{ currentPage }} / {{ totalPages || 1 }}</span>
+          <span class="lowercase">pag {{ currentPage }} / {{ totalPages || 1 }}</span>
           <button
             @click="nextPage"
             :disabled="currentPage >= totalPages || totalPages === 0"
@@ -283,7 +283,7 @@
             <div class="flex items-center">
               <span
                 class="inline-block w-3 h-3 rounded-full bg-[var(--zomp)] mr-2 border border-white"></span>
-              <span>Librerie vicine</span>
+              <span class="lowercase">librerie vicine</span>
             </div>
           </div>
         </div>
@@ -299,7 +299,7 @@
             <div class="flex justify-between items-center w-full">
               <span class="opacity-70 lowercase"
                 >posizione stimata ({{
-                  gpsAccuracy ? "~" + Math.round(gpsAccuracy) + "m" : "N/A"
+                  gpsAccuracy ? "~" + Math.round(gpsAccuracy) + "m" : "n/a"
                 }})</span
               >
               <button
@@ -311,7 +311,7 @@
             <div
               class="text-[var(--paynes-gray)] font-bold border-t border-gray-300 pt-1 mt-1 lowercase">
               <i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>
-              trascina il segnaposto rosa sulla mappa se la posizione è
+              trascina il segnaposto rosa sulla mappa se la posizione e'
               sbagliata.
             </div>
           </div>
@@ -322,27 +322,27 @@
 
   <app-modal
     :is-open="isConfirmModalOpen"
-    title="Conferma Richiesta"
+    title="conferma richiesta"
     @close="isConfirmModalOpen = false">
     <div v-if="bookToRequest" class="space-y-4 text-theme-main">
-      <p class="text-sm">Richiedi in prestito:</p>
+      <p class="text-sm lowercase">richiedi in prestito:</p>
       <div
-        class="p-3 bg-gray-100 border border-[var(--border-color)] rounded-lg">
-        <p class="font-bold text-base">{{ bookToRequest.title }}</p>
-        <p class="text-xs italic opacity-80">{{ bookToRequest.author }}</p>
+        class="p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg">
+        <p class="font-bold text-base lowercase">{{ bookToRequest.title }}</p>
+        <p class="text-xs italic opacity-80 lowercase">{{ bookToRequest.author }}</p>
       </div>
       <div class="flex justify-end gap-3 pt-2">
         <button
           @click="isConfirmModalOpen = false"
-          class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--ash-gray)]/20">
-          Annulla
+          class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--ash-gray)]/20 lowercase">
+          annulla
         </button>
         <button
           @click="confirmLoanRequest"
           :disabled="isSending"
-          class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 flex items-center gap-2">
+          class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 flex items-center gap-2 lowercase">
           <i v-if="isSending" class="fa-solid fa-circle-notch fa-spin"></i>
-          {{ isSending ? "Invio..." : "Conferma" }}
+          {{ isSending ? "invio..." : "conferma" }}
         </button>
       </div>
     </div>
@@ -404,6 +404,7 @@ const DEFAULT_COVERS = [
   "/images/cover_default_3.png",
 ];
 
+// assegna una copertina di default basata sull id del libro
 function assignDefaultCover(bookId) {
   if (!bookId) return DEFAULT_COVERS[0];
   let hash = 0;
@@ -411,6 +412,7 @@ function assignDefaultCover(bookId) {
   return DEFAULT_COVERS[hash % DEFAULT_COVERS.length];
 }
 
+// calcola quanti libri mostrare per pagina in base all altezza del contenitore
 const calculateItemsPerPage = () => {
   if (listContainer.value) {
     const containerHeight = listContainer.value.clientHeight;
@@ -436,11 +438,13 @@ onUnmounted(() => {
   if (map.value) map.value.remove();
 });
 
+// estrae tutti i tag unici dai libri caricati
 const availableTags = computed(() => {
   const allTags = books.value.flatMap((b) => b.tags || []);
   return [...new Set(allTags)].sort();
 });
 
+// gestisce l ordinamento della lista libri
 const handleSort = (field) => {
   if (sortField.value !== field) {
     sortField.value = field;
@@ -454,10 +458,13 @@ const handleSort = (field) => {
   }
 };
 
+// filtra e ordina i libri in base alle preferenze dell utente
 const filteredBooks = computed(() => {
   let result = [...books.value];
   if (selectedTag.value)
     result = result.filter((b) => b.tags && b.tags.includes(selectedTag.value));
+  
+  // FIX: logica filtro disponibili migliorata
   if (filters.onlyAvailable)
     result = result.filter((b) => b.status === "available");
 
@@ -476,9 +483,12 @@ const filteredBooks = computed(() => {
   return result;
 });
 
+// calcola il numero totale di pagine
 const totalPages = computed(() =>
   Math.max(Math.ceil(filteredBooks.value.length / itemsPerPage.value), 1)
 );
+
+// estrae la porzione di libri per la pagina corrente
 const paginatedBooks = computed(() =>
   filteredBooks.value.slice(
     (currentPage.value - 1) * itemsPerPage.value,
@@ -486,7 +496,10 @@ const paginatedBooks = computed(() =>
   )
 );
 
+// mostra o nasconde la sezione filtri
 const toggleFilters = () => (showFilters.value = !showFilters.value);
+
+// attiva o disattiva un tag di filtraggio
 const toggleTag = (tag) => {
   selectedTag.value = selectedTag.value === tag ? null : tag;
   currentPage.value = 1;
@@ -511,6 +524,7 @@ watch(filteredBooks, () => {
   if (mapLoaded.value) updateMapMarkers();
 });
 
+// avvia il flusso per ottenere la posizione dell utente
 async function handleGeolocationFlow() {
   isLocationLoading.value = true;
   if (navigator.geolocation) {
@@ -525,6 +539,7 @@ async function handleGeolocationFlow() {
   } else finalizeLocationFromProfile();
 }
 
+// usa la posizione salvata nel profilo se quella del browser fallisce
 function finalizeLocationFromProfile() {
   if (authStore.isAuthenticated && authStore.user?.latitude) {
     finalizeLocation(authStore.user.latitude, authStore.user.longitude, 15);
@@ -533,11 +548,13 @@ function finalizeLocationFromProfile() {
   }
 }
 
+// imposta la posizione finale e inizializza la mappa
 function finalizeLocation(lat, lng, zoomLevel) {
   isLocationLoading.value = false;
   initMap(lat, lng, zoomLevel);
 }
 
+// recupera i libri vicini dal backend
 async function fetchBooks(lat, lng, radius) {
   isFetchingBooks.value = true;
   try {
@@ -575,6 +592,7 @@ async function fetchBooks(lat, lng, radius) {
   }
 }
 
+// esegue una ricerca libri nell area attualmente visualizzata sulla mappa
 function searchInCurrentArea() {
   if (!map.value) return;
   const pos = userMarker.value
@@ -588,6 +606,7 @@ function searchInCurrentArea() {
   fetchBooks(pos.lat, pos.lng, radius);
 }
 
+// aggiorna lo zoom della mappa in base al raggio di espansione selezionato
 function applyRadiusZoom() {
   if (!map.value) return;
   map.value.flyTo({
@@ -596,6 +615,7 @@ function applyRadiusZoom() {
   });
 }
 
+// inizializza la mappa maplibre
 const initMap = (lat, lng, zoomLevel) => {
   if (map.value) {
     map.value.flyTo({ center: [lng, lat], zoom: zoomLevel });
@@ -621,10 +641,12 @@ const initMap = (lat, lng, zoomLevel) => {
   });
 };
 
+// esegue la prima ricerca al caricamento della mappa
 const searchInAreaOnLoad = (lat, lng) => {
   fetchBooks(lat, lng, 1);
 };
 
+// crea il marker trascinabile per la posizione dell utente
 const createUserMarker = (lat, lng) => {
   userMarker.value = new maplibregl.Marker({
     color: "#fac8cd",
@@ -635,12 +657,12 @@ const createUserMarker = (lat, lng) => {
   userMarker.value.on("dragend", () => searchInCurrentArea());
 };
 
+// aggiorna i marker delle librerie sulla mappa
 const updateMapMarkers = () => {
   if (!map.value || !mapLoaded.value) return;
   currentMarkers.value.forEach((m) => m.remove());
   currentMarkers.value = [];
 
-  // Raggruppiamo i libri per libreria (usando lat/lng come chiave univoca o libraryId)
   const librariesMap = new Map();
 
   filteredBooks.value.forEach((book) => {
@@ -671,11 +693,11 @@ const updateMapMarkers = () => {
     const popupContent = `
       <div class="flex flex-col items-center gap-2 p-2 w-[160px]">
         <div class="text-center">
-          <p class="font-bold text-xs leading-tight mb-0.5">Libreria: ${
+          <p class="font-bold text-xs leading-tight mb-0.5 lowercase">libreria: ${
             lib.name
           }</p>
           ${ownerLine}
-          <p class="text-[9px] mt-1 font-semibold text-[var(--zomp)]">${
+          <p class="text-[9px] mt-1 font-semibold text-[var(--zomp)] lowercase">${
             lib.booksCount
           } libri disponibili</p>
         </div>
@@ -696,7 +718,7 @@ const updateMapMarkers = () => {
         .getElementById(`btn-lib-${lib.id || "temp"}`)
         ?.addEventListener("click", () => {
           if (lib.id) router.push(`/libraries/${lib.id}`);
-          else console.warn("ID libreria non disponibile per questo marker");
+          else console.warn("id libreria non disponibile per questo marker");
         });
     });
 
@@ -723,6 +745,7 @@ const openConfirmModal = (book) => {
   isConfirmModalOpen.value = true;
 };
 
+// conferma la richiesta di prestito al backend
 const confirmLoanRequest = async () => {
   if (!bookToRequest.value) return;
   isSending.value = true;
@@ -737,3 +760,9 @@ const confirmLoanRequest = async () => {
   }
 };
 </script>
+
+<style scoped>
+.font-display {
+  font-family: "Mochiy Pop P One", cursive;
+}
+</style>
