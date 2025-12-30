@@ -1,10 +1,8 @@
 <template>
-  <div
-    class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
+  <div class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
     <div class="flex justify-between items-center">
       <div>
-        <h1
-          class="text-3xl font-display text-theme-main uppercase tracking-tight">
+        <h1 class="text-3xl font-display text-theme-main uppercase tracking-tight">
           le tue <span class="text-[var(--zomp)]">librerie</span>
         </h1>
         <p class="opacity-70 text-sm lowercase mt-1">
@@ -19,8 +17,7 @@
     </div>
 
     <div v-if="isLoading" class="text-center py-20">
-      <i
-        class="fa-solid fa-circle-notch fa-spin text-4xl text-[var(--zomp)]"></i>
+      <i class="fa-solid fa-circle-notch fa-spin text-4xl text-[var(--zomp)]"></i>
     </div>
 
     <div v-else class="space-y-3">
@@ -38,58 +35,93 @@
         :library="lib"
         @toggle="toggleLibrary(lib.id)"
         @bookMoved="moveBook"
-        @delete-library="openDeleteModal('library', $event)"
-        @delete-book="openDeleteModal('book', $event)" />
+        @delete-library="handleOpenDeleteUI('library', $event)"
+        @delete-book="handleOpenDeleteUI('book', $event.book)" 
+      />
     </div>
 
     <AppModal
       :is-open="confirmModal.show"
-      :title="confirmModal.title"
+      :title="deleteModalTitle"
       @close="confirmModal.show = false">
-      <div class="p-6 text-center space-y-6">
-        <div
-          class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto text-2xl">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-        <p class="text-sm text-paynes-gray lowercase leading-relaxed font-bold">
-          {{ confirmModal.message }}<br />
-          <span class="font-black text-red-500 uppercase text-xs mt-2 block"
-            >l'azione e' irreversibile.</span
-          >
-        </p>
-        <div class="flex gap-3 pt-2">
-          <button
-            @click="confirmModal.show = false"
-            class="flex-1 px-4 py-2 border-2 border-ash-gray rounded-xl font-bold uppercase text-[10px]">
-            annulla
+      
+      <div class="p-6 text-center space-y-4 text-theme-main">
+        <template v-if="confirmModal.step === 'confirm'">
+          <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mx-auto mb-2">
+            <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+          </div>
+          
+          <p class="text-lg font-medium">{{ confirmModal.message }}</p>
+
+          <p class="text-sm opacity-70 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]">
+            <i class="fa-solid fa-circle-info mr-1"></i>
+            Questa azione è <strong>irreversibile</strong>.
+          </p>
+
+          <div class="flex gap-3 pt-4">
+            <button 
+              @click="confirmModal.show = false"
+              class="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] font-bold transition">
+              Annulla
+            </button>
+            <button 
+              @click="handleExecuteDelete"
+              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition">
+              {{ confirmModal.confirmBtn }}
+            </button>
+          </div>
+        </template>
+
+        <template v-else-if="confirmModal.step === 'loading'">
+          <div class="py-8">
+            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i>
+            <p class="font-bold">Eliminazione in corso...</p>
+          </div>
+        </template>
+
+        <template v-else-if="confirmModal.step === 'success'">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mx-auto mb-2 animate-bounce">
+            <i class="fa-solid fa-check text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold">Operazione completata!</h3>
+          <p class="text-sm opacity-70">{{ confirmModal.successMsg }}</p>
+          <button 
+            @click="confirmModal.show = false" 
+            class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg font-bold transition">
+            Chiudi
           </button>
-          <button
-            @click="handleDelete"
-            class="flex-1 px-4 py-2 bg-red-500 text-white rounded-xl font-bold uppercase text-[10px] hover:bg-red-600 transition">
-            conferma elimina
-          </button>
-        </div>
+        </template>
       </div>
     </AppModal>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, reactive, computed } from "vue";
 import { apiClient } from "@/services/apiClient";
 import LibraryAccordion from "@/components/LibraryAccordion.vue";
 import AppModal from "@/components/AppModal.vue";
+import { deleteConfig, executeDeletion } from "@/utils/helpers";
 
-const router = useRouter();
 const libraries = ref([]);
 const isLoading = ref(true);
-const confirmModal = ref({
+
+// Stato modale centralizzato
+const confirmModal = reactive({
   show: false,
-  title: "",
-  message: "",
-  type: "",
-  target: null,
+  step: 'confirm',
+  type: '',
+  id: null,
+  title: '',
+  message: '',
+  confirmBtn: '',
+  successMsg: ''
+});
+
+const deleteModalTitle = computed(() => {
+  if (confirmModal.step === 'loading') return 'Attendere...';
+  if (confirmModal.step === 'success') return 'Completato';
+  return confirmModal.title;
 });
 
 onMounted(fetchLibraries);
@@ -130,38 +162,45 @@ async function toggleLibrary(libId) {
 
 async function moveBook({ bookId, toLibraryId }) {
   try {
-    await apiClient.patch(`/books/${bookId}/move`, { libraryId: toLibraryId });
+    await apiClient.patch(`/copies/${bookId}/move`, { libraryId: toLibraryId });
     await fetchLibraries();
   } catch (e) {
     await fetchLibraries();
   }
 }
 
-function openDeleteModal(type, data) {
-  confirmModal.value = {
-    show: true,
-    type,
-    target: data,
-    title: type === "library" ? "elimina libreria" : "elimina libro",
-    message:
-      type === "library"
-        ? `vuoi eliminare la libreria "${data.name}"?`
-        : `vuoi rimuovere "${data.book.title}"?`,
-  };
+// LOGICA APERTURA MODALE HELPERS
+function handleOpenDeleteUI(type, data) {
+  confirmModal.type = type;
+  confirmModal.id = data.id;
+  
+  const config = deleteConfig[type];
+  const displayName = type === 'library' ? data.name : data.title;
+  
+  confirmModal.title = config.title;
+  confirmModal.message = config.message(displayName);
+  confirmModal.confirmBtn = config.confirmBtn;
+  confirmModal.successMsg = config.successMsg;
+  
+  confirmModal.step = 'confirm';
+  confirmModal.show = true;
 }
 
-async function handleDelete() {
-  const { type, target } = confirmModal.value;
-  try {
-    if (type === "library") {
-      await apiClient.delete(`/libraries/${target.id}`);
-    } else {
-      await apiClient.delete(`/copies/${target.book.id}`);
-    }
-    confirmModal.value.show = false;
+// LOGICA ESECUZIONE HELPERS
+async function handleExecuteDelete() {
+  confirmModal.step = 'loading';
+  const res = await executeDeletion(confirmModal.type, confirmModal.id);
+  
+  if (res.success) {
+    confirmModal.step = 'success';
     await fetchLibraries();
-  } catch (e) {
-    console.error(e);
+  } else {
+    confirmModal.show = false;
+    alert(res.error);
   }
 }
 </script>
+
+<style scoped>
+.font-display { font-family: "Mochiy Pop P One", cursive; }
+</style>

@@ -111,7 +111,7 @@
                   <i class="fa-solid fa-right-left"></i>
                 </button>
                 <button
-                  @click="openDeleteModal(book)"
+                  @click="openDeleteUI(book)"
                   :disabled="book.status !== 'available'"
                   :class="book.status === 'available' ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : 'text-gray-300 opacity-50 cursor-not-allowed'"
                   class="p-2 rounded-lg transition">
@@ -134,9 +134,48 @@
       </section>
     </div>
 
+    <AppModal :isOpen="confirmModal.show" :title="deleteModalTitle" @close="confirmModal.show = false">
+      <div v-if="currentBook" class="p-6 text-center space-y-4 text-theme-main">
+        <template v-if="confirmModal.step === 'confirm'">
+          <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mx-auto mb-2">
+            <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+          </div>
+          <p class="text-lg font-medium">{{ confirmModal.message }}</p>
+          <p class="text-sm opacity-70 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]">
+            <i class="fa-solid fa-circle-info mr-1"></i>
+            Questa azione è <strong>irreversibile</strong>.
+          </p>
+          <div class="flex gap-3 pt-4">
+            <button @click="confirmModal.show = false" class="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] font-bold transition">
+              Annulla
+            </button>
+            <button @click="handleExecuteDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold shadow-md hover:bg-red-700 transition">
+              {{ confirmModal.confirmBtn }}
+            </button>
+          </div>
+        </template>
+
+        <template v-else-if="confirmModal.step === 'loading'">
+          <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
+          <p class="font-bold">Eliminazione in corso...</p>
+        </template>
+
+        <template v-else-if="confirmModal.step === 'success'">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mx-auto mb-2 animate-bounce">
+            <i class="fa-solid fa-check text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold">Operazione completata!</h3>
+          <p class="text-sm opacity-70">{{ confirmModal.successMsg }}</p>
+          <button @click="confirmModal.show = false" class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
+            Chiudi
+          </button>
+        </template>
+      </div>
+    </AppModal>
+
     <AppModal :isOpen="isMoveModalOpen" title="Sposta libro" @close="isMoveModalOpen = false">
        <div class="p-4 text-center">
-         <p class="text-theme-main mb-4">Funzionalità di spostamento rapido tra librerie in arrivo.</p>
+         <p class="text-theme-main mb-4">Funzionalità di spostamento rapido in arrivo.</p>
          <button @click="isMoveModalOpen = false" class="bg-zomp text-white px-6 py-2 rounded-xl font-bold">OK</button>
        </div>
     </AppModal>
@@ -158,17 +197,6 @@
       </div>
     </AppModal>
 
-    <AppModal :isOpen="isDeleteModalOpen" title="Elimina Libro" @close="isDeleteModalOpen = false">
-      <div v-if="currentBook" class="space-y-4 text-theme-main text-center">
-         <i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-2"></i>
-         <p>Sei sicuro di voler eliminare definitivamente <strong>{{ currentBook.title }}</strong>?</p>
-         <div class="flex gap-3 pt-4">
-           <button @click="isDeleteModalOpen = false" class="flex-1 py-2 font-bold opacity-60">Annulla</button>
-           <button @click="confirmDelete" class="flex-1 py-2 bg-red-600 text-white rounded-lg font-bold">Elimina</button>
-         </div>
-      </div>
-    </AppModal>
-
     <AppModal :isOpen="isLoanResultModalOpen" :title="loanResultTitle" @close="isLoanResultModalOpen = false">
       <div class="p-6 text-center space-y-4">
         <i class="fa-solid text-4xl" :class="loanResultIcon"></i>
@@ -180,12 +208,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { apiClient } from "@/services/apiClient";
 import AppModal from "@/components/AppModal.vue";
 import MiniMap from "@/components/MiniMap.vue";
+import { deleteConfig, executeDeletion } from "@/utils/helpers";
 
 const route = useRoute();
 const router = useRouter();
@@ -201,61 +230,51 @@ const currentBook = ref(null);
 const isLoanConfirmModalOpen = ref(false);
 const isLoanResultModalOpen = ref(false);
 const isMoveModalOpen = ref(false);
-const isDeleteModalOpen = ref(false);
 const isSendingLoan = ref(false);
 
 const loanResultTitle = ref("");
 const loanResultMessage = ref("");
 const loanResultIcon = ref(null);
 
-const isAuthenticated = computed(() => authStore.isAuthenticated);
-const isOwner = computed(() => {
-  if (!library.value || !authStore.userId) return false;
-  return library.value.ownerId === authStore.userId;
+// STATO ELIMINAZIONE CENTRALIZZATO
+const confirmModal = reactive({
+  show: false,
+  step: 'confirm',
+  title: '',
+  message: '',
+  confirmBtn: '',
+  successMsg: ''
 });
 
-const isMapVisible = computed(() => {
-  if (!library.value) return false;
-  return isOwner.value || library.value.visibility === "public" || library.value.visibility === "all";
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isOwner = computed(() => library.value?.ownerId === authStore.userId);
+const isMapVisible = computed(() => library.value && (isOwner.value || library.value.visibility === "public" || library.value.visibility === "all"));
+
+const deleteModalTitle = computed(() => {
+  if (confirmModal.step === 'loading') return 'Attendere...';
+  if (confirmModal.step === 'success') return 'Operazione Completata';
+  return confirmModal.title;
 });
 
 function getStatusBadgeClass(status) {
-  if (status === "available") {
-    return "bg-[#f0fdf4] dark:bg-green-900/30 text-[#14532d] dark:text-[#4ade80] border-[#bbf7d0] dark:border-green-800";
-  }
-  return "bg-[#fff7ed] dark:bg-orange-900/30 text-[#7c2d12] dark:text-[#fbbf24] border-[#fed7aa] dark:border-orange-800";
+  return status === "available" 
+    ? "bg-zomp text-white border-zomp"
+    : "bg-tea-rose-red/20 text-paynes-gray border-thistle";
 }
 
 function goBack() { router.back(); }
 
 async function fetchLibraryDetails(page = 0) {
-  isLoading.value = true;
-  error.value = null;
-  const libraryId = route.params.id;
+  isLoading.value = true; error.value = null;
   try {
-    const response = await apiClient.get(`/libraries/${libraryId}`);
+    const response = await apiClient.get(`/libraries/${route.params.id}`);
     library.value = response;
-
-    const vis = response.visibility;
-    if (vis === "public" || vis === "all") visibilityLabel.value = "Tutti";
-    else if (vis === "private") visibilityLabel.value = "Privata";
-    else visibilityLabel.value = "Utenti registrati";
-
-    // Gestione libri con flag per richiesta pendente
+    visibilityLabel.value = response.visibility === "all" ? "Tutti" : response.visibility === "private" ? "Privata" : "Utenti registrati";
     const rawBooks = response.books || [];
-    const total = rawBooks.length;
     const start = page * books.value.pageSize;
-    books.value = {
-      list: rawBooks.slice(start, start + books.value.pageSize),
-      totalCount: total,
-      currentPage: page,
-      pageSize: 10,
-    };
-  } catch (err) {
-    error.value = "Libreria non trovata o accesso negato.";
-  } finally {
-    isLoading.value = false;
-  }
+    books.value = { list: rawBooks.slice(start, start + books.value.pageSize), totalCount: rawBooks.length, currentPage: page, pageSize: 10 };
+  } catch (err) { error.value = "Libreria non trovata."; }
+  finally { isLoading.value = false; }
 }
 
 async function handlePageChange(newPage) {
@@ -266,52 +285,53 @@ async function handlePageChange(newPage) {
 }
 
 function openLoanConfirmModal(bookItem) {
-  if (!isAuthenticated.value) { router.push("/login"); return; }
-  currentBook.value = bookItem;
-  isLoanConfirmModalOpen.value = true;
+  if (!isAuthenticated.value) router.push("/login");
+  else { currentBook.value = bookItem; isLoanConfirmModalOpen.value = true; }
 }
 
 async function confirmLoanRequest() {
   if (!currentBook.value || currentBook.value.status !== "available") return;
-  isLoanConfirmModalOpen.value = false;
-  isSendingLoan.value = true;
+  isLoanConfirmModalOpen.value = false; isSendingLoan.value = true;
   try {
     await apiClient.post(`/loan/${currentBook.value.id}`, {});
-    
-    // Aggiorno lo stato locale del libro per mostrare "Richiesta inviata"
     const bookInList = books.value.list.find(b => b.id === currentBook.value.id);
     if (bookInList) bookInList.hasPendingRequest = true;
-
-    loanResultTitle.value = "Richiesta Inviata";
-    loanResultMessage.value = `Richiesta inviata con successo.`;
+    loanResultTitle.value = "Richiesta Inviata"; 
+    loanResultMessage.value = "Richiesta inviata con successo.";
     loanResultIcon.value = "fa-circle-check text-green-500";
   } catch (e) {
-    loanResultTitle.value = "Errore";
-    loanResultMessage.value = "Impossibile inviare la richiesta.";
+    loanResultTitle.value = "Errore"; 
     loanResultIcon.value = "fa-circle-xmark text-red-500";
-  } finally {
-    isSendingLoan.value = false;
-    isLoanResultModalOpen.value = true;
-  }
+  } finally { isSendingLoan.value = false; isLoanResultModalOpen.value = true; }
 }
 
 function openMoveModal(book) { currentBook.value = book; isMoveModalOpen.value = true; }
-function openDeleteModal(book) { currentBook.value = book; isDeleteModalOpen.value = true; }
 
-async function confirmDelete() {
-  if (!currentBook.value) return;
-  try {
-    await apiClient.delete(`/copies/${currentBook.value.id}`);
-    isDeleteModalOpen.value = false;
+// LOGICA ELIMINAZIONE CON HELPERS
+function openDeleteUI(book) {
+  currentBook.value = book;
+  const config = deleteConfig.book;
+  confirmModal.title = config.title;
+  confirmModal.message = config.message(book.title);
+  confirmModal.confirmBtn = config.confirmBtn;
+  confirmModal.successMsg = config.successMsg;
+  confirmModal.step = 'confirm';
+  confirmModal.show = true;
+}
+
+async function handleExecuteDelete() {
+  confirmModal.step = 'loading';
+  const res = await executeDeletion('book', currentBook.value.id);
+  if (res.success) {
+    confirmModal.step = 'success';
     await fetchLibraryDetails(books.value.currentPage);
-  } catch (e) {
-    alert("Errore durante l'eliminazione.");
+  } else {
+    confirmModal.show = false;
+    alert(res.error);
   }
 }
 
-onMounted(() => {
-  fetchLibraryDetails();
-});
+onMounted(fetchLibraryDetails);
 </script>
 
 <style scoped>
