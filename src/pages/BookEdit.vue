@@ -8,7 +8,7 @@
                 </button>
                 <button @click="saveChanges" :disabled="isSaving"
                     class="bg-zomp text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:opacity-90 transition disabled:opacity-50">
-                    <span v-if="isSaving font-bold text-xs uppercase tracking-widest">salvataggio...</span>
+                    <span v-if="isSaving" class="font-bold text-xs uppercase tracking-widest">salvataggio...</span>
                     <span v-else>salva</span>
                 </button>
             </div>
@@ -21,7 +21,7 @@
         <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-10 animate-fade-in">
             <section class="space-y-6 flex flex-col items-center">
                 <div class="relative w-full aspect-[2/3] shadow-2xl rounded-2xl overflow-hidden bg-ash-gray/10 group">
-                    <img :src="previewCover || form.coverUrl || '/images/cover_placeholder.png'"
+                    <img :src="previewCover || currentImage"
                         class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                         alt="anteprima" />
                     
@@ -61,10 +61,9 @@
                     <div>
                         <label class="block text-[10px] font-black text-paynes-gray uppercase tracking-widest mb-2">condizioni</label>
                         <select v-model="form.condition" class="w-full p-4 rounded-xl border border-thistle bg-white focus:ring-2 focus:ring-zomp outline-none transition">
-                            <option value="nuovo">nuovo / come nuovo</option>
-                            <option value="ottime">ottime condizioni</option>
-                            <option value="buone">buone condizioni</option>
-                            <option value="accettabili">accettabili / rovinato</option>
+                            <option v-for="opt in conditionOptions" :key="opt.en" :value="opt.en">
+                                {{ opt.it }}
+                            </option>
                         </select>
                     </div>
 
@@ -108,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiClient } from '@/services/apiClient'
 
@@ -119,11 +118,20 @@ const form = reactive({
     id: '',
     title: '',
     status: 'available',
-    condition: 'ottime',
+    condition: 'Great', // default in inglese
     ownerNotes: '',
     tags: [],
-    coverUrl: '',
+    coverUrl: '', // url google
+    customCover: '' // base64 specifico copia
 })
+
+const conditionOptions = [
+    { it: 'Nuovo', en: 'New' },
+    { it: 'Ottimo', en: 'Great' },
+    { it: 'Buono', en: 'Good' },
+    { it: 'Usurato', en: 'Worn' },
+    { it: 'Rovinato', en: 'Damaged' }
+]
 
 const commonTags = ['fantascienza', 'romanzo', 'classico', 'riferimento', 'thriller']
 const previewCover = ref(null)
@@ -139,6 +147,14 @@ const video = ref(null)
 const canvas = ref(null)
 const stream = ref(null)
 
+// calcola quale immagine mostrare in base ai dati disponibili
+const currentImage = computed(() => {
+    if (useDefault.value) return '/images/cover_placeholder.png'
+    // priorità alla cover b64 specifica della copia, altrimenti url google
+    if (form.customCover) return form.customCover
+    return form.coverUrl || '/images/cover_placeholder.png'
+})
+
 function goBack() { router.back() }
 
 async function loadData() {
@@ -148,10 +164,11 @@ async function loadData() {
         form.id = data.id
         form.title = data.title
         form.status = data.status || 'available'
-        form.condition = data.condition || 'buone'
+        form.condition = data.condition || 'Great'
         form.ownerNotes = data.ownerNotes || ''
         form.tags = data.tags || []
         form.coverUrl = data.coverUrl
+        form.customCover = data.customCover
     } catch (e) {
         console.error("errore caricamento")
     } finally {
@@ -171,11 +188,11 @@ function addSuggestedTag(tag) {
 
 function removeTag(idx) { form.tags.splice(idx, 1) }
 
-// rimpiazza immagine attuale o quella di google
 function removeCurrentCover() {
-    previewCover.value = '/images/cover_placeholder.png'
+    previewCover.value = null
     selectedFile.value = null
     useDefault.value = true
+    form.customCover = ''
 }
 
 function handleFileUpload(event) {
@@ -190,7 +207,6 @@ function handleFileUpload(event) {
     reader.readAsDataURL(file)
 }
 
-// logica fotocamera
 async function startCamera() {
     isCameraOpen.value = true
     try {
@@ -229,7 +245,7 @@ async function saveChanges() {
     try {
         const formData = new FormData()
         formData.append('status', form.status)
-        formData.append('condition', form.condition)
+        formData.append('condition', form.condition) // invia il valore EN (es. 'Great')
         formData.append('ownerNotes', form.ownerNotes)
         formData.append('tags', form.tags.join(','))
         formData.append('useDefaultCover', useDefault.value)

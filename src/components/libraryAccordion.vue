@@ -24,6 +24,14 @@
 
       <div class="flex items-center gap-3">
         <router-link
+          :to="`/libraries/${library.id}`"
+          @click.stop
+          class="p-2 text-[var(--paynes-gray)] hover:text-[var(--zomp)] transition"
+          title="Vedi dettagli libreria">
+          <i class="fa-solid fa-eye"></i>
+        </router-link>
+
+        <router-link
           :to="{ path: '/add-book', query: { libraryId: library.id } }"
           @click.stop
           class="p-2 text-[var(--zomp)] hover:bg-[var(--zomp)]/10 rounded-full transition">
@@ -57,9 +65,9 @@
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 min-h-[50px]">
         <template #item="{ element: book }">
           <div
-            class="flex gap-3 bg-theme-primary p-3 rounded-lg border border-[var(--thistle)] group relative cursor-move">
+            class="flex gap-3 bg-theme-primary p-3 rounded-lg border border-[var(--thistle)] group relative cursor-move hover:shadow-md transition">
             <div
-              class="w-12 h-16 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
+              class="w-12 h-16 bg-gray-200 rounded flex-shrink-0 overflow-hidden relative">
               <img
                 v-if="book.coverUrl"
                 :src="book.coverUrl"
@@ -69,7 +77,14 @@
                 class="w-full h-full flex items-center justify-center text-gray-400">
                 <i class="fa-solid fa-book"></i>
               </div>
+              
+              <router-link 
+                :to="`/books/${book.id}`"
+                class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white">
+                <i class="fa-solid fa-eye"></i>
+              </router-link>
             </div>
+            
             <div class="flex-grow min-w-0 text-sm">
               <h4 class="font-bold text-theme-main truncate">
                 {{ book.title }}
@@ -86,7 +101,7 @@
               @click.stop="
                 $emit('delete-book', { book, libraryId: library.id })
               "
-              class="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-1">
+              class="absolute top-1 right-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-1">
               <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -97,28 +112,45 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import draggable from "vuedraggable";
+import { computed } from "vue"
+import draggable from "vuedraggable"
+import { apiClient } from "@/services/apiClient"
 
-const props = defineProps(["library"]);
+const props = defineProps(["library"])
 const emit = defineEmits([
   "toggle",
   "bookMoved",
   "delete-library",
   "delete-book",
-]);
+])
 
 const internalBooks = computed({
   get: () => props.library.books || [],
-  set: (val) => {},
-});
+  set: (val) => {
+    // Necessario per vuedraggable per gestire l'array localmente prima dell'evento change
+    props.library.books = val
+  },
+})
 
-const handleMove = (evt) => {
+const handleMove = async (evt) => {
   if (evt.added) {
-    emit("bookMoved", {
-      bookId: evt.added.element.id,
-      toLibraryId: props.library.id,
-    });
+    const bookId = evt.added.element.id
+    const toLibraryId = props.library.id
+    
+    try {
+      // Chiamata all'API specifica per lo spostamento (PATCH)
+      await apiClient.patch(`/copies/${bookId}/move`, {
+        libraryId: toLibraryId
+      })
+      
+      emit("bookMoved", {
+        bookId: bookId,
+        toLibraryId: toLibraryId,
+      })
+    } catch (err) {
+      console.error("Errore durante lo spostamento del libro", err)
+      // Qui potresti emettere un evento per ricaricare i dati in caso di fallimento
+    }
   }
-};
+}
 </script>
