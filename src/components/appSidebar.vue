@@ -14,8 +14,8 @@
       role="navigation">
       
       <div class="flex items-center justify-between p-6 border-b border-thistle">
-        <h2 class="sidebar-title">
-          Menu
+        <h2 class="sidebar-title lowercase">
+          menu
         </h2>
         <button
           @click="emit('close')"
@@ -26,16 +26,52 @@
       </div>
 
       <nav class="p-4 flex flex-col gap-2">
-        <router-link
-          v-for="item in menuItems"
-          :key="item.path"
-          :to="item.path"
-          @click="emit('close')"
-          class="nav-link"
-          active-class="nav-link-active">
-          <VueFeather :type="item.icon" size="20" class="nav-icon"></VueFeather>
-          <span class="font-medium">{{ item.label }}</span>
-        </router-link>
+        <div v-for="item in menuItems" :key="item.label">
+          <router-link
+            v-if="!item.children"
+            :to="item.path"
+            @click="emit('close')"
+            class="nav-link"
+            active-class="nav-link-active">
+            <VueFeather :type="item.icon" size="20" class="nav-icon"></VueFeather>
+            <span class="font-medium lowercase">{{ item.label }}</span>
+          </router-link>
+
+          <div v-else class="flex flex-col">
+            <button 
+              @click="isLibrariesExpanded = !isLibrariesExpanded"
+              class="nav-link w-full justify-between"
+              :class="{ 'opacity-100': isLibrariesExpanded }">
+              <div class="flex items-center gap-4">
+                <VueFeather :type="item.icon" size="20" class="nav-icon"></VueFeather>
+                <span class="font-medium lowercase">{{ item.label }}</span>
+              </div>
+              <VueFeather 
+                type="chevron-down" 
+                size="16" 
+                class="transition-transform duration-300"
+                :class="{ 'rotate-180': isLibrariesExpanded }">
+              </VueFeather>
+            </button>
+
+            <div v-if="isLibrariesExpanded" class="flex flex-col pl-10 gap-1 mt-1 animate-fade-in">
+              <router-link
+                v-for="lib in userLibraries"
+                :key="lib.id"
+                :to="`/libraries/${lib.id}`"
+                @click="emit('close')"
+                class="sub-nav-link lowercase">
+                {{ lib.name }}
+              </router-link>
+              <router-link
+                to="/libraries"
+                @click="emit('close')"
+                class="sub-nav-link italic opacity-70 lowercase">
+                gestisci tutte
+              </router-link>
+            </div>
+          </div>
+        </div>
       </nav>
 
       <div v-if="authStore.isAuthenticated" class="absolute bottom-0 left-0 right-0 p-6 border-t border-thistle bg-theme-primary">
@@ -43,7 +79,7 @@
           @click="handleLogout"
           class="logout-btn">
           <VueFeather type="log-out" size="20"></VueFeather>
-          <span class="font-bold uppercase tracking-tight">Logout</span>
+          <span class="font-bold lowercase tracking-tight">logout</span>
         </button>
       </div>
     </aside>
@@ -51,11 +87,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { apiClient } from '@/services/apiClient'
 
-defineProps({
+const props = defineProps({
   isOpen: {
     type: Boolean,
     required: true
@@ -66,21 +103,42 @@ const emit = defineEmits(['close'])
 const router = useRouter()
 const authStore = useAuthStore()
 
+const userLibraries = ref([])
+const isLibrariesExpanded = ref(false)
+
+// recupera le librerie dell utente dal backend
+async function fetchLibraries() {
+  if (!authStore.isAuthenticated) return
+  try {
+    const response = await apiClient.get('/users/me/libraries')
+    userLibraries.value = response.libraries || []
+  } catch (error) {
+    console.error('errore recupero librerie sidebar')
+  }
+}
+
+// osserva l apertura della sidebar per aggiornare i dati
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    fetchLibraries()
+  }
+})
+
 // mappatura rotte per menu
 const menuItems = computed(() => {
-  const items = [{ path: '/', label: 'Home', icon: 'home' }]
+  const items = [{ path: '/', label: 'home', icon: 'home' }]
 
   if (authStore.isAuthenticated) {
     items.push(
-      { path: '/dashboard', label: 'Dashboard', icon: 'grid' },
-      { path: '/libraries', label: 'Le mie Librerie', icon: 'book-open' },
-      { path: '/add-book', label: 'Aggiungi Libro', icon: 'plus-circle' },
-      { path: '/profile', label: 'Profilo', icon: 'user' }
+      { path: '/dashboard', label: 'dashboard', icon: 'grid' },
+      { label: 'le mie librerie', icon: 'book-open', children: true },
+      { path: '/add-book', label: 'aggiungi libro', icon: 'plus-circle' },
+      { path: '/profile', label: 'profilo', icon: 'user' }
     )
   } else {
     items.push(
-      { path: '/signup', label: 'Registrati', icon: 'user-plus' },
-      { path: '/login', label: 'Accedi', icon: 'log-in' }
+      { path: '/signup', label: 'registrati', icon: 'user-plus' },
+      { path: '/login', label: 'accedi', icon: 'log-in' }
     )
   }
   return items
@@ -95,17 +153,13 @@ async function handleLogout() {
 </script>
 
 <style scoped>
-/* titolo dinamico basato su paynes-gray */
 .sidebar-title {
   font-family: "Mochiy Pop P One", cursive;
   font-size: 1.25rem;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--paynes-gray);
-  transition: color 0.3s ease;
 }
 
-/* bottone chiusura con bordi dinamici */
 .sidebar-close-btn {
   width: 2.25rem;
   height: 2.25rem;
@@ -116,14 +170,8 @@ async function handleLogout() {
   border: 1px solid var(--ash-gray);
   color: var(--paynes-gray);
   background: transparent;
-  transition: all 0.3s ease;
 }
 
-.sidebar-close-btn:hover {
-  background-color: rgba(152, 182, 177, 0.2);
-}
-
-/* link navigazione base */
 .nav-link {
   display: flex;
   align-items: center;
@@ -131,24 +179,34 @@ async function handleLogout() {
   padding: 0.85rem 1.25rem;
   border-radius: 0.75rem;
   color: var(--paynes-gray);
-  transition: all 0.2s ease;
   text-decoration: none;
+  transition: all 0.2s ease;
 }
 
 .nav-icon {
   color: var(--zomp);
 }
 
-/* stati dark mode per icone e hover */
-html.dark .nav-icon {
-  color: var(--tea-rose);
+/* link per i sotto-elementi della tendina */
+.sub-nav-link {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--paynes-gray);
+  opacity: 0.9;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sub-nav-link:hover {
+  background-color: rgba(152, 182, 177, 0.1);
+  color: var(--zomp);
 }
 
 .nav-link:hover {
   background-color: rgba(152, 182, 177, 0.2);
 }
 
-/* link attivo */
 .nav-link-active {
   background-color: var(--zomp) !important;
   color: white !important;
@@ -158,7 +216,6 @@ html.dark .nav-icon {
   color: white !important;
 }
 
-/* bottone logout */
 .logout-btn {
   width: 100%;
   display: flex;
@@ -169,7 +226,6 @@ html.dark .nav-icon {
   border: 2px solid #ef4444;
   color: #ef4444;
   background: transparent;
-  transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
@@ -177,7 +233,6 @@ html.dark .nav-icon {
   color: white;
 }
 
-/* animazioni transition */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }

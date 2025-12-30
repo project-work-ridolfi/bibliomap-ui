@@ -70,7 +70,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] loans
     - [ ] gestione richieste nome del proprietario va visto se le opzioni di visibilita' lo consentono
 - [x] sidebar
-    - [ ] librerie con menu a tendina delle librerie effettive (in quel caso chiama libraries/:id)
+    - [x] librerie con menu a tendina delle librerie effettive (in quel caso chiama libraries/:id)
 - [ ] pagina dettaglio libreria
     - [ ] si deve far vedere la mappa (forse mettere come componente, visto che è anche nella gestione del profilo)
     - [ ] non si deve poter eliminare un libro che non è in stato available
