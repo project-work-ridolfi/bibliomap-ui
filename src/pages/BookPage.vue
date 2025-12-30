@@ -3,7 +3,7 @@
     <button
       @click="goBack"
       aria-label="torna alla pagina precedente"
-      class="flex items-center text-paynes-gray hover:text-zomp transition-colors font-medium mb-4 focus:outline-none focus:ring-2 focus:ring-zomp rounded-lg p-1">
+      class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium mb-4 focus:outline-none focus:ring-2 focus:ring-zomp rounded-lg p-1">
       <i class="fa-solid fa-arrow-left mr-2" aria-hidden="true"></i>
       Torna indietro
     </button>
@@ -11,9 +11,9 @@
     <div
       v-if="isLoading"
       role="status"
-      class="text-center py-10 text-paynes-gray/70">
+      class="text-center py-10 text-theme-main opacity-70">
       <i
-        class="fa-solid fa-circle-notch fa-spin text-3xl mb-2"
+        class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-zomp"
         aria-hidden="true"></i>
       <p>recupero dettagli libro...</p>
     </div>
@@ -21,23 +21,23 @@
     <div
       v-else-if="error"
       role="alert"
-      class="p-4 bg-red-50 border border-red-200 rounded-lg text-center">
-      <p class="text-red-700 font-medium">Errore: {{ error }}</p>
+      class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center">
+      <p class="text-red-700 dark:text-red-400 font-medium">Errore: {{ error }}</p>
       <button
         @click="fetchBookDetails"
-        class="mt-2 underline text-sm text-paynes-gray hover:text-black focus:outline-none focus:ring-2 focus:ring-red-500 rounded">
+        class="mt-2 underline text-sm text-theme-main hover:text-black dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 rounded">
         Riprova
       </button>
     </div>
 
     <article
       v-else-if="book"
-      class="bg-white shadow-xl rounded-2xl border-2 border-thistle overflow-hidden">
+      class="bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle overflow-hidden transition-colors duration-300">
       <div class="md:grid md:grid-cols-3">
         <section
-          class="bg-ash-gray/10 p-6 md:col-span-1 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-thistle">
+          class="bg-[var(--bg-secondary)] p-6 md:col-span-1 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-thistle">
           <div
-            class="relative w-48 h-72 shadow-lg rounded-lg overflow-hidden bg-white">
+            class="relative w-48 h-72 shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-[var(--border-color)]">
             <img
               v-if="displayCover"
               :src="displayCover"
@@ -45,7 +45,7 @@
               class="w-full h-full object-cover" />
             <div
               v-else
-              class="w-full h-full flex items-center justify-center bg-paynes-gray/10 text-paynes-gray"
+              class="w-full h-full flex items-center justify-center bg-theme-main/10 text-theme-main"
               aria-label="copertina non disponibile">
               <i
                 class="fa-solid fa-book text-4xl opacity-50"
@@ -65,23 +65,23 @@
         <section
           class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
           <header>
-            <h1 class="text-3xl font-display text-paynes-gray mb-1">
+            <h1 class="text-3xl font-display text-theme-main mb-1">
               {{ book.title }}
             </h1>
-            <h2 class="text-xl text-paynes-gray/80 font-medium">
+            <h2 class="text-xl text-theme-main opacity-80 font-medium">
               di {{ book.author }}
             </h2>
           </header>
 
           <div class="space-y-3">
             <h3
-              class="text-sm font-bold uppercase tracking-wider text-paynes-gray/60 border-b border-thistle pb-1">
+              class="text-sm font-bold uppercase tracking-wider text-theme-main opacity-60 border-b border-thistle pb-1">
               Dettagli Edizione
             </h3>
 
-            <dl class="text-paynes-gray space-y-2 text-sm">
+            <dl class="text-theme-main space-y-2 text-sm">
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center">
+                <dt class="flex items-center opacity-70">
                   <i
                     class="fa-solid fa-calendar-days w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
@@ -92,7 +92,7 @@
                 </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center">
+                <dt class="flex items-center opacity-70">
                   <i
                     class="fa-solid fa-building w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
@@ -103,7 +103,7 @@
                 </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center">
+                <dt class="flex items-center opacity-70">
                   <i
                     class="fa-solid fa-book-open w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
@@ -114,7 +114,7 @@
                 </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center">
+                <dt class="flex items-center opacity-70">
                   <i
                     class="fa-solid fa-language w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
@@ -127,12 +127,12 @@
             </dl>
 
             <h3
-              class="text-sm font-bold uppercase tracking-wider text-paynes-gray/60 border-b border-thistle pb-1 mt-4">
+              class="text-sm font-bold uppercase tracking-wider text-theme-main opacity-60 border-b border-thistle pb-1 mt-4">
               Info Copia
             </h3>
-            <dl class="text-paynes-gray space-y-2 text-sm">
+            <dl class="text-theme-main space-y-2 text-sm">
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center">
+                <dt class="flex items-center opacity-70">
                   <i
                     class="fa-solid fa-location-dot w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
@@ -141,7 +141,7 @@
                 <dd>
                   <router-link
                     :to="`/libraries/${book.libraryId}`"
-                    class="font-bold text-paynes-gray hover:text-zomp underline decoration-2 underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-zomp rounded px-1 -ml-1"
+                    class="font-bold text-theme-main hover:text-zomp underline decoration-2 underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-zomp rounded px-1 -ml-1"
                     :aria-label="`Vai alla libreria ${book.libraryName}`">
                     {{ book.libraryName }}
                   </router-link>
@@ -149,7 +149,7 @@
               </div>
 
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center">
+                <dt class="flex items-center opacity-70">
                   <i
                     class="fa-solid fa-heart-pulse w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
@@ -167,7 +167,7 @@
               <span
                 v-for="tag in book.tags"
                 :key="tag"
-                class="px-3 py-1 bg-ash-gray/30 text-paynes-gray text-xs rounded-full border border-thistle/50">
+                class="px-3 py-1 bg-ash-gray/30 text-theme-main text-xs rounded-full border border-thistle/50">
                 #{{ tag }}
               </span>
             </div>
@@ -175,7 +175,7 @@
 
           <div
             v-if="book.ownerNotes"
-            class="relative bg-yellow-50 p-6 rounded-xl border border-yellow-100 text-sm text-gray-600 italic mt-2">
+            class="relative bg-yellow-50 dark:bg-yellow-900/10 p-6 rounded-xl border border-yellow-100 dark:border-yellow-900/30 text-sm text-theme-main italic mt-2">
             <i
               class="fa-solid fa-quote-left absolute top-2 left-2 text-yellow-400 text-xl opacity-80"
               aria-hidden="true"></i>
@@ -193,7 +193,7 @@
                 @click="router.push(`/books/${book.id}/edit`)"
                 aria-label="modifica dettagli libro"
                 title="Modifica"
-                class="p-3 text-paynes-gray hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
+                class="p-3 text-theme-main hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
                 <i
                   class="fa-solid fa-pen-to-square text-lg"
                   aria-hidden="true"></i>
@@ -203,7 +203,7 @@
                 @click="openMoveModal"
                 aria-label="sposta in altra libreria"
                 title="Sposta in altra libreria"
-                class="p-3 text-paynes-gray hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
+                class="p-3 text-theme-main hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
                 <i
                   class="fa-solid fa-right-left text-lg"
                   aria-hidden="true"></i>
@@ -213,7 +213,7 @@
                 @click="openDeleteModal"
                 aria-label="elimina libro definitivamente"
                 title="Elimina"
-                class="p-3 text-red-600 hover:bg-red-50 rounded-lg transition border border-transparent hover:border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500">
+                class="p-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition border border-transparent hover:border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500">
                 <i class="fa-solid fa-trash text-lg" aria-hidden="true"></i>
               </button>
             </div>
@@ -245,9 +245,9 @@
       :isOpen="showMoveModal"
       title="Sposta Copia"
       @close="showMoveModal = false">
-      <div class="space-y-4 max-w-full">
+      <div class="space-y-4 max-w-full text-theme-main">
         <p
-          class="text-xs font-bold uppercase tracking-widest text-paynes-gray opacity-60">
+          class="text-xs font-bold uppercase tracking-widest opacity-60">
           Seleziona destinazione:
         </p>
 
@@ -266,16 +266,12 @@
             class="w-full text-left p-3 rounded-xl border-2 transition-all duration-200 flex justify-between items-center group"
             :class="
               lib.id === book.libraryId
-                ? 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'
-                : 'border-thistle hover:border-zomp hover:bg-zomp/5 active:scale-[0.98]'
+                ? 'border-gray-100 dark:border-gray-800 bg-[var(--bg-secondary)] opacity-60 cursor-not-allowed'
+                : 'border-thistle hover:border-zomp hover:bg-zomp/5 active:scale-[0.98] bg-theme-primary'
             ">
             <span
               class="font-bold text-sm truncate pr-2"
-              :class="
-                lib.id === book.libraryId
-                  ? 'text-paynes-gray/50'
-                  : 'text-paynes-gray group-hover:text-zomp'
-              ">
+              :class="lib.id === book.libraryId ? 'opacity-50' : 'group-hover:text-zomp'">
               {{ lib.name }}
             </span>
 
@@ -296,7 +292,7 @@
         <div class="pt-2">
           <button
             @click="showMoveModal = false"
-            class="w-full py-2 text-xs font-bold text-paynes-gray/60 hover:text-red-500 transition-colors uppercase tracking-widest">
+            class="w-full py-2 text-xs font-bold opacity-60 hover:text-red-500 transition-colors uppercase tracking-widest">
             Annulla
           </button>
         </div>
@@ -309,18 +305,18 @@
       @close="handleModalClose">
       <div
         v-if="deleteStep === 'confirm'"
-        class="flex flex-col items-center text-center space-y-4">
+        class="flex flex-col items-center text-center space-y-4 text-theme-main">
         <div
-          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
+          class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mb-2">
           <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
 
-        <p class="text-lg font-medium text-paynes-gray">
+        <p class="text-lg font-medium">
           Sei sicuro di voler eliminare questo libro?
         </p>
 
         <p
-          class="text-sm text-gray-500 bg-red-50 p-3 rounded-lg border border-red-100">
+          class="text-sm opacity-70 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]">
           <i class="fa-solid fa-circle-info mr-1"></i>
           Questa azione è <strong>irreversibile</strong>. Il libro verrà rimosso
           permanentemente dalla tua libreria.
@@ -329,7 +325,7 @@
         <div class="flex gap-3 w-full mt-4">
           <button
             @click="showDeleteModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition">
+            class="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] font-bold transition">
             Annulla
           </button>
           <button
@@ -339,43 +335,18 @@
           </button>
         </div>
       </div>
-
-      <div
-        v-else-if="deleteStep === 'loading'"
-        class="flex flex-col items-center justify-center py-8 space-y-4">
-        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
-        <p class="text-paynes-gray font-medium">Eliminazione in corso...</p>
-      </div>
-
-      <div
-        v-else-if="deleteStep === 'success'"
-        class="flex flex-col items-center text-center space-y-4">
-        <div
-          class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mb-2 animate-bounce">
-          <i class="fa-solid fa-check text-3xl"></i>
-        </div>
-        <h3 class="text-xl font-bold text-paynes-gray">Libro Eliminato!</h3>
-        <p class="text-sm text-gray-600">
-          L'operazione è andata a buon fine. Verrai reindirizzato alla Home
-          Page.
-        </p>
-        <button
-          @click="handleModalClose"
-          class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
-          Chiudi e vai alla Home
-        </button>
-      </div>
+      ...
     </AppModal>
 
     <AppModal
       :isOpen="isLoanConfirmModalOpen"
       title="Richiesta di Prestito"
       @close="isLoanConfirmModalOpen = false">
-      <div v-if="book" class="space-y-4 text-paynes-gray">
+      <div v-if="book" class="space-y-4 text-theme-main">
         <p class="text-sm">
           Confermi di voler inviare una richiesta di prestito per il libro:
         </p>
-        <div class="p-3 bg-gray-100 border border-thistle rounded-lg">
+        <div class="p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg">
           <p class="font-bold text-base">{{ book.title }}</p>
           <p class="text-xs italic opacity-80">di {{ book.author }}</p>
           <p class="text-xs mt-2">
@@ -391,16 +362,14 @@
         <div class="flex justify-end gap-3 pt-2">
           <button
             @click="isLoanConfirmModalOpen = false"
-            class="px-4 py-2 rounded-lg transition text-sm font-bold border border-gray-300 hover:bg-gray-50">
+            class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--bg-secondary)]">
             Annulla
           </button>
           <button
             @click="confirmLoanRequest"
             :disabled="isSendingLoan"
-            class="bg-zomp text-white px-4 py-2 rounded-lg hover:bg-paynes-gray transition text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-            <i
-              v-if="isSendingLoan"
-              class="fa-solid fa-circle-notch fa-spin"></i>
+            class="bg-zomp text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            <i v-if="isSendingLoan" class="fa-solid fa-circle-notch fa-spin"></i>
             {{ isSendingLoan ? "Invio..." : "Conferma Richiesta" }}
           </button>
         </div>
@@ -411,18 +380,18 @@
       :isOpen="isLoanResultModalOpen"
       :title="loanResultTitle"
       @close="isLoanResultModalOpen = false">
-      <div class="space-y-4">
+      <div class="space-y-4 text-theme-main">
         <div v-if="loanResultIcon" class="flex justify-center text-4xl">
           <i class="fa-solid" :class="loanResultIcon"></i>
         </div>
-        <p class="text-sm text-paynes-gray text-center">
+        <p class="text-sm text-center">
           {{ loanResultMessage }}
         </p>
 
         <div class="flex justify-center pt-2">
           <button
             @click="isLoanResultModalOpen = false"
-            class="bg-paynes-gray text-white px-4 py-2 rounded-lg hover:bg-zomp transition text-sm font-bold">
+            class="bg-[var(--paynes-gray)] text-white px-4 py-2 rounded-lg hover:bg-zomp transition text-sm font-bold">
             OK
           </button>
         </div>
@@ -466,7 +435,7 @@ const isOwner = computed(() => {
   return book.value.ownerId === authStore.userId;
 });
 
-// Priorità immagine: customCover (Base64) > coverUrl (URL)
+// priorita immagine: customCover (Base64) > coverUrl (URL)
 const displayCover = computed(() => {
   if (!book.value) return null;
   return book.value.customCover || book.value.coverUrl;
@@ -475,14 +444,15 @@ const displayCover = computed(() => {
 const statusBadgeClass = computed(() => {
   if (!book.value) return "";
   if (book.value.status === "available") {
-    return "bg-green-100 text-green-800 border-green-200";
+    return "bg-zomp text-white border-zomp";
   } else {
-    return "bg-orange-100 text-orange-800 border-orange-200";
+    return "bg-tea-rose-red/20 text-paynes-gray border-thistle";
   }
 });
 
 const statusLabel = computed(() => {
   if (!book.value) return "";
+  // Mantengo le maiuscole originali come nel tuo template
   return book.value.status === "available" ? "Disponibile" : "In Prestito";
 });
 
@@ -521,12 +491,10 @@ async function openMoveModal() {
 
 async function confirmMove(newLibraryId) {
   try {
-    // Chiamata all'endpoint PATCH specifico per lo spostamento
     await apiClient.patch(`/copies/${book.value.id}/move`, {
       libraryId: newLibraryId,
     });
     showMoveModal.value = false;
-    // Ricarichiamo i dettagli per aggiornare il nome della libreria a video
     await fetchBookDetails();
   } catch (e) {
     alert("Errore durante lo spostamento");
@@ -605,3 +573,9 @@ onMounted(() => {
   fetchBookDetails();
 });
 </script>
+
+<style scoped>
+.font-display {
+  font-family: "Mochiy Pop P One", cursive;
+}
+</style>
