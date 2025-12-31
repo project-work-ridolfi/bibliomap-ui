@@ -33,7 +33,7 @@
                   
                   <div class="dropdown-divider"></div>
 
-                  <router-link to="/profile" @click="closeUserMenu" class="dropdown-item">
+                  <router-link :to="`/profile/${authStore.userId}`" @click="closeUserMenu" class="dropdown-item">
                     <VueFeather type="settings" size="16" class="icon-margin"></VueFeather>
                     visualizza profilo
                   </router-link>

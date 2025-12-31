@@ -133,7 +133,7 @@ const menuItems = computed(() => {
       { path: '/dashboard', label: 'dashboard', icon: 'grid' },
       { label: 'le mie librerie', icon: 'book-open', children: true },
       { path: '/add-book', label: 'aggiungi libro', icon: 'plus-circle' },
-      { path: '/profile', label: 'profilo', icon: 'user' }
+      { path: '/profile/' + authStore.userId, label: 'profilo', icon: 'user' }
     )
   } else {
     items.push(
