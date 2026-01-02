@@ -131,7 +131,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] controllo cover
 - [x] allunga prestito
 - [x] prestito restituito
-- [ ] suggerimenti nel profilo (User-to-User), indice affinità letteraria, usa toptags dei due utenti.
+- [x] suggerimenti nel profilo (User-to-User), indice affinità letteraria, usa toptags dei due utenti.
 - [ ] suggerimenti dettaglio libro (Item-to-Item), query spaziale filtrata per gli stessi tags del libro corrente.
 - [ ] book counter
 - [ ] lib counter

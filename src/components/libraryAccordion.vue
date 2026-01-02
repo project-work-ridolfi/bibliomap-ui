@@ -32,6 +32,7 @@
         </router-link>
 
         <router-link
+            v-if="isOwner"
           :to="{ path: '/add-book', query: { libraryId: library.id } }"
           @click.stop
           class="p-2 text-[var(--zomp)] hover:bg-[var(--zomp)]/10 rounded-full transition">
@@ -39,6 +40,7 @@
         </router-link>
 
         <button
+        v-if="isOwner"
           @click.stop="$emit('delete-library', library)"
           class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition">
           <i class="fa-solid fa-trash-can"></i>
@@ -101,7 +103,7 @@
             </div>
 
             <button
-              v-if="book.status && book.status.toLowerCase() === 'available'"
+              v-if="book.status && book.status.toLowerCase() && isOwner === 'available'"
               @click.stop="$emit('delete-book', { book, libraryId: library.id })"
               class="absolute top-1 right-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-1"
               title="Rimuovi libro">
@@ -123,7 +125,11 @@ import { computed } from "vue"
 import draggable from "vuedraggable"
 import { apiClient } from "@/services/apiClient"
 
-const props = defineProps(["library"])
+const props = defineProps({
+  library: Object,
+  isOwner: Boolean // indica se l'utente corrente è il proprietario della libreria
+})
+
 const emit = defineEmits([
   "toggle",
   "bookMoved",

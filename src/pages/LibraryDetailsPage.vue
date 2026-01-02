@@ -35,7 +35,9 @@
           <dl class="text-sm space-y-3 text-theme-main">
             <div class="flex justify-between">
               <dt class="opacity-70">Proprietario:</dt>
-              <dd class="font-bold">{{ library.ownerName || "Utente anonimo" }}</dd>
+              <router-link :to="`/profile/${library.ownerId}`" class="font-bold hover:text-zomp transition-colors cursor-pointer">
+                    {{ library.ownerName || "Utente anonimo" }}
+            </router-link>
             </div>
             <div class="flex justify-between">
               <dt class="opacity-70">Visibilità:</dt>
