@@ -1,22 +1,17 @@
 <template>
-  <div id="app" class="min-h-screen flex flex-col bg-gray-50">
-    <!-- Skip link per accessibilità -->
+  <div id="app" class="min-h-screen flex flex-col">
     <a href="#main-content" class="skip-link">
-      Salta al contenuto principale
+      salta al contenuto principale
     </a>
 
-    <!-- Header -->
     <AppHeader @toggle-sidebar="sidebarOpen = !sidebarOpen" />
 
-    <!-- Sidebar -->
     <AppSidebar :is-open="sidebarOpen" @close="sidebarOpen = false" />
 
-    <!-- Main content -->
-    <main id="main-content" role="main" class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 bg-theme-primary">
+    <main id="main-content" role="main" class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
       <router-view />
     </main>
 
-    <!-- Footer -->
     <AppFooter />
   </div>
 </template>
@@ -32,6 +27,7 @@ const authStore = useAuthStore()
 const sidebarOpen = ref(false)
 
 onMounted(async () => {
+  // inizializzazione sessione utente
   if (authStore.token) {
     await authStore.fetchCurrentUser()
   }
