@@ -83,8 +83,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [ ] bottone per modificare la libreria
 - [ ] profilo
     - [ ] cambia visibilità
-    - [ ] da fare completamente pagina profilo che riporta poi a quella che c'e' ora di gestione
-    - [ ] gestione richieste rivedere non si vedeno bene
+    - [x] da fare completamente pagina profilo che riporta poi a quella che c'e' ora di gestione
+    - [x] gestione richieste rivedere non si vedeno bene
 - [ ] dashboard
     - [ ] riepilogo e analisi bloccati a 0 implementare le req giuste (chiamare componente giusta)
     - [x] sui libri prestati devono funzionare i bottoni (api per allungare il tempo da fare)
@@ -121,7 +121,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] Aggiungere badge visivo se `status == 'on_loan'`
     - [x] Disabilitare tasto cancellazione se il libro è in prestito attivo
 - [ ] fix switch light/dark
-- [ ] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
+- [x] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
 2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
 - [ ] controlla condizioni
 - [x] aggiungi icona occhio a libreria che porta a libraries/id
