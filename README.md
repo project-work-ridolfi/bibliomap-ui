@@ -59,14 +59,14 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] modifica libro condizioni, tag e note in modalita' dark sono bianche
 - [x] gestione profilo
 - [x] home
-    - [ ] forse va cambiato il nome
+    - [x] forse va cambiato il nome
     - [x] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
     - [x] versione dark da aggiustare i bottoni (forse css global)
     - [x] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
-- [ ] stats
+- [x] stats
     - [x] dark
-    - [ ] metriche utilizzo
-    - [ ] da modificare quelli che si vedono e aggiungere
+    - [x] metriche utilizzo
+    - [X] da modificare quelli che si vedono e aggiungere
 - [x] loans
     - [x] gestione richieste nome del proprietario va visto se le opzioni di visibilita' lo consentono
 - [x] sidebar
@@ -124,8 +124,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
 2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
 - [ ] controlla condizioni
-- [ ] aggiungi icona occhio a libreria che porta a libraries/id
-- [ ] aggiungi icona occhio al libro
+- [x] aggiungi icona occhio a libreria che porta a libraries/id
+- [x] aggiungi icona occhio al libro
 - [x] sidebar con tutte le librerie?
 - [x] cerca libri per available non funge
 - [x] controllo cover
@@ -133,8 +133,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] prestito restituito
 - [x] suggerimenti nel profilo (User-to-User), indice affinità letteraria, usa toptags dei due utenti.
 - [ ] suggerimenti dettaglio libro (Item-to-Item), query spaziale filtrata per gli stessi tags del libro corrente.
-- [ ] book counter
-- [ ] lib counter
-- [ ] gestione profilo
-- [ ] mappetta
-- [ ] stats titoli più richiesti lista non bar graph
+- [x] book counter
+- [x] lib counter
+- [x] gestione profilo
+- [x] mappetta
+- [x] stats titoli più richiesti lista non bar graph

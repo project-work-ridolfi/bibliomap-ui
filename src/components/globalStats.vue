@@ -19,22 +19,70 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
           <div v-for="s in detailStats" :key="s.label" class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center">
             <p class="text-[9px] font-black opacity-40 tracking-widest mb-1 uppercase">{{ s.label }}</p>
-            <p class="font-bold text-lg text-zomp truncate px-2">{{ s.value }}</p>
+            <p v-if="s.link" @click="router.push(s.link)" class="font-bold text-lg text-zomp truncate px-2 cursor-pointer hover:underline">
+              {{ s.value }}
+            </p>
+            <p v-else class="font-bold text-lg text-zomp truncate px-2">{{ s.value }}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
           <div class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
             <p class="text-[10px] font-black uppercase opacity-50 mb-6 tracking-widest text-center">scambi totali (ultimi 6 mesi)</p>
-            <canvas ref="canvasTrend"></canvas>
+            <div class="h-[200px]">
+               <canvas ref="canvasTrend"></canvas>
+            </div>
           </div>
           <div class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
             <p class="text-[10px] font-black uppercase opacity-50 mb-6 tracking-widest text-center">richieste community per settimana</p>
-            <canvas ref="canvasWeekly"></canvas>
+            <div class="h-[200px]">
+              <canvas ref="canvasWeekly"></canvas>
+            </div>
           </div>
-          <div class="md:col-span-2 bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
-            <p class="text-[10px] font-black uppercase opacity-50 mb-6 tracking-widest text-center">top 5 titoli più prestati</p>
-            <canvas ref="canvasPareto"></canvas>
+
+          <div v-if="filteredMostViewedBooks.length > 0" class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
+            <p class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">libri più visitati (global)</p>
+            <div class="space-y-3">
+              <div v-for="(item, index) in filteredMostViewedBooks.slice(0, 3)" :key="index"
+                @click="router.push(`/books/${item.id}`)"
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                <span class="font-bold text-sm text-theme-main group-hover:text-zomp truncate flex-1 mr-4">
+                  {{ index + 1 }}. {{ item.name }}
+                </span>
+                <span class="text-[10px] font-black uppercase opacity-60 shrink-0">
+                  <i class="fa-solid fa-eye mr-1"></i> {{ item.views }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="filteredLibraries.length > 0" class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm text-theme-main">
+            <p class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">librerie più visitate</p>
+            <div class="space-y-3">
+              <div v-for="(item, index) in filteredLibraries.slice(0, 3)" :key="index"
+                @click="router.push(`/libraries/${item.id}`)"
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                <span class="font-bold text-sm group-hover:text-zomp truncate flex-1 mr-4">{{ item.name }}</span>
+                <span class="text-[10px] font-black uppercase opacity-60">{{ item.views }} visite</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
+            <p class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">top 5 titoli più prestati</p>
+            <div class="space-y-3">
+              <div v-for="(label, index) in fullData.paretoBooks.labels.slice(0, 5)" :key="index"
+                @click="router.push(`/books/${parseKey(label).id}`)"
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                <div class="flex items-center gap-4">
+                  <span class="font-display text-zomp text-lg opacity-50">{{ index + 1 }}.</span>
+                  <span class="font-bold text-theme-main group-hover:text-zomp transition-colors">{{ parseKey(label).name }}</span>
+                </div>
+                <div class="text-[11px] font-black uppercase bg-thistle/30 px-3 py-1 rounded-full opacity-70">
+                  {{ fullData.paretoBooks.data[index] }} scambi
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -56,7 +104,6 @@ const fullData = ref(null);
 
 const canvasTrend = ref(null);
 const canvasWeekly = ref(null);
-const canvasPareto = ref(null);
 let charts = [];
 
 const simpleCards = computed(() => [
@@ -65,141 +112,89 @@ const simpleCards = computed(() => [
   { label: 'scambi conclusi', value: counters.loans }
 ]);
 
-const detailStats = computed(() => [
-  { label: 'top requester', value: fullData.value?.topRequester || 'nessuno' },
-  { label: 'top loaner', value: fullData.value?.topLoaner || 'nessuno' },
-  { label: 'genere top', value: fullData.value?.topTag || 'nessuno' },
-  { label: 'viaggio record', value: `${fullData.value?.maxDistance || 0} km` }
-]);
+const detailStats = computed(() => {
+    if (!fullData.value) return [];
+    return [
+        { label: 'top requester', value: fullData.value.topRequester || 'nessuno', link: fullData.value.topRequesterId ? `/profile/${fullData.value.topRequesterId}` : null },
+        { label: 'top loaner', value: fullData.value.topLoaner || 'nessuno', link: fullData.value.topLoanerId ? `/profile/${fullData.value.topLoanerId}` : null },
+        { label: 'genere top', value: fullData.value.topTag || 'nessuno' },
+        { label: 'viaggio record', value: `${fullData.value.maxDistance || 0} km` }
+    ];
+});
+
+// Helper parsing chiavi "id_nome"
+function parseKey(label) {
+  if (!label) return { id: '', name: '' };
+  const parts = label.split("_");
+  const id = parts[0];
+  const name = parts.slice(1).join("_") || id;
+  return { id, name };
+}
+
+// Liste filtrate e ordinate
+const filteredMostViewedBooks = computed(() => {
+  if (!fullData.value?.mostViewedBooks?.labels) return [];
+  return fullData.value.mostViewedBooks.labels
+    .map((label, i) => ({ ...parseKey(label), views: fullData.value.mostViewedBooks.data[i] }))
+    .filter(item => item.views > 0)
+    .sort((a, b) => b.views - a.views);
+});
+
+const filteredLibraries = computed(() => {
+  if (!fullData.value?.mostVisitedLibraries?.labels) return [];
+  return fullData.value.mostVisitedLibraries.labels
+    .map((label, i) => ({ ...parseKey(label), views: fullData.value.mostVisitedLibraries.data[i] }))
+    .filter(item => item.views > 0)
+    .sort((a, b) => b.views - a.views);
+});
 
 async function fetchCounters() {
   try {
     const res = await apiClient.get('/stats/global/counters');
-    counters.books = res.books || 0;
-    counters.copies = res.copies || 0;
-    counters.loans = res.loans || 0;
+    Object.assign(counters, res);
   } catch (e) { console.error(e); }
 }
 
 async function toggleOpen() {
   isOpen.value = !isOpen.value;
-  if (isOpen.value && !fullData.value) {
-    isLoading.value = true;
-    try {
-      const res = await apiClient.get('/stats/global/full');
-      fullData.value = res;
-      await nextTick();
-      setTimeout(renderGlobalCharts, 50);
-    } finally { isLoading.value = false; }
+  if (isOpen.value) {
+    if (!fullData.value) {
+        isLoading.value = true;
+        try {
+            fullData.value = await apiClient.get('/stats/global/full');
+        } catch (e) { console.error(e); }
+        finally { isLoading.value = false; }
+    }
+    await nextTick();
+    setTimeout(renderGlobalCharts, 100);
   }
 }
 
 function renderGlobalCharts() {
   charts.forEach(c => c.destroy());
   charts = [];
+  const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { stepSize: 1, precision: 0 }, beginAtZero: true } } };
 
-  const options = { 
-    responsive: true, 
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { y: { ticks: { stepSize: 1, precision: 0 }, beginAtZero: true } }
-  };
-
-  if (canvasTrend.value) {
+  if (canvasTrend.value && fullData.value?.loansTrend) {
     charts.push(new Chart(canvasTrend.value, {
       type: 'line',
       data: {
-        labels: fullData.value.loansTrend.labels,
-        datasets: [{ data: fullData.value.loansTrend.data, borderColor: '#629677', backgroundColor: 'rgba(98,150,119,0.1)', fill: true, tension: 0.4 }]
+        labels: [...fullData.value.loansTrend.labels],
+        datasets: [{ data: [...fullData.value.loansTrend.data], borderColor: '#629677', backgroundColor: 'rgba(98, 150, 119, 0.1)', fill: true, tension: 0.4 }]
       },
-      options
+      options: commonOptions
     }));
   }
 
-  if (canvasWeekly.value) {
+  if (canvasWeekly.value && fullData.value?.weeklyRequests) {
     charts.push(new Chart(canvasWeekly.value, {
       type: 'bar',
       data: {
         labels: fullData.value.weeklyRequests.labels.map(l => l.replace('null', 'corrente')),
-        datasets: [{ data: fullData.value.weeklyRequests.data, backgroundColor: '#495D63', borderRadius: 4 }]
+        datasets: [{ data: [...fullData.value.weeklyRequests.data], backgroundColor: '#495D63', borderRadius: 4 }]
       },
-      options
+      options: commonOptions
     }));
-  }
-
-  if (canvasPareto.value) {
-    const labelsRaw = fullData.value.paretoBooks.labels;
-
-    const displayLabels = labelsRaw.map((label) => {
-      const parts = label.split(":");
-      const title = parts[1] || parts[0];
-      return title.length > 15 ? title.substring(0, 15) + "..." : title;
-    });
-
-    charts.push(
-      new Chart(canvasPareto.value, {
-        type: "bar",
-        data: {
-          labels: displayLabels,
-          datasets: [
-            {
-              data: fullData.value.paretoBooks.data,
-              backgroundColor: "#629677",
-              borderRadius: 4,
-            },
-          ],
-        },
-        options: {
-          ...options,
-          // Cambia il cursore quando passi sopra una barra o un'etichetta
-          onHover: (event, chartElement) => {
-            event.native.target.style.cursor = chartElement[0]
-              ? "pointer"
-              : "default";
-          },
-          scales: {
-            ...options.scales,
-            x: {
-              ticks: {
-                color: "#629677", // Colore che richiama i link del tema (Zomp)
-                font: {
-                  weight: "bold",
-                  size: 11,
-                },
-                // Funzione per gestire il click specifico sulle etichette (labels)
-                // Nota: Chart.js nativamente gestisce meglio il click sull'area,
-                // ma con onClick generale copriamo tutto.
-              },
-            },
-          },
-          onClick: (evt, elements) => {
-            // 1. Click sulle barre
-            if (elements.length > 0) {
-              const index = elements[0].index;
-              const copyId = labelsRaw[index].split(":")[0];
-              router.push(`/books/${copyId}`);
-            }
-            // 2. Controllo click sulle etichette dell'asse X
-            else {
-              const chart = chartInstances.find(
-                (c) => c.canvas === canvasPareto.value
-              );
-              const helpers = Chart.helpers;
-              const canvasPosition = helpers.getRelativePosition(evt, chart);
-
-              // Verifichiamo se il click è avvenuto nell'area delle scale X
-              if (canvasPosition.y > chart.chartArea.bottom) {
-                const index = chart.scales.x.getValueForPixel(canvasPosition.x);
-                if (index >= 0 && labelsRaw[index]) {
-                  const copyId = labelsRaw[index].split(":")[0];
-                  router.push(`/books/${copyId}`);
-                }
-              }
-            }
-          },
-        },
-      })
-    );
   }
 }
 
@@ -210,5 +205,5 @@ onUnmounted(() => charts.forEach(c => c.destroy()));
 <style scoped>
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-canvas { max-height: 200px; width: 100% !important; }
+canvas { width: 100% !important; }
 </style>
