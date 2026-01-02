@@ -105,17 +105,6 @@
               <div class="grid grid-cols-[100px_1fr] items-center">
                 <dt class="flex items-center opacity-70">
                   <i
-                    class="fa-solid fa-book-open w-5 text-zomp mr-1"
-                    aria-hidden="true"></i>
-                  Formato:
-                </dt>
-                <dd>
-                  <strong>{{ book.coverType || "N/D" }}</strong>
-                </dd>
-              </div>
-              <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70">
-                  <i
                     class="fa-solid fa-language w-5 text-zomp mr-1"
                     aria-hidden="true"></i>
                   Lingua:
@@ -325,13 +314,12 @@
       title="Richiesta di Prestito"
       @close="isLoanConfirmModalOpen = false">
       <div v-if="book" class="space-y-4 text-theme-main">
-        <p class="text-sm">Confermi la richiesta per:</p>
         <div class="p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg">
           <p class="font-bold text-base">{{ book.title }}</p>
           <p class="text-xs italic opacity-80">di {{ book.author }}</p>
           <p class="text-xs mt-2">Proprietario: <span class="font-semibold">{{ book.ownerName }}</span></p>
         </div>
-        <p class="text-xs font-semibold text-red-500">Il proprietario riceverà una notifica e dovrà approvare.</p>
+        <p class="text-xs font-semibold text-red-500">Il proprietario riceverà una notifica e dovrà approvare lo scambio.</p>
         <div class="flex justify-end gap-3 pt-2">
           <button @click="isLoanConfirmModalOpen = false" class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--bg-secondary)]">Annulla</button>
           <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="bg-zomp text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 flex items-center gap-2">

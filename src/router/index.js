@@ -7,6 +7,11 @@ const routes = [
     name: 'home',
     component: () => import('@/pages/HomePage.vue')
   },
+    {
+    path: '/map',
+    name: 'map',
+    component: () => import('@/pages/HomePage.vue')
+  },
   {
     path: '/signup',
     name: 'signup',

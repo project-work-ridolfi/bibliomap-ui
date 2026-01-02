@@ -12,11 +12,9 @@
       v-if="isOpen"
       class="fixed top-0 left-0 h-full w-72 bg-theme-primary shadow-2xl z-50 overflow-y-auto border-r border-thistle transition-colors duration-300"
       role="navigation">
-      
-      <div class="flex items-center justify-between p-6 border-b border-thistle">
-        <h2 class="sidebar-title lowercase">
-          menu
-        </h2>
+      <div
+        class="flex items-center justify-between p-6 border-b border-thistle">
+        <h2 class="sidebar-title">MENU</h2>
         <button
           @click="emit('close')"
           class="sidebar-close-btn"
@@ -33,40 +31,48 @@
             @click="emit('close')"
             class="nav-link"
             active-class="nav-link-active">
-            <VueFeather :type="item.icon" size="20" class="nav-icon"></VueFeather>
-            <span class="font-medium lowercase">{{ item.label }}</span>
+            <VueFeather
+              :type="item.icon"
+              size="20"
+              class="nav-icon"></VueFeather>
+            <span class="font-medium  ">{{ item.label }}</span>
           </router-link>
 
           <div v-else class="flex flex-col">
-            <button 
+            <button
               @click="isLibrariesExpanded = !isLibrariesExpanded"
               class="nav-link w-full justify-between"
               :class="{ 'opacity-100': isLibrariesExpanded }">
               <div class="flex items-center gap-4">
-                <VueFeather :type="item.icon" size="20" class="nav-icon"></VueFeather>
-                <span class="font-medium lowercase">{{ item.label }}</span>
+                <VueFeather
+                  :type="item.icon"
+                  size="20"
+                  class="nav-icon"></VueFeather>
+                <span class="font-medium  ">{{ item.label }}</span>
               </div>
-              <VueFeather 
-                type="chevron-down" 
-                size="16" 
+              <VueFeather
+                type="chevron-down"
+                size="16"
                 class="transition-transform duration-300"
                 :class="{ 'rotate-180': isLibrariesExpanded }">
               </VueFeather>
             </button>
 
-            <div v-if="isLibrariesExpanded" class="flex flex-col pl-10 gap-1 mt-1 animate-fade-in">
+            <div
+              v-if="isLibrariesExpanded"
+              class="flex flex-col pl-10 gap-1 mt-1 animate-fade-in">
               <router-link
                 v-for="lib in userLibraries"
                 :key="lib.id"
                 :to="`/libraries/${lib.id}`"
                 @click="emit('close')"
-                class="sub-nav-link lowercase">
+                class="sub-nav-link  ">
                 {{ lib.name }}
               </router-link>
               <router-link
                 to="/libraries"
                 @click="emit('close')"
-                class="sub-nav-link italic opacity-70 lowercase">
+                class="sub-nav-link italic opacity-70  ">
                 gestisci tutte
               </router-link>
             </div>
@@ -74,12 +80,12 @@
         </div>
       </nav>
 
-      <div v-if="authStore.isAuthenticated" class="absolute bottom-0 left-0 right-0 p-6 border-t border-thistle bg-theme-primary">
-        <button
-          @click="handleLogout"
-          class="logout-btn">
+      <div
+        v-if="authStore.isAuthenticated"
+        class="absolute bottom-0 left-0 right-0 p-6 border-t border-thistle bg-theme-primary">
+        <button @click="handleLogout" class="logout-btn">
           <VueFeather type="log-out" size="20"></VueFeather>
-          <span class="font-bold lowercase tracking-tight">logout</span>
+          <span class="font-bold   tracking-tight">logout</span>
         </button>
       </div>
     </aside>
@@ -87,68 +93,73 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
-import { apiClient } from '@/services/apiClient'
+import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+import { apiClient } from "@/services/apiClient";
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close'])
-const router = useRouter()
-const authStore = useAuthStore()
+const emit = defineEmits(["close"]);
+const router = useRouter();
+const authStore = useAuthStore();
 
-const userLibraries = ref([])
-const isLibrariesExpanded = ref(false)
+const userLibraries = ref([]);
+const isLibrariesExpanded = ref(false);
 
 // recupera le librerie dell utente dal backend
 async function fetchLibraries() {
-  if (!authStore.isAuthenticated) return
+  if (!authStore.isAuthenticated) return;
   try {
-    const response = await apiClient.get('/users/me/libraries')
-    userLibraries.value = response.libraries || []
+    const response = await apiClient.get("/users/me/libraries");
+    userLibraries.value = response.libraries || [];
   } catch (error) {
-    console.error('errore recupero librerie sidebar')
+    console.error("errore recupero librerie sidebar");
   }
 }
 
 // osserva l apertura della sidebar per aggiornare i dati
-watch(() => props.isOpen, (newVal) => {
-  if (newVal) {
-    fetchLibraries()
+watch(
+  () => props.isOpen,
+  (newVal) => {
+    if (newVal) {
+      fetchLibraries();
+    }
   }
-})
+);
 
 // mappatura rotte per menu
 const menuItems = computed(() => {
-  const items = [{ path: '/', label: 'home', icon: 'home' }, { path: '/stats', label: 'statistiche', icon: 'bar-chart-2' }]
+  const items = [{ path: "/", label: "Trova libri", icon: "map" }];
 
   if (authStore.isAuthenticated) {
     items.push(
-      { path: '/dashboard', label: 'dashboard', icon: 'grid' },
-      { label: 'le mie librerie', icon: 'book-open', children: true },
-      { path: '/add-book', label: 'aggiungi libro', icon: 'plus-circle' },
-      { path: '/profile/' + authStore.userId, label: 'profilo', icon: 'user' }
-    )
+      { path: "/dashboard", label: "Dashboard", icon: "grid" },
+      { path: "/stats", label: "Statistiche", icon: "bar-chart-2" },
+      { label: "Librerie", icon: "book-open", children: true },
+      { path: "/add-book", label: "Aggiungi libro", icon: "plus-circle" },
+      { path: "/profile/" + authStore.userId, label: "Profilo", icon: "user" }
+    );
   } else {
     items.push(
-      { path: '/signup', label: 'registrati', icon: 'user-plus' },
-      { path: '/login', label: 'accedi', icon: 'log-in' }
-    )
+      { path: "/stats", label: "Statistiche", icon: "bar-chart-2" },
+      { path: "/signup", label: "Registrati", icon: "user-plus" },
+      { path: "/login", label: "Accedi", icon: "log-in" }
+    );
   }
-  return items
-})
+  return items;
+});
 
 // gestione logout
 async function handleLogout() {
-  await authStore.logout()
-  emit('close')
-  router.push('/')
+  await authStore.logout();
+  emit("close");
+  router.push("/");
 }
 </script>
 
@@ -233,17 +244,21 @@ async function handleLogout() {
   color: white;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 
-.slide-enter-active, .slide-leave-active {
+.slide-enter-active,
+.slide-leave-active {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.slide-enter-from, .slide-leave-to {
+.slide-enter-from,
+.slide-leave-to {
   transform: translateX(-100%);
 }
 </style>

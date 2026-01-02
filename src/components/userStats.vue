@@ -65,13 +65,31 @@
           </div>
 
           <div
-            class="md:col-span-2 bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
+            class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
             <p
               class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">
               i tuoi titoli più richiesti
             </p>
-            <div class="h-[200px]">
-              <canvas ref="canvasPareto"></canvas>
+            <div class="space-y-3">
+              <div 
+                v-for="(label, index) in fullData.paretoBooks.labels" 
+                :key="index"
+                @click="navigateToBook(label)"
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp hover:shadow-sm transition cursor-pointer group"
+              >
+                <div class="flex items-center gap-4">
+                  <span class="font-display text-zomp text-lg opacity-50">{{ index + 1 }}.</span>
+                  <span class="font-bold text-theme-main group-hover:text-zomp transition-colors">
+                    {{ label.split(':')[1] || label }}
+                  </span>
+                </div>
+                <div class="text-[11px] font-black uppercase bg-thistle/30 px-3 py-1 rounded-full opacity-70">
+                  {{ fullData.paretoBooks.data[index] }} {{ fullData.paretoBooks.data[index] == 1 ? "richiesta" : "richieste" }}
+                </div>
+              </div>
+              <div v-if="fullData.paretoBooks.labels.length === 0" class="text-center py-4 italic opacity-50 text-sm">
+                Nessun dato disponibile
+              </div>
             </div>
           </div>
         </div>
@@ -108,7 +126,7 @@ const fullData = ref(null);
 // Riferimenti Canvas
 const canvasTrend = ref(null);
 const canvasTags = ref(null);
-const canvasPareto = ref(null);
+// canvasPareto rimosso dai riferimenti
 let chartInstances = [];
 
 const simpleCards = computed(() => [
@@ -141,6 +159,14 @@ const detailStats = computed(() => [
   },
 ]);
 
+// Funzione per la navigazione al libro dalla classifica testuale
+function navigateToBook(label) {
+  const copyId = label.split(":")[0];
+  if (copyId) {
+    router.push(`/books/${copyId}`);
+  }
+}
+
 async function fetchCounters() {
   if (!props.userId) return;
   try {
@@ -161,7 +187,7 @@ async function toggleOpen() {
       const res = await apiClient.get(`/stats/user/${props.userId}/full`);
       fullData.value = res;
       await nextTick();
-      setTimeout(renderCharts, 100); // Leggero delay per stabilità rendering
+      setTimeout(renderCharts, 100); 
     } finally {
       isLoadingFull.value = false;
     }
@@ -178,7 +204,6 @@ function renderCharts() {
     plugins: { legend: { display: false } },
   };
 
-  // 1. TREND (Line) - Invertito per ordine cronologico
   if (canvasTrend.value) {
     const labels = [...fullData.value.loansTrend.labels];
     const data = [...fullData.value.loansTrend.data];
@@ -208,13 +233,12 @@ function renderCharts() {
     );
   }
 
-  // 2. TAGS (Doughnut) - Sostituisce il settimanale
   if (canvasTags.value) {
     chartInstances.push(
       new Chart(canvasTags.value, {
         type: "doughnut",
         data: {
-          labels: fullData.value.weeklyRequests.labels, // Inviati dal BE come 'tags' chartData
+          labels: fullData.value.weeklyRequests.labels,
           datasets: [
             {
               data: fullData.value.weeklyRequests.data,
@@ -243,83 +267,8 @@ function renderCharts() {
       })
     );
   }
-
-  // 3. PARETO (Bar)
-  if (canvasPareto.value) {
-    const labelsRaw = fullData.value.paretoBooks.labels;
-
-    const displayLabels = labelsRaw.map((label) => {
-      const parts = label.split(":");
-      const title = parts[1] || parts[0];
-      return title.length > 15 ? title.substring(0, 15) + "..." : title;
-    });
-
-    chartInstances.push(
-      new Chart(canvasPareto.value, {
-        type: "bar",
-        data: {
-          labels: displayLabels,
-          datasets: [
-            {
-              data: fullData.value.paretoBooks.data,
-              backgroundColor: "#629677",
-              borderRadius: 4,
-            },
-          ],
-        },
-        options: {
-          ...commonOptions,
-          // Cambia il cursore quando passi sopra una barra o un'etichetta
-          onHover: (event, chartElement) => {
-            event.native.target.style.cursor = chartElement[0]
-              ? "pointer"
-              : "default";
-          },
-          scales: {
-            ...commonOptions.scales,
-            x: {
-              ticks: {
-                color: "#629677", // Colore che richiama i link del tema (Zomp)
-                font: {
-                  weight: "bold",
-                  size: 11,
-                },
-                // Funzione per gestire il click specifico sulle etichette (labels)
-                // Nota: Chart.js nativamente gestisce meglio il click sull'area,
-                // ma con onClick generale copriamo tutto.
-              },
-            },
-          },
-          onClick: (evt, elements) => {
-            // 1. Click sulle barre
-            if (elements.length > 0) {
-              const index = elements[0].index;
-              const copyId = labelsRaw[index].split(":")[0];
-              router.push(`/books/${copyId}`);
-            }
-            // 2. Controllo click sulle etichette dell'asse X
-            else {
-              const chart = chartInstances.find(
-                (c) => c.canvas === canvasPareto.value
-              );
-              const helpers = Chart.helpers;
-              const canvasPosition = helpers.getRelativePosition(evt, chart);
-
-              // Verifichiamo se il click è avvenuto nell'area delle scale X
-              if (canvasPosition.y > chart.chartArea.bottom) {
-                const index = chart.scales.x.getValueForPixel(canvasPosition.x);
-                if (index >= 0 && labelsRaw[index]) {
-                  const copyId = labelsRaw[index].split(":")[0];
-                  router.push(`/books/${copyId}`);
-                }
-              }
-            }
-          },
-        },
-      })
-    );
-  }
 }
+
 onMounted(fetchCounters);
 watch(() => props.userId, fetchCounters);
 onUnmounted(() => chartInstances.forEach((c) => c.destroy()));
