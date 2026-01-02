@@ -32,6 +32,10 @@
               <dt class="opacity-70">Libri totali:</dt>
               <dd class="font-bold">{{ userCounters.myBooksCount || 0 }}</dd>
             </div>
+              <div class="flex justify-between">
+                <dt class="opacity-70">Visibilità profilo:</dt>
+                <dd class="font-bold">{{ visibilityIta }}</dd>
+            </div>
           </dl>
 
           <button 
@@ -134,14 +138,14 @@
 
         <div v-else class="space-y-12 animate-fade-in">
           <div class="space-y-4">
-            <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-2">Insights Patrimonio</h2>
+            <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-2">{{isMyProfile ? 'Le tue statistiche' : 'Le statistiche di ' + profile.value?.username}}</h2>
             <UserStats :userId="profileId" />
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-2">Librerie Pubbliche</h2>
+            <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-2">Librerie</h2>
             <div v-if="libraries.length === 0" class="p-10 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center opacity-60 italic">
-              Nessuna libreria disponibile per questo utente.
+              Nessuna libreria disponibile.
             </div>
             <LibraryAccordion
               v-for="lib in libraries"
@@ -225,26 +229,26 @@ async function fetchProfileData() {
     // 2. Counters
     const resCount = await apiClient.get(`/stats/user/${profileId.value}/counters`);
     userCounters.value = resCount;
-
+    
     // 3. Caricamento Librerie (ciclo ID)
     const libDetails = [];
     if (resProfile.libraryIds) {
-      for (const lid of resProfile.libraryIds) {
-        try {
-          const detail = await apiClient.get(`/libraries/${lid}`);
-          libDetails.push({ ...detail, isOpen: false, books: [] });
-        } catch (e) { console.error("Libreria non accessibile", lid); }
-      }
+        for (const lid of resProfile.libraryIds) {
+            try {
+                const detail = await apiClient.get(`/libraries/${lid}`);
+                libDetails.push({ ...detail, isOpen: false, books: [] });
+            } catch (e) { console.error("Libreria non accessibile", lid); }
+        }
     }
     libraries.value = libDetails;
-
+    
     // 4. Affinità
     if (!isMyProfile.value && isAuthenticated.value) calculateAffinity();
     
     // 5. Loans se è il mio
     if (isMyProfile.value) {
-      const loans = await apiClient.get("/loan/requests/incoming");
-      incomingLoans.value = loans || [];
+        const loans = await apiClient.get("/loan/requests/incoming");
+        incomingLoans.value = loans || [];
     }
 
   } catch (err) {
@@ -283,6 +287,15 @@ async function handleUpdateUsername() {
   fetchProfileData();
 }
 
+const visibilityIta = computed(() => {
+  const vis = profile.value?.visibility;
+  switch (vis) {
+    case 'all': return 'pubblico';
+    case 'logged-in': return 'utenti registrati';
+    case 'private': return 'privato';
+    default: return 'non trovato';
+  }
+});
 async function handlePrivacyUpdate() {
   await apiClient.put(`/users/${authStore.userId}/privacy`, { 
     visibility: profileForm.visibility, 
