@@ -62,19 +62,20 @@
               v-if="isLibrariesExpanded"
               class="flex flex-col pl-10 gap-1 mt-1 animate-fade-in">
               <router-link
-                v-for="lib in userLibraries"
-                :key="lib.id"
-                :to="`/libraries/${lib.id}`"
-                @click="emit('close')"
-                class="sub-nav-link  ">
-                {{ lib.name }}
-              </router-link>
-              <router-link
-                to="/libraries"
-                @click="emit('close')"
-                class="sub-nav-link italic opacity-70  ">
-                gestisci tutte
-              </router-link>
+              v-for="lib in userLibraries"
+              :key="lib.id"
+              :to="`/libraries/${lib.id}`"
+              @click="emit('close')"
+              class="sub-nav-link  ">
+              {{ lib.name }}
+            </router-link>
+            <router-link
+              to="/libraries"
+              @click="emit('close')"
+              class="sub-nav-link italic opacity-70">
+                        <i class="fa-solid fa-gear"></i>
+                        <span class="ml-2"><strong>Gestisci tutte</strong></span>
+            </router-link>
             </div>
           </div>
         </div>

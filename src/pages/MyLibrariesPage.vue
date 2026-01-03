@@ -12,6 +12,8 @@
       <router-link
         to="/library"
         class="bg-[var(--zomp)] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:opacity-90 transition transform hover:scale-105">
+                 <i class="fa-solid fa-plus"></i>
+
         nuova libreria
       </router-link>
     </div>
@@ -29,10 +31,11 @@
         </p>
       </div>
 
-      <LibraryAccordion
+     <LibraryAccordion
         v-for="lib in libraries"
         :key="lib.id"
         :library="lib"
+        :is-owner="true" 
         @toggle="toggleLibrary(lib.id)"
         @bookMoved="moveBook"
         @delete-library="handleOpenDeleteUI('library', $event)"

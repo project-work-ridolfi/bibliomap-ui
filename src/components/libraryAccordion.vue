@@ -16,8 +16,10 @@
             class="text-[10px] opacity-60 uppercase font-black tracking-widest">
             {{ library.books.length }} libri
           </p>
-          <p v-else class="text-[10px] opacity-60 uppercase font-black tracking-widest">
-             clicca per caricare i libri
+          <p
+            v-else
+            class="text-[10px] opacity-60 uppercase font-black tracking-widest">
+            clicca per caricare i libri
           </p>
         </div>
       </div>
@@ -32,17 +34,28 @@
         </router-link>
 
         <router-link
-            v-if="isOwner"
+          v-if="isOwner"
+          :to="`/libraries/${library.id}/edit`"
+          @click.stop
+          class="p-2 text-ash-gray hover:text-zomp transition"
+          title="Modifica libreria">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </router-link>
+
+        <router-link
+          v-if="isOwner"
           :to="{ path: '/add-book', query: { libraryId: library.id } }"
           @click.stop
-          class="p-2 text-[var(--zomp)] hover:bg-[var(--zomp)]/10 rounded-full transition">
+          class="p-2 text-ash-gray hover:text-zomp transition"
+          title="Aggiungi nuovo libro alla libreria">
           <i class="fa-solid fa-plus-circle text-xl"></i>
         </router-link>
 
         <button
-        v-if="isOwner"
+          v-if="isOwner"
           @click.stop="$emit('delete-library', library)"
-          class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition">
+          class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition"
+          title="Elimina libreria">
           <i class="fa-solid fa-trash-can"></i>
         </button>
 
@@ -56,7 +69,8 @@
       v-if="library.isOpen"
       class="bg-[var(--bg-secondary)]/30 border-t border-[var(--thistle)] p-4 transition-colors duration-300">
       <div v-if="library.isLoadingBooks" class="text-center py-6">
-        <i class="fa-solid fa-circle-notch fa-spin text-[var(--zomp)] text-xl"></i>
+        <i
+          class="fa-solid fa-circle-notch fa-spin text-[var(--zomp)] text-xl"></i>
       </div>
 
       <draggable
@@ -79,20 +93,24 @@
                 class="w-full h-full flex items-center justify-center text-gray-400">
                 <i class="fa-solid fa-book"></i>
               </div>
-              
-              <router-link 
+
+              <router-link
                 :to="`/books/${book.id}`"
                 class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white">
                 <i class="fa-solid fa-eye"></i>
               </router-link>
             </div>
-            
-            <div class="flex-grow min-w-0 text-sm flex flex-col justify-between py-0.5">
+
+            <div
+              class="flex-grow min-w-0 text-sm flex flex-col justify-between py-0.5">
               <div>
                 <h4 class="font-bold text-theme-main truncate leading-tight">
                   {{ book.title }}
                 </h4>
-                <p class="text-[10px] text-theme-main opacity-60 truncate italic">{{ book.author }}</p>
+                <p
+                  class="text-[10px] text-theme-main opacity-60 truncate italic">
+                  {{ book.author }}
+                </p>
               </div>
               <div>
                 <span
@@ -103,8 +121,14 @@
             </div>
 
             <button
-              v-if="book.status && book.status.toLowerCase() && isOwner === 'available'"
-              @click.stop="$emit('delete-book', { book, libraryId: library.id })"
+              v-if="
+                book.status &&
+                book.status.toLowerCase() &&
+                isOwner === 'available'
+              "
+              @click.stop="
+                $emit('delete-book', { book, libraryId: library.id })
+              "
               class="absolute top-1 right-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-1"
               title="Rimuovi libro">
               <i class="fa-solid fa-xmark"></i>
@@ -112,8 +136,13 @@
           </div>
         </template>
       </draggable>
-      
-      <div v-if="!library.isLoadingBooks && (!library.books || library.books.length === 0)" class="text-center py-4 opacity-50 italic text-xs">
+
+      <div
+        v-if="
+          !library.isLoadingBooks &&
+          (!library.books || library.books.length === 0)
+        "
+        class="text-center py-4 opacity-50 italic text-xs">
         Nessun libro presente in questa libreria.
       </div>
     </div>
@@ -121,50 +150,50 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
-import draggable from "vuedraggable"
-import { apiClient } from "@/services/apiClient"
+import { computed } from "vue";
+import draggable from "vuedraggable";
+import { apiClient } from "@/services/apiClient";
 
 const props = defineProps({
   library: Object,
-  isOwner: Boolean // indica se l'utente corrente è il proprietario della libreria
-})
+  isOwner: Boolean, // indica se l'utente corrente è il proprietario della libreria
+});
 
 const emit = defineEmits([
   "toggle",
   "bookMoved",
   "delete-library",
   "delete-book",
-])
+]);
 
 // computed per gestire vuedraggable in modo reattivo senza mutare direttamente la prop
 const internalBooks = computed({
   get: () => props.library.books || [],
   set: (val) => {
     // aggiornamento locale silente per il drag and drop immediato
-    props.library.books = val
+    props.library.books = val;
   },
-})
+});
 
 // gestisce lo spostamento fisico tramite drag and drop
 const handleMove = async (evt) => {
   if (evt.added) {
-    const bookId = evt.added.element.id
-    const toLibraryId = props.library.id
-    
+    const bookId = evt.added.element.id;
+    const toLibraryId = props.library.id;
+
     try {
       // patch verso l'endpoint di spostamento copia
       await apiClient.patch(`/copies/${bookId}/move`, {
-        libraryId: toLibraryId
-      })
-      
+        libraryId: toLibraryId,
+      });
+
       emit("bookMoved", {
         bookId: bookId,
         toLibraryId: toLibraryId,
-      })
+      });
     } catch (err) {
-      console.error("errore durante lo spostamento del libro", err)
+      console.error("errore durante lo spostamento del libro", err);
     }
   }
-}
+};
 </script>

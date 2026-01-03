@@ -1,12 +1,35 @@
 <template>
   <main class="max-w-7xl mx-auto p-6 space-y-8">
-    <button
-      @click="goBack"
-      aria-label="torna alla pagina precedente"
-      class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-zomp rounded-lg p-1">
-      <i class="fa-solid fa-arrow-left mr-2"></i>
-      Torna indietro
-    </button>
+    <div class="flex justify-between items-start">
+      <button
+        @click="goBack"
+        aria-label="torna alla pagina precedente"
+        class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-zomp rounded-lg p-1">
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Torna indietro
+      </button>
+
+      <div v-if="isOwner" class="flex gap-3">
+        <button 
+          @click="router.push(`/libraries/${library.id}/edit`)" 
+          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2"
+        >
+          <i class="fa-solid fa-pen-to-square"></i>
+          modifica libreria
+        </button>
+
+        <router-link
+          :to="{ path: '/add-book', query: { 
+            libraryId: library.id,
+            returnTo: route.path
+           } }"
+          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2"
+        >
+          <i class="fa-solid fa-plus"></i>
+          nuovo libro
+        </router-link>
+      </div>
+    </div>
 
     <div v-if="isLoading" role="status" class="text-center py-20 text-theme-main opacity-70">
       <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-2 text-zomp"></i>
@@ -19,11 +42,8 @@
 
     <div v-else-if="library" class="grid md:grid-cols-4 gap-8">
       <aside class="md:col-span-1 space-y-6">
-        <header class="flex items-center justify-between">
+        <header>
           <h1 class="text-3xl font-display text-theme-main">{{ library.name }}</h1>
-          <button v-if="isOwner" @click="router.push(`/libraries/${library.id}/edit`)" class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg">
-            <i class="fa-solid fa-pen-to-square text-lg"></i>
-          </button>
         </header>
 
         <div v-if="isMapVisible" class="h-64 shadow-lg rounded-xl overflow-hidden border border-thistle">
@@ -136,77 +156,7 @@
       </section>
     </div>
 
-    <AppModal :isOpen="confirmModal.show" :title="deleteModalTitle" @close="confirmModal.show = false">
-      <div v-if="currentBook" class="p-6 text-center space-y-4 text-theme-main">
-        <template v-if="confirmModal.step === 'confirm'">
-          <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mx-auto mb-2">
-            <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
-          </div>
-          <p class="text-lg font-medium">{{ confirmModal.message }}</p>
-          <p class="text-sm opacity-70 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]">
-            <i class="fa-solid fa-circle-info mr-1"></i>
-            Questa azione è <strong>irreversibile</strong>.
-          </p>
-          <div class="flex gap-3 pt-4">
-            <button @click="confirmModal.show = false" class="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] font-bold transition">
-              Annulla
-            </button>
-            <button @click="handleExecuteDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold shadow-md hover:bg-red-700 transition">
-              {{ confirmModal.confirmBtn }}
-            </button>
-          </div>
-        </template>
-
-        <template v-else-if="confirmModal.step === 'loading'">
-          <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
-          <p class="font-bold">Eliminazione in corso...</p>
-        </template>
-
-        <template v-else-if="confirmModal.step === 'success'">
-          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mx-auto mb-2 animate-bounce">
-            <i class="fa-solid fa-check text-3xl"></i>
-          </div>
-          <h3 class="text-xl font-bold">Operazione completata!</h3>
-          <p class="text-sm opacity-70">{{ confirmModal.successMsg }}</p>
-          <button @click="confirmModal.show = false" class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
-            Chiudi
-          </button>
-        </template>
-      </div>
-    </AppModal>
-
-    <AppModal :isOpen="isMoveModalOpen" title="Sposta libro" @close="isMoveModalOpen = false">
-       <div class="p-4 text-center">
-         <p class="text-theme-main mb-4">Funzionalità di spostamento rapido in arrivo.</p>
-         <button @click="isMoveModalOpen = false" class="bg-zomp text-white px-6 py-2 rounded-xl font-bold">OK</button>
-       </div>
-    </AppModal>
-
-    <AppModal :isOpen="isLoanConfirmModalOpen" title="Richiesta di Prestito" @close="isLoanConfirmModalOpen = false">
-      <div v-if="currentBook" class="space-y-4 text-theme-main">
-        <p class="text-sm">Confermi la richiesta di prestito per:</p>
-        <div class="p-4 bg-[var(--bg-secondary)] border border-thistle rounded-xl">
-          <p class="font-bold text-lg leading-tight">{{ currentBook.title }}</p>
-          <p class="text-xs mt-2 opacity-70">Proprietario: <span class="font-bold">{{ library.ownerName || "Anonimo" }}</span></p>
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-          <button @click="isLoanConfirmModalOpen = false" class="px-4 py-2 text-sm font-bold opacity-60">Annulla</button>
-          <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="bg-zomp text-white px-6 py-2 rounded-xl font-bold shadow-md flex items-center gap-2">
-            <i v-if="isSendingLoan" class="fa-solid fa-circle-notch fa-spin"></i>
-            Invia Richiesta
-          </button>
-        </div>
-      </div>
-    </AppModal>
-
-    <AppModal :isOpen="isLoanResultModalOpen" :title="loanResultTitle" @close="isLoanResultModalOpen = false">
-      <div class="p-6 text-center space-y-4">
-        <i class="fa-solid text-4xl" :class="loanResultIcon"></i>
-        <p class="text-theme-main">{{ loanResultMessage }}</p>
-        <button @click="isLoanResultModalOpen = false" class="bg-paynes-gray text-white px-8 py-2 rounded-xl font-bold">Chiudi</button>
-      </div>
-    </AppModal>
-  </main>
+    </main>
 </template>
 
 <script setup>
@@ -238,7 +188,6 @@ const loanResultTitle = ref("");
 const loanResultMessage = ref("");
 const loanResultIcon = ref(null);
 
-// STATO ELIMINAZIONE CENTRALIZZATO
 const confirmModal = reactive({
   show: false,
   step: 'confirm',
@@ -309,7 +258,6 @@ async function confirmLoanRequest() {
 
 function openMoveModal(book) { currentBook.value = book; isMoveModalOpen.value = true; }
 
-// LOGICA ELIMINAZIONE CON HELPERS
 function openDeleteUI(book) {
   currentBook.value = book;
   const config = deleteConfig.book;
