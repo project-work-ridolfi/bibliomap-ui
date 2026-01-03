@@ -1,7 +1,14 @@
 <template>
   <div
     class="max-w-4xl mx-auto p-8 shadow-xl rounded-2xl border-2 transition-colors duration-300 bg-theme-primary text-theme-main border-gray-200 dark:border-gray-700 relative space-y-6">
-    <h1 class="text-3xl font-display text-center text-theme-main lowercase">
+    <button
+      @click="handleCancel"
+      class="absolute top-4 left-4 text-paynes-gray hover:text-zomp transition-colors flex items-center gap-2 font-bold text-xs">
+      <i class="fa-solid fa-arrow-left"></i> {{ isSetup ? "salta" : "annulla" }}
+    </button>
+
+    <h1
+      class="text-3xl font-display text-center text-theme-main lowercase pt-4">
       aggiungi un libro
     </h1>
 
@@ -112,6 +119,7 @@
       <div v-else class="space-y-4">
         <div
           ref="scannerContainer"
+          id="scanner-container"
           class="border-2 border-[var(--zomp)] rounded-xl overflow-hidden h-48 relative bg-black">
           <div
             v-if="isLoadingCamera"
@@ -344,9 +352,9 @@
 
     <div v-if="hasLibraries" class="flex gap-4 pt-6">
       <button
-        @click="router.push('/dashboard')"
+        @click="handleCancel"
         class="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-[var(--paynes-gray)] hover:bg-gray-50 transition lowercase text-theme-main">
-        annulla
+        {{ isSetup ? "salta" : "annulla" }}
       </button>
       <button
         @click="submitBook"
@@ -386,11 +394,6 @@
             <div class="text-xs overflow-hidden flex-grow text-paynes-gray">
               <strong class="block truncate text-sm">{{ book.title }}</strong>
               <span class="block opacity-70 truncate">{{ book.author }}</span>
-              <div class="mt-1 opacity-50 flex gap-2">
-                <span>{{ book.publisher }}</span>
-                <span>{{ book.publication_year }}</span>
-                <span class="uppercase font-bold">{{ book.language }}</span>
-              </div>
             </div>
           </button>
         </div>
@@ -411,8 +414,7 @@
           isbn mancante
         </h3>
         <p class="text-sm text-paynes-gray lowercase">
-          per salvare questo libro nel database mondiale è necessario l'isbn. lo
-          trovi sul retro del libro.
+          per salvare questo libro nel database mondiale è necessario l'isbn.
         </p>
         <div class="flex gap-2 items-center justify-center">
           <input
@@ -420,16 +422,6 @@
             type="text"
             placeholder="978..."
             class="px-4 py-2 border-2 rounded-xl outline-none focus:border-[var(--zomp)] text-center w-full text-paynes-gray" />
-          <div class="relative group">
-            <button
-              class="w-6 h-6 rounded-full bg-gray-200 text-xs flex items-center justify-center font-bold text-paynes-gray cursor-help">
-              ?
-            </button>
-            <div
-              class="absolute right-0 bottom-8 w-48 p-2 bg-paynes-gray text-white text-[10px] rounded shadow-xl hidden group-hover:block text-left">
-              codice di 13 cifre che identifica univocamente l'edizione.
-            </div>
-          </div>
         </div>
         <div class="flex flex-col gap-2 mt-4">
           <button
@@ -530,9 +522,9 @@
     <AppModal
       :isOpen="isModalOpen"
       :title="modalTitle"
-      :content="modalContent"
       @close="handleModalClose">
-      <div v-if="isSuccess" class="flex justify-end pt-4">
+      <div class="p-6 text-center space-y-4">
+        <p class="text-theme-main">{{ modalContent }}</p>
         <button
           @click="handleModalClose"
           class="bg-[var(--zomp)] text-white px-8 py-2 rounded-xl font-bold lowercase">
@@ -553,12 +545,16 @@ import AppModal from "@/components/AppModal.vue";
 const route = useRoute();
 const router = useRouter();
 
+// parametri navigazione
+const returnTo = computed(() => route.query.returnTo || "/");
+const isSetup = computed(() => route.query.isSetup === "true");
+
 // stati base
 const userLibraries = ref([]);
 const isFetchingLibraries = ref(false);
 const inputMode = ref(null);
 const isSubmitting = ref(false);
-const isSearching = ref(false); // Flag per evitare doppie modali
+const isSearching = ref(false);
 const isModalOpen = ref(false);
 const modalTitle = ref("");
 const modalContent = ref("");
@@ -608,29 +604,28 @@ const photoVideo = ref(null);
 const photoCanvas = ref(null);
 const photoStream = ref(null);
 
-// statici
 const conditions = [
-  { label: "Nuovo", value: "New" },
-  { label: "Ottimo", value: "Great" },
-  { label: "Buono", value: "Good" },
-  { label: "Usurato", value: "Worn" },
-  { label: "Rovinato", value: "Damaged" },
+  { label: "Nuovo", value: "new" },
+  { label: "Ottimo", value: "great" },
+  { label: "Buono", value: "good" },
+  { label: "Usurato", value: "worn" },
+  { label: "Rovinato", value: "damaged" },
 ];
 const statuses = [
   { label: "disponibile", value: "available" },
   { label: "in prestito", value: "on_loan" },
 ];
 const availableTags = [
-  "romanzo rosa",
-  "fantasy",
-  "fantascienza",
-  "horror",
-  "thriller",
-  "storico",
-  "giallo",
   "biografia",
+  "fantascienza",
+  "fantasy",
+  "giallo",
+  "horror",
+  "romantico",
   "saggio",
   "scientifico",
+  "storico",
+  "thriller",
 ];
 
 onMounted(() => {
@@ -656,73 +651,39 @@ const isReadyToSave = computed(
     form.value.targetLibraryId
 );
 
-const debounce = (fn, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-};
+// navigazione
+function handleCancel() {
+  router.push(returnTo.value);
+}
+function handleModalClose() {
+  isModalOpen.value = false;
+  if (isSuccess.value) router.push(returnTo.value);
+}
 
-const debouncedManualSearch = debounce(async () => {
-  // Se è già in corso una ricerca o se i campi sono bloccati, usciamo
-  if (
-    inputMode.value !== "manual" ||
-    !form.value.title ||
-    form.value.title.length < 4 ||
-    isSearching.value
-  )
-    return;
-
-  const cacheKey = `${form.value.title.toLowerCase()}|${form.value.author?.toLowerCase()}`;
-  if (searchCache.has(cacheKey)) {
-    handleSearchResults(searchCache.get(cacheKey));
-    return;
-  }
-
-  isSearching.value = true;
+// scanner isbn
+async function handleStartScan() {
+  isScanning.value = true;
+  isLoadingCamera.value = true;
+  await nextTick(); // assicura che il div scannerContainer sia nel dom
   try {
-    const res = await apiClient.get("/books/external/search-isbn", {
-      params: { title: form.value.title, author: form.value.author },
+    await startScanner(scannerContainer.value, (c) => {
+      form.value.isbn = c;
+      handleStopScan();
+      fetchBookByIsbn();
     });
-    searchCache.set(cacheKey, res);
-    handleSearchResults(res);
   } catch (e) {
-    console.error(e);
+    isScanning.value = false;
   } finally {
-    isSearching.value = false;
-  }
-}, 1500);
-
-function handleSearchResults(books) {
-  if (!books || books.length === 0) return;
-  if (books.length === 1) applySuggestion(books[0]);
-  else {
-    conflictBooks.value = books;
-    showConflictModal.value = true;
+    isLoadingCamera.value = false;
   }
 }
 
-function applySuggestion(book) {
-  form.value.title = book.title || form.value.title;
-  form.value.author = book.author || form.value.author;
-  form.value.publisher = book.publisher || form.value.publisher;
-  form.value.language = book.language || form.value.language;
-  form.value.publicationYear =
-    book.publication_year || form.value.publicationYear;
-  form.value.isbn = book.isbn || form.value.isbn;
-  if (book.cover && !form.value.coverFile)
-    previewUrl.value = book.cover.replace("http:", "https:");
-  bookDetailsFound.value = true;
-  // Blocco temporaneo watcher per evitare loop su autofill
-  lockedFields.value = ["title", "author"];
+function handleStopScan() {
+  stopScanner();
+  isScanning.value = false;
 }
 
-function selectBookFromModal(book) {
-  applySuggestion(book);
-  showConflictModal.value = false;
-}
-
+// recupero dati
 async function fetchUserLibraries() {
   isFetchingLibraries.value = true;
   try {
@@ -749,158 +710,21 @@ async function fetchBookByIsbn() {
   }
 }
 
-function handleIsbnModalSubmit() {
-  showIsbnRequestModal.value = false;
-  fetchBookByIsbn();
+function applySuggestion(book) {
+  form.value.title = book.title || form.value.title;
+  form.value.author = book.author || form.value.author;
+  form.value.publisher = book.publisher || form.value.publisher;
+  form.value.language = book.language || form.value.language;
+  form.value.publicationYear =
+    book.publication_year || form.value.publicationYear;
+  form.value.isbn = book.isbn || form.value.isbn;
+  if (book.cover && !form.value.coverFile)
+    previewUrl.value = book.cover.replace("http:", "https:");
+  bookDetailsFound.value = true;
+  lockedFields.value = ["title", "author"];
 }
 
-// GESTIONE IMMAGINE E RITAGLIO DINAMICO (GRANDZZA INIZIALE REALE)
-function handleCoverUpload(e) {
-  const f = e.target.files[0];
-  if (f) initCrop(f);
-}
-function handleDrop(e) {
-  isDragging.value = false;
-  const f = e.dataTransfer.files[0];
-  if (f) initCrop(f);
-}
-
-function initCrop(f) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    rawImageData.value = e.target.result;
-    cropZoom.value = 1; // Grandezza iniziale = stessa della foto
-    isCropping.value = true;
-  };
-  reader.readAsDataURL(f);
-}
-
-function applyCrop() {
-  const canvas = photoCanvas.value;
-  const ctx = canvas.getContext("2d");
-  const img = new Image();
-  img.src = rawImageData.value;
-  img.onload = () => {
-    // Calcoliamo la dimensione basata sullo zoom dell'utente (senza perdere pezzi a zoom 1)
-    const renderWidth = img.width * cropZoom.value;
-    const renderHeight = img.height * cropZoom.value;
-
-    canvas.width = 400;
-    canvas.height = 600;
-
-    // Disegniamo l'immagine centrata nel canvas del risultato
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(
-      img,
-      (canvas.width - renderWidth) / 2,
-      (canvas.height - renderHeight) / 2,
-      renderWidth,
-      renderHeight
-    );
-
-    canvas.toBlob(
-      (b) => {
-        form.value.coverFile = new File([b], "cover.jpg", {
-          type: "image/jpeg",
-        });
-        previewUrl.value = URL.createObjectURL(b);
-        isCropping.value = false;
-      },
-      "image/jpeg",
-      0.9
-    );
-  };
-}
-
-function removeCover() {
-  form.value.coverFile = null;
-  previewUrl.value = null;
-  rawImageData.value = null;
-}
-
-async function startPhotoCapture() {
-  isCapturingPhoto.value = true;
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" },
-    });
-    photoStream.value = s;
-    photoVideo.value.srcObject = s;
-  } catch (e) {
-    isCapturingPhoto.value = false;
-  }
-}
-
-function stopPhotoCapture() {
-  if (photoStream.value) photoStream.value.getTracks().forEach((t) => t.stop());
-  isCapturingPhoto.value = false;
-}
-
-function takePhoto() {
-  const ctx = photoCanvas.value.getContext("2d");
-  photoCanvas.value.width = photoVideo.value.videoWidth;
-  photoCanvas.value.height = photoVideo.value.videoHeight;
-  ctx.drawImage(photoVideo.value, 0, 0);
-  rawImageData.value = photoCanvas.value.toDataURL("image/jpeg");
-  cropZoom.value = 1;
-  isCropping.value = true;
-  stopPhotoCapture();
-}
-
-async function handleStartScan() {
-  isScanning.value = true;
-  isLoadingCamera.value = true;
-  try {
-    await startScanner(scannerContainer.value, (c) => {
-      form.value.isbn = c;
-      handleStopScan();
-      fetchBookByIsbn();
-    });
-  } catch (e) {
-    isScanning.value = false;
-  } finally {
-    isLoadingCamera.value = false;
-  }
-}
-function handleStopScan() {
-  stopScanner();
-  isScanning.value = false;
-}
-
-function addCustomTag() {
-  const v = newCustomTag.value.trim().toLowerCase();
-  if (v && !copyForm.value.tags.includes(v)) copyForm.value.tags.push(v);
-  newCustomTag.value = "";
-  showTagInput.value = false;
-}
-function cancelTagInput() {
-  setTimeout(() => {
-    if (!newCustomTag.value) showTagInput.value = false;
-  }, 200);
-}
-function toggleTag(t) {
-  const i = copyForm.value.tags.indexOf(t);
-  if (i === -1) copyForm.value.tags.push(t);
-  else copyForm.value.tags.splice(i, 1);
-}
-
-function switchMode(m) {
-  inputMode.value = m;
-  if (m === "manual") lockedFields.value = [];
-}
-
-function showModal(t, c, s = false) {
-  modalTitle.value = t;
-  modalContent.value = c;
-  isSuccess.value = s;
-  isModalOpen.value = true;
-}
-function handleModalClose() {
-  isModalOpen.value = false;
-  if (isSuccess.value) router.push("/dashboard");
-}
-
+// salvataggio
 async function submitBook() {
   if (!isReadyToSave.value || isSubmitting.value) return;
   if (!form.value.isbn) {
@@ -909,7 +733,6 @@ async function submitBook() {
   }
   executeSubmit();
 }
-
 function forceSubmitWithoutIsbn() {
   showIsbnRequestModal.value = false;
   executeSubmit();
@@ -939,6 +762,162 @@ async function executeSubmit() {
   }
 }
 
+function initCrop(f) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    rawImageData.value = e.target.result;
+    cropZoom.value = 1;
+    isCropping.value = true;
+  };
+  reader.readAsDataURL(f);
+}
+function handleCoverUpload(e) {
+  const f = e.target.files[0];
+  if (f) initCrop(f);
+}
+function handleDrop(e) {
+  isDragging.value = false;
+  const f = e.dataTransfer.files[0];
+  if (f) initCrop(f);
+}
+function applyCrop() {
+  const canvas = photoCanvas.value;
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  img.src = rawImageData.value;
+  img.onload = () => {
+    const renderWidth = img.width * cropZoom.value;
+    const renderHeight = img.height * cropZoom.value;
+    canvas.width = 400;
+    canvas.height = 600;
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(
+      img,
+      (canvas.width - renderWidth) / 2,
+      (canvas.height - renderHeight) / 2,
+      renderWidth,
+      renderHeight
+    );
+    canvas.toBlob(
+      (b) => {
+        form.value.coverFile = new File([b], "cover.jpg", {
+          type: "image/jpeg",
+        });
+        previewUrl.value = URL.createObjectURL(b);
+        isCropping.value = false;
+      },
+      "image/jpeg",
+      0.9
+    );
+  };
+}
+function removeCover() {
+  form.value.coverFile = null;
+  previewUrl.value = null;
+  rawImageData.value = null;
+}
+async function startPhotoCapture() {
+  isCapturingPhoto.value = true;
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+    });
+    photoStream.value = s;
+    photoVideo.value.srcObject = s;
+  } catch (e) {
+    isCapturingPhoto.value = false;
+  }
+}
+function stopPhotoCapture() {
+  if (photoStream.value) photoStream.value.getTracks().forEach((t) => t.stop());
+  isCapturingPhoto.value = false;
+}
+function takePhoto() {
+  const ctx = photoCanvas.value.getContext("2d");
+  photoCanvas.value.width = photoVideo.value.videoWidth;
+  photoCanvas.value.height = photoVideo.value.videoHeight;
+  ctx.drawImage(photoVideo.value, 0, 0);
+  rawImageData.value = photoCanvas.value.toDataURL("image/jpeg");
+  cropZoom.value = 1;
+  isCropping.value = true;
+  stopPhotoCapture();
+}
+function switchMode(m) {
+  inputMode.value = m;
+  if (m === "manual") lockedFields.value = [];
+}
+function showModal(t, c, s = false) {
+  modalTitle.value = t;
+  modalContent.value = c;
+  isSuccess.value = s;
+  isModalOpen.value = true;
+}
+function addCustomTag() {
+  const v = newCustomTag.value.trim().toLowerCase();
+  if (v && !copyForm.value.tags.includes(v)) copyForm.value.tags.push(v);
+  newCustomTag.value = "";
+  showTagInput.value = false;
+}
+function cancelTagInput() {
+  setTimeout(() => {
+    if (!newCustomTag.value) showTagInput.value = false;
+  }, 200);
+}
+function toggleTag(t) {
+  const i = copyForm.value.tags.indexOf(t);
+  if (i === -1) copyForm.value.tags.push(t);
+  else copyForm.value.tags.splice(i, 1);
+}
+function selectBookFromModal(book) {
+  applySuggestion(book);
+  showConflictModal.value = false;
+}
+function handleIsbnModalSubmit() {
+  showIsbnRequestModal.value = false;
+  fetchBookByIsbn();
+}
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+const debouncedManualSearch = debounce(async () => {
+  if (
+    inputMode.value !== "manual" ||
+    !form.value.title ||
+    form.value.title.length < 4 ||
+    isSearching.value
+  )
+    return;
+  const cacheKey = `${form.value.title.toLowerCase()}|${form.value.author?.toLowerCase()}`;
+  if (searchCache.has(cacheKey)) {
+    handleSearchResults(searchCache.get(cacheKey));
+    return;
+  }
+  isSearching.value = true;
+  try {
+    const res = await apiClient.get("/books/external/search-isbn", {
+      params: { title: form.value.title, author: form.value.author },
+    });
+    searchCache.set(cacheKey, res);
+    handleSearchResults(res);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isSearching.value = false;
+  }
+}, 1500);
+function handleSearchResults(books) {
+  if (!books || books.length === 0) return;
+  if (books.length === 1) applySuggestion(books[0]);
+  else {
+    conflictBooks.value = books;
+    showConflictModal.value = true;
+  }
+}
 watch([() => form.value.title, () => form.value.author], () => {
   if (inputMode.value === "manual" && !lockedFields.value.includes("title"))
     debouncedManualSearch();
@@ -946,6 +925,26 @@ watch([() => form.value.title, () => form.value.author], () => {
 </script>
 
 <style scoped>
+/* contenitore scanner */
+#scanner-container {
+  position: relative;
+  width: 100%;
+  height: 200px; /* o la tua altezza attuale */
+  overflow: hidden;
+}
+
+/* forziamo il video a riempire lo spazio */
+#scanner-container :deep(video),
+#scanner-container :deep(canvas) {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover; /* taglia i bordi in eccesso per riempire il div */
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* barra dello scanner sopra il video */
 .scanning-bar {
   position: absolute;
   top: 0;
@@ -955,8 +954,9 @@ watch([() => form.value.title, () => form.value.author], () => {
   background-color: var(--zomp);
   box-shadow: 0 0 12px var(--zomp);
   animation: scan 2s linear infinite;
-  z-index: 5;
+  z-index: 10;
 }
+
 @keyframes scan {
   0% {
     top: 5%;

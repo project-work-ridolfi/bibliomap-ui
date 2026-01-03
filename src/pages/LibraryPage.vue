@@ -1,644 +1,257 @@
 <template>
-  <main class="max-w-4xl mx-auto p-6 space-y-8 relative">
-    <div class="flex justify-between items-start mb-4">
-      <button
-        @click="goBack"
-        class="flex items-center text-paynes-gray hover:text-zomp transition font-medium">
-        <i class="fa-solid fa-arrow-left mr-2"></i> annulla
-      </button>
+  <div class="max-w-xl mx-auto p-8 bg-white shadow-xl rounded-2xl border-2 border-thistle space-y-6 relative">
+    
+    <button 
+      @click="handleBack" 
+      class="absolute top-4 left-4 text-paynes-gray hover:text-zomp transition-colors flex items-center gap-2 font-bold text-xs"
+    >
+      <i class="fa-solid fa-arrow-left"></i> torna indietro
+    </button>
 
-      <div v-if="isOwner" class="flex gap-3">
-        <button
-          @click="saveChanges"
-          :disabled="isSaving || !form.name"
-          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2 disabled:opacity-50">
-          <i class="fa-solid" :class="isSaving ? 'fa-circle-notch fa-spin' : 'fa-floppy-disk'"></i>
-          {{ isSaving ? 'salvataggio...' : 'salva modifiche' }}
-        </button>
+    <div v-if="isFirstLibrary" class="space-y-4 text-center pt-4">
+      <h1 class="text-3xl font-display text-paynes-gray">Crea la tua prima libreria</h1>
+      <p class="text-paynes-gray">
+        una libreria in bibliomap rappresenta una collezione fisica di libri in un luogo specifico.
+      </p>
+    </div>
+    <div v-else class="text-center pt-4">
+      <h1 class="text-3xl font-display text-paynes-gray">Aggiungi una Nuova Libreria</h1>
+    </div>
 
-        <router-link
-          :to="{ path: '/add-book', query: { libraryId: form.id } }"
-          class="bg-ash-gray text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2">
-          <i class="fa-solid fa-plus"></i> nuovo libro
-        </router-link>
+    <hr class="border-thistle" />
+
+    <div class="space-y-4">
+      <div>
+        <label for="libraryName" class="block text-sm font-medium text-paynes-gray lowercase">nome libreria *</label>
+        <input v-model="form.name" id="libraryName" type="text" required placeholder="es. scaffale in salotto"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp outline-none" />
       </div>
-    </div>
 
-    <div class="text-center mb-6">
-      <h1 class="font-display text-2xl text-paynes-gray lowercase">modifica libreria</h1>
-    </div>
+      <div>
+        <label class="block text-sm font-medium text-paynes-gray lowercase">posizione</label>
+        <p class="text-xs text-paynes-gray/70 mb-2">dove si trovano fisicamente questi libri?</p>
+        <div class="grid grid-cols-2 gap-4">
+          <button 
+            @click="form.location = 'user_default'" 
+            :class="form.location === 'user_default' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
+            :disabled="userHasSkippedLocation"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle disabled:opacity-50 disabled:cursor-not-allowed">
+            usa la mia posizione
+          </button>
+          <button @click="form.location = 'new_location'" :class="form.location === 'new_location' ? 'bg-zomp text-white' : 'bg-tea-rose-red/20'"
+            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+            nuova posizione
+          </button>
+        </div>
 
-    <div v-if="isLoading" class="text-center py-10">
-      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-paynes-gray"></i>
-    </div>
-    <div
-      v-else-if="error"
-      class="p-4 bg-red-50 text-red-700 rounded text-center">
-      {{ error }}
-    </div>
+        <div v-if="form.location === 'new_location'" class="mt-4 space-y-4 p-4 border rounded-xl border-thistle bg-[var(--bg-secondary)] animate-fade-in">
+          <div class="grid grid-cols-3 gap-2">
+            <button @click="libLocMode = 'geo'" :class="libLocMode === 'geo' ? 'bg-zomp text-white' : 'bg-white'" class="p-2 border rounded-lg text-xs font-bold transition">browser</button>
+            <button @click="libLocMode = 'map'" :class="libLocMode === 'map' ? 'bg-zomp text-white' : 'bg-white'" class="p-2 border rounded-lg text-xs font-bold transition">mappa</button>
+            <button @click="libLocMode = 'address'" :class="libLocMode === 'address' ? 'bg-zomp text-white' : 'bg-white'" class="p-2 border rounded-lg text-xs font-bold transition">indirizzo</button>
+          </div>
 
-    <article
-      v-else-if="form.id"
-      class="bg-white shadow-xl rounded-2xl border-2 border-thistle overflow-hidden animate-fade-in">
-      <div class="md:grid md:grid-cols-2">
-        <section
-          class="p-6 flex flex-col justify-start space-y-6 border-b md:border-b-0 md:border-r border-thistle">
-          <header class="border-b border-thistle pb-4">
-            <h2 class="text-2xl font-display text-paynes-gray">
-              {{ form.name }}
-            </h2>
-            <p class="text-sm text-paynes-gray/60">
-              modifica il dettaglio della libreria
+          <div v-if="libLocMode === 'address'" class="space-y-2">
+            <input v-model="form.streetName" type="text" placeholder="nome della via" class="w-full px-3 py-1 text-sm border rounded-lg outline-none" />
+            <div class="flex gap-2">
+              <input v-model="form.zipCode" type="text" placeholder="cap" class="w-1/2 px-3 py-1 text-sm border rounded-lg outline-none" />
+              <input value="Roma" disabled class="w-1/2 px-3 py-1 text-sm border rounded-lg bg-gray-50 opacity-60" />
+            </div>
+          </div>
+
+          <div v-else-if="libLocMode === 'map'" class="space-y-2">
+            <div id="map-lib-container" class="h-48 w-full rounded-lg border border-thistle">
+              <div id="map-lib" class="h-full w-full rounded-lg"></div>
+            </div>
+          </div>
+
+          <div v-else-if="libLocMode === 'geo'" class="text-center space-y-2">
+            <button @click="getLibGeolocation" :disabled="isLoadingLoc" class="text-xs bg-paynes-gray text-white px-4 py-2 rounded-lg">
+              <i v-if="isLoadingLoc" class="fa-solid fa-spinner fa-spin mr-2"></i>
+              {{ isLoadingLoc ? 'ricerca...' : 'ottieni posizione' }}
+            </button>
+            <p v-if="form.latitude" class="text-[10px] text-zomp font-bold animate-fade-in">
+              posizione ottenuta: {{ form.latitude.toFixed(4) }}, {{ form.longitude.toFixed(4) }}
             </p>
-          </header>
-
-          <div class="space-y-4">
-            <div>
-              <label
-                for="libraryName"
-                class="block text-xs font-bold text-paynes-gray uppercase mb-1"
-                >nome libreria</label
-              >
-              <input
-                v-model="form.name"
-                id="libraryName"
-                type="text"
-                placeholder="nome della collezione"
-                class="w-full p-2 rounded-lg border border-thistle bg-white focus:outline-none focus:ring-2 focus:ring-zomp text-sm" />
-            </div>
-
-            <div>
-              <label
-                for="visibility"
-                class="block text-xs font-bold text-paynes-gray uppercase mb-1"
-                >visibilità</label
-              >
-              <select
-                v-model="form.visibility"
-                id="visibility"
-                class="w-full p-2 rounded-lg border border-thistle bg-white focus:outline-none focus:ring-2 focus:ring-zomp text-sm">
-                <option value="all">pubblica (visibile a tutti)</option>
-                <option value="logged_in">
-                  visibile solo a utente registrato
-                </option>
-                <option value="private">privata (visibile solo a te)</option>
-              </select>
-              <p class="text-xs text-paynes-gray/70 mt-1">
-                se è privata, solo tu potrai vedere i libri e la posizione.
-              </p>
-            </div>
-
-            <hr class="border-thistle" />
-
-            <div class="space-y-2">
-              <label
-                for="precision"
-                class="block text-xs font-bold text-paynes-gray uppercase">
-                livello di offuscamento
-              </label>
-
-              <div
-                class="text-center text-lg font-bold text-zomp p-1 bg-ash-gray/20 rounded-md">
-                {{ displayBlurRadius }}
-              </div>
-
-              <div class="flex items-center space-x-3">
-                <input
-                  type="range"
-                  id="precision"
-                  v-model.number="form.blurRadius"
-                  min="0"
-                  max="500"
-                  step="10"
-                  class="w-full h-2 bg-thistle rounded-lg appearance-none cursor-pointer range-lg focus:outline-none focus:ring-2 focus:ring-zomp" />
-              </div>
-
-              <div class="flex justify-between text-xs text-paynes-gray/70">
-                <span>posizione esatta (0m)</span>
-                <span>area larga (500m)</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="p-6 space-y-4">
-          <h3
-            class="text-lg font-bold text-paynes-gray border-b border-thistle pb-2">
-            posizione libreria
-          </h3>
-
-          <p v-if="form.latitude" class="text-sm text-zomp font-semibold">
-            posizione attuale: lat {{ form.latitude.toFixed(4) }}, lng
-            {{ form.longitude.toFixed(4) }}
-          </p>
-
-          <div class="grid grid-cols-3 gap-3">
-            <button
-              @click="locationMode = 'geo'"
-              :class="
-                locationMode === 'geo'
-                  ? 'bg-zomp text-white'
-                  : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'
-              "
-              class="p-2 rounded-lg shadow-md transition font-semibold border-2 border-thistle text-xs">
-              <i class="fa-solid fa-location-arrow mb-1"></i><br />
-              gps
-            </button>
-            <button
-              @click="locationMode = 'map'"
-              :class="
-                locationMode === 'map'
-                  ? 'bg-zomp text-white'
-                  : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'
-              "
-              class="p-2 rounded-lg shadow-md transition font-semibold border-2 border-thistle text-xs">
-              <i class="fa-solid fa-map-pin mb-1"></i><br />
-              mappa
-            </button>
-            <button
-              @click="locationMode = 'address'"
-              :class="
-                locationMode === 'address'
-                  ? 'bg-zomp text-white'
-                  : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'
-              "
-              class="p-2 rounded-lg shadow-md transition font-semibold border-2 border-thistle text-xs">
-              <i class="fa-solid fa-house mb-1"></i><br />
-              indirizzo
-            </button>
           </div>
 
-          <div class="relative h-96 pt-2">
-            <div
-              v-if="locationError"
-              class="absolute inset-x-0 top-0 text-sm text-red-700 font-medium p-2 border border-red-300 rounded z-10">
-              errore: {{ locationError }}
-            </div>
-
-            <div
-              v-if="locationMode === 'geo'"
-              class="flex flex-col h-full justify-center items-center text-center p-4 bg-zomp/20 rounded-lg space-y-2">
-              <p class="text-sm text-paynes-gray font-semibold">
-                clicca per usare la posizione del browser.
-              </p>
-              <button
-                @click="getGeolocation"
-                :disabled="isLoadingLocation"
-                class="bg-paynes-gray text-white py-2 px-4 rounded-lg hover:bg-paynes-gray/80 transition disabled:opacity-50">
-                <i
-                  :class="
-                    isLoadingLocation ? 'fa-spinner fa-spin' : 'fa-crosshairs'
-                  "
-                  class="fa-solid mr-2"></i>
-                {{ isLoadingLocation ? "ricerca..." : "ottieni posizione" }}
-              </button>
-              <p v-if="tempLocation.latitude" class="text-sm text-zomp">
-                posizione ottenuta!
-              </p>
-            </div>
-
-            <div v-else-if="locationMode === 'map'" class="h-full space-y-2">
-              <div id="map-container" class="h-64 w-full rounded-lg">
-                <div id="map" class="h-full w-full rounded-lg"></div>
-              </div>
-              <p
-                v-if="tempLocation.latitude"
-                class="mt-2 text-sm text-zomp font-semibold">
-                posizione selezionata! lat:
-                {{ tempLocation.latitude.toFixed(4) }}, lng:
-                {{ tempLocation.longitude.toFixed(4) }}
-              </p>
-              <p v-else class="mt-2 text-sm text-paynes-gray/70">
-                clicca sulla mappa per selezionare la posizione.
-              </p>
-            </div>
-
-            <div
-              v-else-if="locationMode === 'address'"
-              class="space-y-3 p-4 border rounded-lg border-thistle h-full overflow-y-auto">
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label
-                    for="streetType"
-                    class="block text-sm font-medium text-paynes-gray"
-                    >tipo *</label
-                  >
-                  <input
-                    v-model="formAddress.streetType"
-                    id="streetType"
-                    type="text"
-                    required
-                    placeholder="via, piazza, ecc."
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                </div>
-                <div>
-                  <label
-                    for="streetName"
-                    class="block text-sm font-medium text-paynes-gray"
-                    >nome via *</label
-                  >
-                  <input
-                    v-model="formAddress.streetName"
-                    id="streetName"
-                    type="text"
-                    required
-                    placeholder="Roma, garibaldi, ecc."
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-3 gap-3">
-                <div>
-                  <label
-                    for="houseNumber"
-                    class="block text-sm font-medium text-paynes-gray"
-                    >civico</label
-                  >
-                  <input
-                    v-model="formAddress.houseNumber"
-                    id="houseNumber"
-                    type="text"
-                    placeholder="10a"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                </div>
-                <div>
-                  <label
-                    for="zipCode"
-                    class="block text-sm font-medium text-paynes-gray"
-                    >cap *</label
-                  >
-                  <input
-                    v-model="formAddress.zipCode"
-                    id="zipCode"
-                    type="text"
-                    required
-                    placeholder="001xx"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
-                </div>
-                <div>
-                  <label
-                    for="city"
-                    class="block text-sm font-medium text-paynes-gray"
-                    >città</label
-                  >
-                  <input
-                    id="city"
-                    value="Roma"
-                    disabled
-                    class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-paynes-gray/80 cursor-not-allowed" />
-                </div>
-              </div>
-              <button
-                @click="geocodeAddress"
-                :disabled="isLoadingLocation || !isAddressValid"
-                class="w-full mt-2 bg-paynes-gray text-white py-2 px-4 rounded-lg hover:bg-paynes-gray/80 transition disabled:opacity-50">
-                <i
-                  :class="
-                    isLoadingLocation ? 'fa-spinner fa-spin' : 'fa-search'
-                  "
-                  class="fa-solid mr-2"></i>
-                {{ isLoadingLocation ? "ricerca..." : "cerca indirizzo" }}
-              </button>
-              <p
-                v-if="tempLocation.latitude && !locationError"
-                class="text-sm text-zomp font-semibold mt-2">
-                indirizzo convertito! lat:
-                {{ tempLocation.latitude.toFixed(4) }}, lng:
-                {{ tempLocation.longitude.toFixed(4) }}
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="p-6 border-t border-thistle flex justify-between gap-3">
-        <button
-          @click="openDeleteModal"
-          class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition border border-transparent hover:border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm font-semibold">
-          <i class="fa-solid fa-trash mr-1"></i> elimina libreria
-        </button>
-        <button
-          @click="saveChanges"
-          :disabled="isSaving || !form.name"
-          :class="[
-            'px-6 py-2 rounded-lg font-bold shadow transition flex items-center gap-2',
-            isSaving || !form.name
-              ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-              : 'bg-zomp text-white hover:bg-opacity-90',
-          ]">
-          <span v-if="isSaving">
-            <i class="fa-solid fa-circle-notch fa-spin"></i> salvataggio...
-          </span>
-          <span v-else> <i class="fa-solid fa-floppy-disk"></i> salva </span>
-        </button>
-      </div>
-    </article>
-
-    <app-modal
-      :is-open="showDeleteModal"
-      :title="deleteModalTitle"
-      @close="handleModalClose">
-      <div
-        v-if="deleteStep === 'confirm'"
-        class="flex flex-col items-center text-center space-y-4">
-        <div
-          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
-          <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+          <p v-if="form.latitude" class="text-center text-[10px] text-zomp font-bold">posizione libreria impostata!</p>
         </div>
 
-        <p class="text-lg font-medium text-paynes-gray">
-          sei sicuro di voler eliminare la libreria "{{ form.name }}"?
+        <p v-if="userHasSkippedLocation && form.location === 'user_default'" class="text-xs text-red-700 font-semibold mt-2 text-center">
+          devi specificare una nuova posizione per la libreria.
         </p>
-
-        <p
-          class="text-sm text-gray-500 bg-red-50 p-3 rounded-lg border border-red-100">
-          <i class="fa-solid fa-circle-info mr-1"></i>
-          azione <strong>irreversibile</strong>. questa operazione cancellerà
-          anche **tutti i libri** al suo interno.
-        </p>
-
-        <div class="flex gap-3 w-full mt-4">
-          <button
-            @click="showDeleteModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition">
-            annulla
-          </button>
-          <button
-            @click="confirmDelete"
-            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition flex justify-center items-center gap-2">
-            <i class="fa-solid fa-trash"></i> elimina definitivamente
-          </button>
-        </div>
       </div>
 
-      <div
-        v-else-if="deleteStep === 'loading'"
-        class="flex flex-col items-center justify-center py-8 space-y-4">
-        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
-        <p class="text-paynes-gray font-medium">eliminazione in corso...</p>
+      <div>
+        <label for="visibility" class="block text-sm font-medium mb-1 text-paynes-gray lowercase">visibilità libreria</label>
+        <select v-model="form.visibility" id="visibility"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp outline-none">
+          <option value="all">tutti</option>
+          <option value="logged_in">solo gli utenti loggati</option>
+          <option value="private">nessuno (solo io)</option>
+        </select>
       </div>
+    </div>
 
-      <div
-        v-else-if="deleteStep === 'success'"
-        class="flex flex-col items-center text-center space-y-4">
-        <div
-          class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mb-2 animate-bounce">
-          <i class="fa-solid fa-check text-3xl"></i>
-        </div>
-        <h3 class="text-xl font-bold text-paynes-gray">libreria eliminata!</h3>
-        <p class="text-sm text-gray-600">
-          l'operazione è andata a buon fine. sarai reindirizzato alla home page.
-        </p>
-        <button
-          @click="handleModalClose"
-          class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
-          chiudi e vai alla home
-        </button>
-      </div>
+    <p v-if="errorMessage" class="text-sm text-red-700 font-medium mt-2 text-center">{{ errorMessage }}</p>
 
-      <div
-        v-else-if="deleteStep === 'error'"
-        class="flex flex-col items-center text-center space-y-4">
-        <div
-          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
-          <i class="fa-solid fa-xmark text-3xl"></i>
-        </div>
-        <h3 class="text-xl font-bold text-red-600">qualcosa è andato storto</h3>
-        <p class="text-sm text-gray-600">
-          non è stato possibile eliminare la libreria. riprova.
-        </p>
-        <button
-          @click="showDeleteModal = false"
-          class="w-full mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-bold transition">
-          chiudi
-        </button>
-      </div>
-    </app-modal>
-  </main>
+    <div class="flex justify-between space-x-4 pt-4">
+      <button v-if="isFirstLibrary" @click="skip"
+        class="w-1/2 bg-thistle text-paynes-gray py-3 rounded-lg hover:bg-ash-gray transition duration-150 font-bold text-lg lowercase">
+        salta
+      </button>
+      <button @click="createLibrary" :disabled="!isFormValid"
+        :class="isFirstLibrary ? 'w-1/2' : 'w-full'"
+        class="bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg lowercase">
+        {{ isFirstLibrary ? 'crea e aggiungi libri' : 'crea libreria' }}
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch, reactive } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/authStore";
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import { apiClient } from "@/services/apiClient";
-import AppModal from "@/components/AppModal.vue";
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { apiClient } from '@/services/apiClient' 
+import { useAuthStore } from '@/stores/authStore'
+import maplibregl from "maplibre-gl"
 
-const route = useRoute();
-const router = useRouter();
-const authStore = useAuthStore();
+const authStore = useAuthStore()
+const router = useRouter()
+const route = useRoute()
 
-const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY;
-const geocodingServiceUrl = "https://api.maptiler.com/geocoding";
-const ROME_CENTER = [12.4963, 41.9029];
+const isFirstLibrary = computed(() => route.query.from === 'setup')
+const userHasSkippedLocation = computed(() => route.query.locationSkipped === 'true')
+const returnTo = computed(() => route.query.returnTo || '/')
 
-const form = reactive({
-  id: "",
-  name: "",
-  visibility: "all",
+const libLocMode = ref('geo')
+const isLoadingLoc = ref(false)
+const form = ref({
+  name: '',
+  location: 'user_default',
+  visibility: 'all',
   latitude: null,
   longitude: null,
-  blurRadius: 0,
-  ownerId: ""
-});
+  streetName: '',
+  zipCode: ''
+})
 
-const locationMode = ref("map");
-const tempLocation = reactive({ latitude: null, longitude: null });
-const formAddress = reactive({
-  streetType: "via",
-  streetName: "",
-  houseNumber: "",
-  zipCode: "",
-  city: "Roma",
-});
+const errorMessage = ref(null)
+const map = ref(null)
+const marker = ref(null)
 
-const isLoading = ref(true);
-const isSaving = ref(false);
-const isLoadingLocation = ref(false);
-const error = ref(null);
-const locationError = ref(null);
-const showDeleteModal = ref(false);
-const deleteStep = ref("confirm");
-
-const map = ref(null);
-const marker = ref(null);
-const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`;
-
-const isOwner = computed(() => {
-  return authStore.isAuthenticated && form.ownerId === authStore.userId;
-});
-
-const displayBlurRadius = computed(() => {
-  const radius = form.blurRadius;
-  if (radius === 0 || radius === null || isNaN(radius))
-    return "posizione esatta (0 metri)";
-  if (radius < 1000) return `offuscamento: ${radius} metri di raggio`;
-  return `offuscamento: ${(radius / 1000).toFixed(1)} km di raggio`;
-});
-
-const isAddressValid = computed(() => {
-  return formAddress.streetName.length > 0 && formAddress.zipCode.length > 0;
-});
-
-const deleteModalTitle = computed(() => {
-  switch (deleteStep.value) {
-    case "confirm": return "conferma eliminazione";
-    case "loading": return "attendere...";
-    case "success": return "operazione completata";
-    case "error": return "errore";
-    default: return "";
-  }
-});
-
-function goBack() { router.back(); }
-
-async function loadData() {
-  isLoading.value = true;
-  error.value = null;
-  const libraryId = route.params.id;
-  try {
-    const response = await apiClient.get(`/libraries/${libraryId}`);
-    form.id = response.id;
-    form.name = response.name;
-    form.visibility = response.visibility || "all";
-    form.latitude = response.latitude;
-    form.longitude = response.longitude;
-    form.blurRadius = response.blurRadius || 0;
-    form.ownerId = response.ownerId;
-    tempLocation.latitude = form.latitude;
-    tempLocation.longitude = form.longitude;
-  } catch (e) {
-    error.value = "errore caricamento dati della libreria";
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const initMap = async () => {
-  await nextTick();
-  if (document.getElementById("map")) {
-    if (map.value) {
-      map.value.remove();
-      map.value = null;
-      marker.value = null;
+const isFormValid = computed(() => {
+    const nameSet = form.value.name.trim() !== ''
+    if (form.value.location === 'new_location') {
+        return nameSet && (form.value.latitude !== null || (form.value.streetName !== '' && form.value.zipCode !== ''))
     }
-    const initialCenter = tempLocation.longitude ? [tempLocation.longitude, tempLocation.latitude] : ROME_CENTER;
-    map.value = new maplibregl.Map({
-      container: "map",
-      style: styleUrl,
-      center: initialCenter,
-      zoom: 12,
-    });
-    marker.value = new maplibregl.Marker({ color: "#495d63" }).setLngLat(initialCenter).addTo(map.value);
-    map.value.on("click", (e) => {
-      const { lng, lat } = e.lngLat;
-      tempLocation.latitude = lat;
-      tempLocation.longitude = lng;
-      marker.value.setLngLat([lng, lat]);
-    });
-  }
-};
+    return nameSet && !userHasSkippedLocation.value
+})
 
-async function getGeolocation() {
-  locationError.value = null;
-  isLoadingLocation.value = true;
-  if (!navigator.geolocation) {
-    locationError.value = "geolocalizzazione non supportata dal browser.";
-    isLoadingLocation.value = false;
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      tempLocation.latitude = position.coords.latitude;
-      tempLocation.longitude = position.coords.longitude;
-      isLoadingLocation.value = false;
-    },
-    (e) => {
-      locationError.value = e.code === e.PERMISSION_DENIED ? "permesso negato" : "posizione non disponibile";
-      isLoadingLocation.value = false;
-    },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-  );
+const handleBack = () => {
+  router.push(returnTo.value)
 }
 
-async function geocodeAddress() {
-  locationError.value = null;
-  isLoadingLocation.value = true;
-  const addressPart = `${formAddress.streetType} ${formAddress.streetName}, ${formAddress.zipCode} Roma`;
-  const url = `${geocodingServiceUrl}/${encodeURIComponent(addressPart)}.json?key=${mapTilerApiKey}&limit=1&language=it&country=IT&bbox=12.2,41.7,12.7,42.0`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.features?.length > 0) {
-      const [lng, lat] = data.features[0].geometry.coordinates;
-      tempLocation.latitude = lat;
-      tempLocation.longitude = lng;
-    } else {
-      locationError.value = "indirizzo non trovato.";
+const initLibMap = async () => {
+  await nextTick()
+  const container = document.getElementById("map-lib")
+  if (!container) return
+
+  if (map.value) {
+    // resize per contenitore precedentemente nascosto
+    setTimeout(() => { map.value.resize() }, 100)
+    return
+  }
+
+  const mapTilerKey = import.meta.env.VITE_MAPTILER_KEY
+  map.value = new maplibregl.Map({
+    container: "map-lib",
+    style: `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerKey}`,
+    center: [12.4963, 41.9029],
+    zoom: 12
+  })
+
+  marker.value = new maplibregl.Marker({ color: "#629677" })
+    .setLngLat([12.4963, 41.9029])
+    .addTo(map.value)
+
+  map.value.on("click", (e) => {
+    form.value.latitude = e.lngLat.lat
+    form.value.longitude = e.lngLat.lng
+    marker.value.setLngLat([e.lngLat.lng, e.lngLat.lat])
+  })
+}
+
+// watcher per inizializzazione mappa
+watch([libLocMode, () => form.value.location], async ([newMode, newLoc]) => {
+    if (newMode === 'map' && newLoc === 'new_location') {
+        await initLibMap()
     }
-  } catch (e) {
-    locationError.value = "errore api.";
-  } finally {
-    isLoadingLocation.value = false;
-  }
+}, { immediate: true })
+
+const getLibGeolocation = () => {
+    isLoadingLoc.value = true
+    navigator.geolocation.getCurrentPosition((p) => {
+        form.value.latitude = p.coords.latitude
+        form.value.longitude = p.coords.longitude
+        isLoadingLoc.value = false
+    }, () => { isLoadingLoc.value = false })
 }
 
-async function saveChanges() {
-  isSaving.value = true;
-  if (locationMode.value === "address" && !tempLocation.latitude) await geocodeAddress();
-  if (!tempLocation.latitude) {
-    locationError.value = "posizione non valida.";
-    isSaving.value = false;
-    return;
+const createLibrary = async () => {
+  errorMessage.value = null
+  if (form.value.location === 'new_location' && libLocMode.value === 'address' && !form.value.latitude) {
+      const mapTilerKey = import.meta.env.VITE_MAPTILER_KEY
+      const addr = `Via ${form.value.streetName}, ${form.value.zipCode} Roma`
+      try {
+          const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(addr)}.json?key=${mapTilerKey}`)
+          const data = await res.json()
+          if (data.features?.length) {
+              form.value.latitude = data.features[0].geometry.coordinates[1]
+              form.value.longitude = data.features[0].geometry.coordinates[0]
+          }
+      } catch (e) { console.error(e) }
   }
-  const isLocationChanged = tempLocation.latitude != form.latitude || tempLocation.longitude != form.longitude;
+
   const payload = {
-    name: form.name,
-    visibility: form.visibility,
-    latitude: tempLocation.latitude,
-    longitude: tempLocation.longitude,
-    blurRadius: form.blurRadius,
-    locationType: isLocationChanged ? "new_location" : "old_location",
-  };
+      name: form.value.name,
+      locationType: form.value.location, 
+      visibility: form.value.visibility,
+      latitude: form.value.latitude,
+      longitude: form.value.longitude
+  }
+
   try {
-    await apiClient.put(`/libraries/${form.id}`, payload);
-    router.push(`/libraries/${form.id}`);
-  } catch (e) {
-    error.value = "errore salvataggio.";
-  } finally {
-    isSaving.value = false;
+    const response = await apiClient.post('/libraries', payload)
+    // propagazione ritorno alla pagina successiva
+    router.push({
+      path: '/add-book',
+      query: { 
+        libraryId: response.libraryId,
+        returnTo: returnTo.value,
+        isSetup: isFirstLibrary.value ? 'true' : 'false'
+      }
+    })
+  } catch (error) {
+    errorMessage.value = error.body?.message || "errore durante la creazione della libreria"
   }
 }
-
-function openDeleteModal() { deleteStep.value = "confirm"; showDeleteModal.value = true; }
-async function confirmDelete() {
-  deleteStep.value = "loading";
-  try {
-    await apiClient.delete(`/libraries/${form.id}`);
-    setTimeout(() => { deleteStep.value = "success"; }, 800);
-  } catch (e) { deleteStep.value = "error"; }
-}
-function handleModalClose() { showDeleteModal.value = false; if (deleteStep.value === "success") router.push("/"); }
-
-watch(locationMode, async (newMode, oldMode) => {
-  if (oldMode === "map" && map.value) { map.value.remove(); map.value = null; }
-  if (newMode === "map") await initMap();
-});
-
-watch(() => [tempLocation.latitude, tempLocation.longitude], ([lat, lng]) => {
-  if (locationMode.value === "map" && marker.value && lat && lng) marker.value.setLngLat([lng, lat]);
-});
 
 onMounted(async () => {
-  await loadData();
-  if (locationMode.value === "map") await initMap();
-});
+  if (isFirstLibrary.value) {
+    form.value.name = 'la mia prima libreria'
+    const initialVisibility = route.query.visibility
+    if (['all', 'logged_in', 'private'].includes(initialVisibility)) form.value.visibility = initialVisibility
+    if (userHasSkippedLocation.value) form.value.location = 'new_location'
+  }
+})
+
+const skip = () => { router.push('/') }
 </script>
 
 <style scoped>
 .font-display { font-family: "Mochiy Pop P One", cursive; }
-.animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>

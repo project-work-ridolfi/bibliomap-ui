@@ -6,25 +6,20 @@
         aria-label="torna alla pagina precedente"
         class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-zomp rounded-lg p-1">
         <i class="fa-solid fa-arrow-left mr-2"></i>
-        Torna indietro
+        torna indietro
       </button>
 
       <div v-if="isOwner" class="flex gap-3">
-        <button 
-          @click="router.push(`/libraries/${library.id}/edit`)" 
-          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2"
-        >
+        <button
+          @click="router.push(`/libraries/${library.id}/edit`)"
+          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2">
           <i class="fa-solid fa-pen-to-square"></i>
           modifica libreria
         </button>
 
         <router-link
-          :to="{ path: '/add-book', query: { 
-            libraryId: library.id,
-            returnTo: route.path
-           } }"
-          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2"
-        >
+          :to="{ path: '/add-book', query: { libraryId: library.id, returnTo: route.path } }"
+          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2">
           <i class="fa-solid fa-plus"></i>
           nuovo libro
         </router-link>
@@ -33,17 +28,17 @@
 
     <div v-if="isLoading" role="status" class="text-center py-20 text-theme-main opacity-70">
       <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-2 text-zomp"></i>
-      <p>Caricamento libreria...</p>
+      <p>caricamento libreria...</p>
     </div>
 
     <div v-else-if="error" role="alert" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center">
-      <p class="text-red-700 dark:text-red-400 font-medium">Errore: {{ error }}</p>
+      <p class="text-red-700 dark:text-red-400 font-medium">errore: {{ error }}</p>
     </div>
 
     <div v-else-if="library" class="grid md:grid-cols-4 gap-8">
       <aside class="md:col-span-1 space-y-6">
         <header>
-          <h1 class="text-3xl font-display text-theme-main">{{ library.name }}</h1>
+          <h1 class="text-3xl font-display text-theme-main lowercase">{{ library.name }}</h1>
         </header>
 
         <div v-if="isMapVisible" class="h-64 shadow-lg rounded-xl overflow-hidden border border-thistle">
@@ -51,52 +46,55 @@
         </div>
 
         <section class="bg-theme-primary p-5 rounded-xl shadow border border-thistle transition-colors">
-          <h3 class="font-bold text-lg text-theme-main border-b border-thistle pb-2 mb-3">Info</h3>
+          <h3 class="font-bold text-lg text-theme-main border-b border-thistle pb-2 mb-3">info</h3>
           <dl class="text-sm space-y-3 text-theme-main">
             <div class="flex justify-between">
-              <dt class="opacity-70">Proprietario:</dt>
+              <dt class="opacity-70">proprietario:</dt>
               <router-link :to="`/profile/${library.ownerId}`" class="font-bold hover:text-zomp transition-colors cursor-pointer">
-                    {{ library.ownerName || "Utente anonimo" }}
-            </router-link>
+                {{ library.ownerName || "utente anonimo" }}
+              </router-link>
             </div>
             <div class="flex justify-between">
-              <dt class="opacity-70">Visibilità:</dt>
+              <dt class="opacity-70">visibilità:</dt>
               <dd class="font-bold uppercase text-[10px] tracking-widest">{{ visibilityLabel }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="opacity-70">Libri totali:</dt>
+              <dt class="opacity-70">libri totali:</dt>
               <dd class="font-bold">{{ books.totalCount }}</dd>
             </div>
           </dl>
+          
+          <button
+            v-if="isOwner"
+            @click="openDeleteLibraryModal"
+            class="w-full mt-6 p-3 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-xl transition flex items-center justify-center gap-2 font-bold text-xs uppercase shadow-sm">
+            <i class="fa-solid fa-trash-can"></i>
+            elimina libreria
+          </button>
         </section>
       </aside>
 
       <section class="md:col-span-3 space-y-6">
-        <h2 class="text-2xl font-bold text-theme-main border-b border-thistle pb-2">
-          Libri in Libreria ({{ books.totalCount }})
-        </h2>
+        <h2 class="text-2xl font-bold text-theme-main border-b border-thistle pb-2">libri in libreria ({{ books.totalCount }})</h2>
 
         <div v-if="books.list.length === 0" class="p-10 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center text-theme-main opacity-70">
           <i class="fa-solid fa-book-open-reader text-5xl mb-4 opacity-20"></i>
-          <p class="font-medium">Nessun libro trovato in questa libreria.</p>
+          <p class="font-medium">nessun libro trovato in questa libreria.</p>
         </div>
 
         <ul v-else class="space-y-4">
           <li v-for="book in books.list" :key="book.id" class="bg-theme-primary shadow rounded-xl p-4 flex items-center justify-between border border-thistle transition-all hover:border-zomp group">
             <div class="flex items-center space-x-4">
-              <div class="relative w-16 h-24 flex-shrink-0 shadow-md rounded-md overflow-hidden bg-gray-200">
+              <div class="relative w-16 h-24 flex-shrink-0 shadow-md rounded-md overflow-hidden bg-gray-200 border border-thistle/30">
                 <img v-if="book.customCover || book.coverUrl" :src="book.customCover || book.coverUrl" class="w-full h-full object-cover" />
-                <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                  <i class="fa-solid fa-book text-xl"></i>
-                </div>
+                <div v-else class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-book text-xl"></i></div>
               </div>
-
               <div>
                 <h3 class="text-lg font-bold text-theme-main leading-tight">{{ book.title }}</h3>
-                <p class="text-sm text-theme-main opacity-70">di {{ book.author }}</p>
+                <p class="text-sm text-theme-main opacity-70 italic">di {{ book.author }}</p>
                 <div class="mt-2">
                   <span :class="getStatusBadgeClass(book.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border shadow-sm">
-                    {{ book.status === "available" ? "Disponibile" : "In Prestito" }}
+                    {{ book.status === "available" ? "disponibile" : "in prestito" }}
                   </span>
                 </div>
               </div>
@@ -105,58 +103,86 @@
             <div class="flex items-center space-x-4">
               <div v-if="!isOwner && isAuthenticated" class="flex items-center">
                 <template v-if="book.status === 'available'">
-                  <button
-                    v-if="!book.hasPendingRequest"
-                    @click="openLoanConfirmModal(book)"
-                    class="bg-zomp text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-opacity-90 transition transform hover:-translate-y-0.5 flex items-center">
-                    <i class="fa-solid fa-hand-holding-heart mr-2"></i>
-                    Chiedi in Prestito
+                  <button v-if="!book.hasPendingRequest" @click="openLoanConfirmModal(book)" class="bg-zomp text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-opacity-90 transition transform hover:-translate-y-0.5 flex items-center">
+                    <i class="fa-solid fa-hand-holding-heart mr-2"></i>chiedi in prestito
                   </button>
                   <span v-else class="text-[11px] font-black uppercase text-paynes-gray opacity-60 bg-[var(--bg-secondary)] px-3 py-2 rounded-lg border border-thistle">
-                    <i class="fa-solid fa-check mr-1"></i> Richiesta inviata
+                    <i class="fa-solid fa-check mr-1"></i> richiesta inviata
                   </span>
                 </template>
               </div>
 
-              <button
-                @click="router.push(`/books/${book.id}`)"
-                title="Vedi Dettagli"
-                class="p-2.5 text-theme-main hover:text-zomp hover:bg-ash-gray/20 rounded-xl transition border border-transparent hover:border-thistle">
+              <button @click="router.push(`/books/${book.id}`)" title="vedi dettagli" class="p-2.5 text-theme-main hover:text-zomp hover:bg-ash-gray/20 rounded-xl transition border border-transparent hover:border-thistle">
                 <i class="fa-solid fa-eye text-lg"></i>
               </button>
 
               <div v-if="isOwner" class="flex space-x-1 border-l border-thistle pl-3">
-                <button @click="router.push(`/books/${book.id}/edit`)" title="Modifica" class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg transition">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button @click="openMoveModal(book)" title="Sposta" class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg transition">
-                  <i class="fa-solid fa-right-left"></i>
-                </button>
-                <button
-                  @click="openDeleteUI(book)"
-                  :disabled="book.status !== 'available'"
-                  :class="book.status === 'available' ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : 'text-gray-300 opacity-50 cursor-not-allowed'"
-                  class="p-2 rounded-lg transition">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
+                <button @click="router.push(`/books/${book.id}/edit`)" title="modifica" class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button @click="openMoveModal(book)" title="sposta" class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg transition"><i class="fa-solid fa-right-left"></i></button>
+                <button @click="openDeleteBookUI(book)" :disabled="book.status !== 'available'" :class="book.status === 'available' ? 'text-red-500 hover:bg-red-50' : 'text-gray-300 cursor-not-allowed'" class="p-2 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
           </li>
         </ul>
-
-        <div v-if="books.totalCount > books.pageSize" class="flex justify-center items-center gap-4 pt-4 text-theme-main">
-          <button @click="handlePageChange(books.currentPage - 1)" :disabled="books.currentPage === 0" class="p-2 rounded-lg border border-thistle disabled:opacity-30">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <span class="text-sm font-bold">Pagina {{ books.currentPage + 1 }} di {{ Math.ceil(books.totalCount / books.pageSize) }}</span>
-          <button @click="handlePageChange(books.currentPage + 1)" :disabled="(books.currentPage + 1) * books.pageSize >= books.totalCount" class="p-2 rounded-lg border border-thistle disabled:opacity-30">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
       </section>
     </div>
 
-    </main>
+    <AppModal :is-open="deleteModal.show" :title="deleteModalTitle" @close="closeDeleteModal">
+      <div v-if="deleteModal.step === 'confirm'" class="flex flex-col items-center text-center space-y-4 p-4">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
+          <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+        </div>
+        <p class="text-lg font-medium text-theme-main">{{ deleteModal.message }}</p>
+        <p class="text-sm text-gray-500 bg-red-50 p-3 rounded-lg border border-red-100">
+          <i class="fa-solid fa-circle-info mr-1"></i>
+          azione <strong>irreversibile</strong>.
+        </p>
+        <div class="flex gap-3 w-full mt-4">
+          <button @click="closeDeleteModal" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition lowercase">annulla</button>
+          <button @click="executeDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition flex justify-center items-center gap-2 lowercase">
+            <i class="fa-solid fa-trash"></i> conferma
+          </button>
+        </div>
+      </div>
+
+      <div v-else-if="deleteModal.step === 'loading'" class="flex flex-col items-center justify-center py-8 space-y-4">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
+        <p class="text-theme-main font-medium">eliminazione in corso...</p>
+      </div>
+
+      <div v-else-if="deleteModal.step === 'success'" class="flex flex-col items-center text-center space-y-4 p-4">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mb-2 animate-bounce">
+          <i class="fa-solid fa-check text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-theme-main">eliminato!</h3>
+        <p class="text-sm text-gray-600">{{ deleteModal.successMsg }}</p>
+        <button @click="handleDeleteSuccess" class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition lowercase">chiudi</button>
+      </div>
+
+      <div v-else-if="deleteModal.step === 'error'" class="flex flex-col items-center text-center space-y-4 p-4">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
+          <i class="fa-solid fa-xmark text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-red-600 lowercase">errore</h3>
+        <p class="text-sm text-gray-600">non è stato possibile completare l'operazione.</p>
+        <button @click="closeDeleteModal" class="w-full mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-bold transition lowercase">chiudi</button>
+      </div>
+    </AppModal>
+
+    <AppModal :isOpen="isLoanConfirmModalOpen" title="richiesta di prestito" @close="isLoanConfirmModalOpen = false">
+      <div v-if="currentBook" class="space-y-4 text-theme-main p-4">
+        <p class="text-sm">confermi la richiesta di prestito per:</p>
+        <div class="p-4 bg-[var(--bg-secondary)] border border-thistle rounded-xl font-bold italic">{{ currentBook.title }}</div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button @click="isLoanConfirmModalOpen = false" class="px-4 py-2 text-sm font-bold opacity-60 lowercase">annulla</button>
+          <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="bg-zomp text-white px-6 py-2 rounded-xl font-bold shadow-md flex items-center gap-2">
+            <i v-if="isSendingLoan" class="fa-solid fa-circle-notch fa-spin"></i>
+            invia richiesta
+          </button>
+        </div>
+      </div>
+    </AppModal>
+  </main>
 </template>
 
 <script setup>
@@ -166,7 +192,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { apiClient } from "@/services/apiClient";
 import AppModal from "@/components/AppModal.vue";
 import MiniMap from "@/components/MiniMap.vue";
-import { deleteConfig, executeDeletion } from "@/utils/helpers";
 
 const route = useRoute();
 const router = useRouter();
@@ -177,108 +202,118 @@ const books = ref({ list: [], totalCount: 0, currentPage: 0, pageSize: 10 });
 const isLoading = ref(true);
 const error = ref(null);
 const visibilityLabel = ref("");
-
 const currentBook = ref(null);
+
 const isLoanConfirmModalOpen = ref(false);
-const isLoanResultModalOpen = ref(false);
-const isMoveModalOpen = ref(false);
 const isSendingLoan = ref(false);
+const isMoveModalOpen = ref(false);
 
-const loanResultTitle = ref("");
-const loanResultMessage = ref("");
-const loanResultIcon = ref(null);
-
-const confirmModal = reactive({
+// stato unificato per eliminazione (libreria o libro)
+const deleteModal = reactive({
   show: false,
-  step: 'confirm',
-  title: '',
-  message: '',
-  confirmBtn: '',
-  successMsg: ''
+  step: "confirm",
+  type: null, // 'library' o 'book'
+  targetId: null,
+  message: "",
+  successMsg: ""
 });
 
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isOwner = computed(() => library.value?.ownerId === authStore.userId);
-const isMapVisible = computed(() => library.value && (isOwner.value || library.value.visibility === "public" || library.value.visibility === "all"));
+const isMapVisible = computed(() => library.value && (isOwner.value || library.value.visibility === "all" || library.value.visibility === "public"));
 
 const deleteModalTitle = computed(() => {
-  if (confirmModal.step === 'loading') return 'Attendere...';
-  if (confirmModal.step === 'success') return 'Operazione Completata';
-  return confirmModal.title;
+  if (deleteModal.step === "loading") return "attendere...";
+  if (deleteModal.step === "success") return "operazione completata";
+  return deleteModal.type === 'library' ? "elimina libreria" : "elimina libro";
 });
 
 function getStatusBadgeClass(status) {
-  return status === "available" 
-    ? "bg-zomp text-white border-zomp"
-    : "bg-tea-rose-red/20 text-paynes-gray border-thistle";
+  return status === "available" ? "bg-zomp text-white border-zomp" : "bg-tea-rose-red/20 text-paynes-gray border-thistle";
 }
 
 function goBack() { router.back(); }
 
 async function fetchLibraryDetails(page = 0) {
-  isLoading.value = true; error.value = null;
+  isLoading.value = true;
+  error.value = null;
   try {
     const response = await apiClient.get(`/libraries/${route.params.id}`);
     library.value = response;
-    visibilityLabel.value = response.visibility === "all" ? "Tutti" : response.visibility === "private" ? "Privata" : "Utenti registrati";
+    visibilityLabel.value = response.visibility === "all" ? "tutti" : response.visibility === "private" ? "privata" : "utenti registrati";
     const rawBooks = response.books || [];
     const start = page * books.value.pageSize;
-    books.value = { list: rawBooks.slice(start, start + books.value.pageSize), totalCount: rawBooks.length, currentPage: page, pageSize: 10 };
-  } catch (err) { error.value = "Libreria non trovata."; }
+    books.value = {
+      list: rawBooks.slice(start, start + books.value.pageSize),
+      totalCount: rawBooks.length,
+      currentPage: page,
+      pageSize: 10,
+    };
+  } catch (err) { error.value = "libreria non trovata."; } 
   finally { isLoading.value = false; }
 }
 
-async function handlePageChange(newPage) {
-  if (newPage >= 0 && newPage * books.value.pageSize < books.value.totalCount) {
-    await fetchLibraryDetails(newPage);
-    window.scrollTo(0, 0);
+// eliminazione libreria
+function openDeleteLibraryModal() {
+  deleteModal.type = 'library';
+  deleteModal.targetId = library.value.id;
+  deleteModal.message = `sei sicuro di voler eliminare la libreria "${library.value.name}"? tutti i libri contenuti saranno rimossi.`;
+  deleteModal.successMsg = "la libreria è stata rimossa con successo.";
+  deleteModal.step = 'confirm';
+  deleteModal.show = true;
+}
+
+// eliminazione libro
+function openDeleteBookUI(book) {
+  currentBook.value = book;
+  deleteModal.type = 'book';
+  deleteModal.targetId = book.id;
+  deleteModal.message = `vuoi eliminare il libro "${book.title}" dalla libreria?`;
+  deleteModal.successMsg = "il libro è stato rimosso dalla collezione.";
+  deleteModal.step = 'confirm';
+  deleteModal.show = true;
+}
+
+async function executeDelete() {
+  deleteModal.step = 'loading';
+  try {
+    if (deleteModal.type === 'library') {
+      await apiClient.delete(`/libraries/${deleteModal.targetId}`);
+    } else {
+      await apiClient.delete(`/copies/${deleteModal.targetId}`);
+    }
+    deleteModal.step = 'success';
+  } catch (e) {
+    deleteModal.step = 'error';
   }
 }
 
+function handleDeleteSuccess() {
+  if (deleteModal.type === 'library') {
+    router.push("/");
+  } else {
+    deleteModal.show = false;
+    fetchLibraryDetails(books.value.currentPage);
+  }
+}
+
+function closeDeleteModal() { deleteModal.show = false; }
+
+// prestito
 function openLoanConfirmModal(bookItem) {
   if (!isAuthenticated.value) router.push("/login");
   else { currentBook.value = bookItem; isLoanConfirmModalOpen.value = true; }
 }
 
 async function confirmLoanRequest() {
-  if (!currentBook.value || currentBook.value.status !== "available") return;
-  isLoanConfirmModalOpen.value = false; isSendingLoan.value = true;
+  isSendingLoan.value = true;
   try {
     await apiClient.post(`/loan/${currentBook.value.id}`, {});
-    const bookInList = books.value.list.find(b => b.id === currentBook.value.id);
-    if (bookInList) bookInList.hasPendingRequest = true;
-    loanResultTitle.value = "Richiesta Inviata"; 
-    loanResultMessage.value = "Richiesta inviata con successo.";
-    loanResultIcon.value = "fa-circle-check text-green-500";
+    isLoanConfirmModalOpen.value = false;
+    fetchLibraryDetails(books.value.currentPage);
   } catch (e) {
-    loanResultTitle.value = "Errore"; 
-    loanResultIcon.value = "fa-circle-xmark text-red-500";
-  } finally { isSendingLoan.value = false; isLoanResultModalOpen.value = true; }
-}
-
-function openMoveModal(book) { currentBook.value = book; isMoveModalOpen.value = true; }
-
-function openDeleteUI(book) {
-  currentBook.value = book;
-  const config = deleteConfig.book;
-  confirmModal.title = config.title;
-  confirmModal.message = config.message(book.title);
-  confirmModal.confirmBtn = config.confirmBtn;
-  confirmModal.successMsg = config.successMsg;
-  confirmModal.step = 'confirm';
-  confirmModal.show = true;
-}
-
-async function handleExecuteDelete() {
-  confirmModal.step = 'loading';
-  const res = await executeDeletion('book', currentBook.value.id);
-  if (res.success) {
-    confirmModal.step = 'success';
-    await fetchLibraryDetails(books.value.currentPage);
-  } else {
-    confirmModal.show = false;
-    alert(res.error);
-  }
+    alert("errore richiesta prestito");
+  } finally { isSendingLoan.value = false; }
 }
 
 onMounted(fetchLibraryDetails);
@@ -286,4 +321,5 @@ onMounted(fetchLibraryDetails);
 
 <style scoped>
 .font-display { font-family: "Mochiy Pop P One", cursive; }
+.lowercase { text-transform: lowercase; }
 </style>

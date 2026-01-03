@@ -4,15 +4,13 @@ let onDetectedCallback = null
 
 // configurazione quagga per isbn
 const config = {
-  inputStream: {
+ inputStream: {
     name: 'Live',
     type: 'LiveStream',
-    target: null, // viene settato dinamicamente
+    target: null,
     constraints: {
-      width: { min: 640 },
-      height: { min: 480 },
-      facingMode: 'environment', // usa fotocamera posteriore su mobile
-      aspectRatio: { min: 1, max: 2 }
+      facingMode: 'environment',
+      aspectRatio: { ideal: 1.7777777778 } 
     }
   },
   locator: {
