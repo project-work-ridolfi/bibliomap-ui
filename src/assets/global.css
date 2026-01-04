@@ -12,7 +12,6 @@
   
   /* tema chiaro */
   --bg-primary: #ffffff;
-  --bg-secondary: #ffffff; /* uniforme al primario */
   --text-main: var(--paynes-gray);
   --border-color: var(--thistle);
   --accent-color: var(--zomp);
@@ -21,7 +20,6 @@
 /* tema scuro */
 html.dark {
   --bg-primary: #111827;
-  --bg-secondary: #111827; /* uniforme al primario */
   --accent-color: var(--tea-rose);
   --text-main: #ffffff;
   --paynes-gray: var(--tea-rose);
@@ -29,22 +27,17 @@ html.dark {
 
 /* reset e base */
 body {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* contenitore app senza immagini */
-#app {
-  min-height: 100vh;
-  background-color: var(--bg-secondary);
-}
-
-/* area centrale */
+/* contenitore app */
+#app,
 #main-content {
-  background-color: var(--bg-primary);
   min-height: 100vh;
+  background-color: var(--bg-primary);
   transition: background-color 0.3s ease;
 }
 
@@ -61,6 +54,13 @@ body {
 
 .text-theme-main {
   color: var(--text-main);
+}
+
+/* utility flex centrato */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* stili mappa e pin */
