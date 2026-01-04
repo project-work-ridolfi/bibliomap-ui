@@ -75,11 +75,13 @@
         v-model="internalBooks"
         group="books"
         item-key="id"
+        :disabled="!isOwner"
         @change="handleMove"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 min-h-[50px]">
         <template #item="{ element: book }">
           <div
-            class="flex gap-3 bg-theme-primary p-3 rounded-lg border border-[var(--thistle)] group relative cursor-move hover:shadow-md transition duration-200">
+            class="flex gap-3 bg-theme-primary p-3 rounded-lg border border-[var(--thistle)] group relative hover:shadow-md transition duration-200"
+            :class="isOwner ? 'cursor-move' : 'cursor-default'">
             <div
               class="w-12 h-16 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 overflow-hidden relative border border-[var(--thistle)]/30">
               <img

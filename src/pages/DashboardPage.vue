@@ -178,10 +178,16 @@
                   <router-link :to="`/books/${loan.copyId}`" class="block">
                     <h4
                       class="font-bold text-zomp text-lg leading-tight truncate hover:underline">
+                      {{ loan.title }}
                     </h4>
                   </router-link>
                   <p class="text-[10px] opacity-60">
                     Proprietario:
+                    <router-link
+                      :to="`/profile/${loan.ownerId}`"
+                      class="hover:text-zomp"
+                      >{{ loan.ownerUsername }}</router-link
+                    >
                   </p>
                 </div>
                 <div
@@ -244,12 +250,16 @@
                 :key="loan.id"
                 class="w-full md:w-[calc(33.333%-11px)] shrink-0 bg-theme-primary p-5 rounded-xl shadow-sm border border-thistle flex flex-col justify-between min-h-[160px]">
                 <div>
-                  <h4
-                    class="font-bold text-theme-main text-lg leading-tight truncate">
-                    {{ loan.title }}
-                  </h4>
+                  <router-link :to="`/books/${loan.copyId}`" class="block">
+                    <h4
+                      class="font-bold text-theme-main text-lg leading-tight truncate hover:text-zomp hover:underline">
+                      {{ loan.title }}
+                    </h4>
+                  </router-link>
                   <p class="text-[10px] opacity-60">
-                    Lettore: {{ loan.requesterUsername }}
+                    Lettore:
+                    <router-link
+                      :to="`/profile/${loan.requesterId}`"
                       class="hover:text-zomp"
                       >{{ loan.requesterUsername }}</router-link
                     >
@@ -278,7 +288,7 @@
         <section
           class="bg-theme-primary p-6 rounded-2xl shadow-md border border-thistle space-y-6">
           <h3
-            class="font-display text-s text-zomp tracking-widest border-b border-thistle pb-2">
+            class="font-display text-s text-center text-zomp tracking-widest border-b border-thistle pb-2">
             Navigazione
           </h3>
           <nav class="flex flex-col gap-3">
