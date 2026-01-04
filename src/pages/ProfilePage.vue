@@ -658,9 +658,7 @@ watch(() => route.params.id, fetchProfileData);
 </script>
 
 <style scoped>
-.font-display {
-  font-family: "Mochiy Pop P One", cursive;
-}
+
 .input-field {
   width: 100%;
   padding: 0.75rem;

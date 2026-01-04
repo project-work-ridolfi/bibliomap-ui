@@ -472,8 +472,3 @@ async function confirmLoanRequest() {
 onMounted(fetchLibraryDetails);
 </script>
 
-<style scoped>
-.font-display {
-  font-family: "Mochiy Pop P One", cursive;
-}
-</style>

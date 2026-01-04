@@ -950,9 +950,6 @@ watch([() => form.value.title, () => form.value.author], () => {
     top: 95%;
   }
 }
-.font-display {
-  font-family: "Mochiy Pop P One", cursive;
-}
 
 .tag-list {
   max-height: 120px;

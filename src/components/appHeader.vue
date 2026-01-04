@@ -228,7 +228,7 @@ const vClickOutside = {
 }
 
 .header-title-main {
-  font-family: "Mochiy Pop P One", cursive;
+  font-family: "Shadows Into Light Two", cursive;
   /* dimezzato */
   font-size: min(1.75em, 5vw);
   margin: 0;

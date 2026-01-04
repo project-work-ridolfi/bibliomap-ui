@@ -620,9 +620,6 @@ const formatVisibility = (v) =>
 </script>
 
 <style scoped>
-.font-display {
-  font-family: "Mochiy Pop P One", cursive;
-}
 .nav-link {
   display: flex;
   align-items: center;

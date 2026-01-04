@@ -25,7 +25,7 @@ module.exports = {
         'accent': '#fac8cd', 
       },
       fontFamily: {
-        display: ['Mochiy Pop P One'],
+        display: ['Shadows Into Light Two'],
         body: ['Quicksand', 'sans-serif'],
       }
     },

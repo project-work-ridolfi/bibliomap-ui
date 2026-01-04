@@ -355,8 +355,3 @@ async function saveChanges() {
 onMounted(loadData);
 </script>
 
-<style scoped>
-.font-display {
-  font-family: "Mochiy Pop P One", cursive;
-}
-</style>

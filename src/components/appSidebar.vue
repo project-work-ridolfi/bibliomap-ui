@@ -166,7 +166,7 @@ async function handleLogout() {
 
 <style scoped>
 .sidebar-title {
-  font-family: "Mochiy Pop P One", cursive;
+  font-family: "Shadows Into Light Two", bold;
   font-size: 1.25rem;
   letter-spacing: 0.05em;
   color: var(--paynes-gray);

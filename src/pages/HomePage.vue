@@ -686,8 +686,3 @@ const confirmLoanRequest = async () => {
 };
 </script>
 
-<style scoped>
-.font-display {
-  font-family: "Mochiy Pop P One", cursive;
-}
-</style>

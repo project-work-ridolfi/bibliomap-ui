@@ -125,7 +125,7 @@ body {
     border-bottom: 1px solid var(--border-color);
     @apply p-3 flex justify-between items-center shrink-0 z-20;
   }
-  .sidebar-title { font-family: "Mochiy Pop P One", cursive; color: var(--text-main); @apply text-lg; }
+  .sidebar-title { font-family: "Shadows Into Light Two"; color: var(--text-main); @apply text-lg; }
 
   .btn-filters { @apply flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 text-[10px] font-bold uppercase transition; }
   .btn-filters--active { background-color: var(--zomp); color: white; border-color: var(--zomp); }
