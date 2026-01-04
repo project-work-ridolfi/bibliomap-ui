@@ -49,44 +49,75 @@
       v-if="locationMode === 'address'"
       class="space-y-3 p-4 border rounded-lg border-thistle">
       <div class="grid grid-cols-2 gap-3">
-         <div>
-          <label for="streetType" class="block text-sm font-medium text-paynes-gray">
+        <div>
+          <label
+            for="streetType"
+            class="block text-sm font-medium text-paynes-gray">
             Tipo di Indirizzo *
-         </label>
-          <input v-model="form.streetType" id="streetType" type="text" required placeholder="Via, Piazza, ecc."
+          </label>
+          <input
+            v-model="form.streetType"
+            id="streetType"
+            type="text"
+            required
+            placeholder="Via, Piazza, ecc."
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
         </div>
         <div>
-          <label for="streetName"  class="block text-sm font-medium text-paynes-gray">
+          <label
+            for="streetName"
+            class="block text-sm font-medium text-paynes-gray">
             Nome della Via *
-            </label>
-          <input v-model="form.streetName" id="streetName" type="text" required placeholder="Roma, Garibaldi, ecc."
+          </label>
+          <input
+            v-model="form.streetName"
+            id="streetName"
+            type="text"
+            required
+            placeholder="Roma, Garibaldi, ecc."
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-3">
         <div>
-          <label for="houseNumber" class="block text-sm font-medium text-paynes-gray">
+          <label
+            for="houseNumber"
+            class="block text-sm font-medium text-paynes-gray">
             Civico
-            </label>
-          <input v-model="form.houseNumber" id="houseNumber" type="text" placeholder="10A"
+          </label>
+          <input
+            v-model="form.houseNumber"
+            id="houseNumber"
+            type="text"
+            placeholder="10A"
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
         </div>
         <div>
-          <label for="zipCode" class="block text-sm font-medium text-paynes-gray">
+          <label
+            for="zipCode"
+            class="block text-sm font-medium text-paynes-gray">
             CAP *
-            </label>
-          <input v-model="form.zipCode" id="zipCode" type="text" required placeholder="001xx"
+          </label>
+          <input
+            v-model="form.zipCode"
+            id="zipCode"
+            type="text"
+            required
+            placeholder="001xx"
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
         </div>
         <div class="relative group">
           <label for="city" class="block text-sm font-medium text-paynes-gray">
             Città
-            </label>
-          <input id="city" value="Roma" disabled
+          </label>
+          <input
+            id="city"
+            value="Roma"
+            disabled
             class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-paynes-gray/80 cursor-not-allowed" />
-          <div  class="absolute top-full mt-2 hidden group-hover:block bg-paynes-gray text-white text-xs rounded py-1 px-2 z-10 w-40">
+          <div
+            class="absolute top-full mt-2 hidden group-hover:block bg-paynes-gray text-white text-xs rounded py-1 px-2 z-10 w-40">
             Al momento il servizio è disponibile solo per Roma.
           </div>
         </div>
@@ -223,30 +254,31 @@
         class="w-1/2 bg-thistle text-paynes-gray py-3 rounded-lg hover:bg-ash-gray transition duration-150 font-bold text-lg">
         Salta
       </button>
-    <button
+      <button
         @click="saveLocation"
-        :disabled="!isLocationSet || !authStore.isAuthenticated" id="save-location-btn"
+        :disabled="!isLocationSet || !authStore.isAuthenticated"
+        id="save-location-btn"
         class="w-1/2 bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
         Salva Posizione
-    </button>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from "vue"
-import { useRouter } from "vue-router"
-import maplibregl from "maplibre-gl"
-import { apiClient } from "@/services/apiClient"
-import { useAuthStore } from '@/stores/authStore' 
+import { ref, computed, onMounted, nextTick, watch } from "vue";
+import { useRouter } from "vue-router";
+import maplibregl from "maplibre-gl";
+import { apiClient } from "@/services/apiClient";
+import { useAuthStore } from "@/stores/authStore";
 
-const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY
-const geocodingServiceUrl = "https://api.maptiler.com/geocoding"
+const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY;
+const geocodingServiceUrl = "https://api.maptiler.com/geocoding";
 
-const router = useRouter()
-const authStore = useAuthStore() 
+const router = useRouter();
+const authStore = useAuthStore();
 
-const locationMode = ref("geo")
+const locationMode = ref("geo");
 const form = ref({
   latitude: null,
   longitude: null,
@@ -257,49 +289,49 @@ const form = ref({
   city: "Roma",
   visibility: "all",
   blurRadius: 0,
-})
+});
 
-const isLoadingLocation = ref(false)
-const locationError = ref(null)
+const isLoadingLocation = ref(false);
+const locationError = ref(null);
 
 // --- COMPUTED PROPERTIES ---
 
 const displayBlurRadius = computed(() => {
-  const radius = form.value.blurRadius
+  const radius = form.value.blurRadius;
 
   if (radius === 0 || radius === null || isNaN(radius)) {
-    return "Posizione Esatta (0 metri)"
+    return "Posizione Esatta (0 metri)";
   }
   if (radius < 1000) {
-    return `Offuscamento: ${radius} metri di raggio`
+    return `Offuscamento: ${radius} metri di raggio`;
   } else {
-    return `Offuscamento: ${(radius / 1000).toFixed(1)} km di raggio`
+    return `Offuscamento: ${(radius / 1000).toFixed(1)} km di raggio`;
   }
-})
+});
 
 const isAddressValid = computed(() => {
-  return form.value.streetName.length > 0 && form.value.zipCode.length > 0
-})
+  return form.value.streetName.length > 0 && form.value.zipCode.length > 0;
+});
 
 const isLocationSet = computed(() => {
-  if (locationMode.value === "geo" && form.value.latitude) return true
-  if (locationMode.value === "map" && form.value.latitude) return true
-  if (locationMode.value === "address" && isAddressValid.value) return true
-  return false
-})
+  if (locationMode.value === "geo" && form.value.latitude) return true;
+  if (locationMode.value === "map" && form.value.latitude) return true;
+  if (locationMode.value === "address" && isAddressValid.value) return true;
+  return false;
+});
 
 // --- MAP LIBRE STATE E LOGICA ---
-const map = ref(null)
-const marker = ref(null)
-const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`
+const map = ref(null);
+const marker = ref(null);
+const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`;
 
 const initMap = async () => {
   if (map.value) {
-    map.value.resize()
-    return
+    map.value.resize();
+    return;
   }
 
-  await nextTick()
+  await nextTick();
 
   if (document.getElementById("map")) {
     map.value = new maplibregl.Map({
@@ -307,132 +339,140 @@ const initMap = async () => {
       style: styleUrl,
       center: [12.4963, 41.9029],
       zoom: 12,
-    })
+    });
 
     marker.value = new maplibregl.Marker({ color: "#495d63" })
       .setLngLat(map.value.getCenter())
-      .addTo(map.value)
+      .addTo(map.value);
 
     map.value.on("click", (e) => {
-      const { lng, lat } = e.lngLat
-      form.value.latitude = lat
-      form.value.longitude = lng
-      marker.value.setLngLat([lng, lat])
-    })
+      const { lng, lat } = e.lngLat;
+      form.value.latitude = lat;
+      form.value.longitude = lng;
+      marker.value.setLngLat([lng, lat]);
+    });
 
     if (form.value.latitude && form.value.longitude) {
-      marker.value.setLngLat([form.value.longitude, form.value.latitude])
-      map.value.setCenter([form.value.longitude, form.value.latitude])
+      marker.value.setLngLat([form.value.longitude, form.value.latitude]);
+      map.value.setCenter([form.value.longitude, form.value.latitude]);
     }
   }
-}
+};
 
 // --- GESTIONE DEL CAMBIO MODALITÀ ---
 
 watch(locationMode, (newMode) => {
-  locationError.value = null
-  form.value.latitude = null
-  form.value.longitude = null
+  locationError.value = null;
+  form.value.latitude = null;
+  form.value.longitude = null;
 
   if (newMode === "map") {
-    initMap()
+    initMap();
   }
-})
+});
 
 onMounted(() => {
   if (locationMode.value === "map") {
-    initMap()
+    initMap();
   }
-})
+});
 
 watch([() => form.value.streetName, () => form.value.zipCode], () => {
   if (locationMode.value === "address") {
-    form.value.latitude = null
-    form.value.longitude = null
+    form.value.latitude = null;
+    form.value.longitude = null;
   }
-})
+});
 
 // --- GEOLOCALIZZAZIONE BROWSER (GPS) ---
 async function getGeolocation() {
-  locationError.value = null
-  isLoadingLocation.value = true
-  form.value.latitude = null
-  form.value.longitude = null
+  locationError.value = null;
+  isLoadingLocation.value = true;
+  form.value.latitude = null;
+  form.value.longitude = null;
 
   if (!navigator.geolocation) {
-    locationError.value = "Geolocalizzazione non supportata dal browser."
-    isLoadingLocation.value = false
-    return
+    locationError.value = "Geolocalizzazione non supportata dal browser.";
+    isLoadingLocation.value = false;
+    return;
   }
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
-      form.value.latitude = position.coords.latitude
-      form.value.longitude = position.coords.longitude
-      isLoadingLocation.value = false
-      console.log(`Geolocalizzazione riuscita: Lat=${form.value.latitude}, Lng=${form.value.longitude}`)
+      form.value.latitude = position.coords.latitude;
+      form.value.longitude = position.coords.longitude;
+      isLoadingLocation.value = false;
+      console.log(
+        `Geolocalizzazione riuscita: Lat=${form.value.latitude}, Lng=${form.value.longitude}`
+      );
     },
     (error) => {
-      let errorMessage = "Errore sconosciuto"
+      let errorMessage = "Errore sconosciuto";
       switch (error.code) {
         case error.PERMISSION_DENIED:
-          errorMessage = "Permesso negato. Abilita la geolocalizzazione nel browser."
-          break
+          errorMessage =
+            "Permesso negato. Abilita la geolocalizzazione nel browser.";
+          break;
         case error.POSITION_UNAVAILABLE:
-          errorMessage = "Posizione non disponibile."
-          break
+          errorMessage = "Posizione non disponibile.";
+          break;
         case error.TIMEOUT:
-          errorMessage = "Timeout nella richiesta di geolocalizzazione."
-          break
+          errorMessage = "Timeout nella richiesta di geolocalizzazione.";
+          break;
       }
-      locationError.value = errorMessage
-      isLoadingLocation.value = false
-      console.error("Errore geolocalizzazione:", error)
+      locationError.value = errorMessage;
+      isLoadingLocation.value = false;
+      console.error("Errore geolocalizzazione:", error);
     },
     {
       enableHighAccuracy: true,
       timeout: 10000,
-      maximumAge: 0
+      maximumAge: 0,
     }
-  )
+  );
 }
 
 // --- GEOCODIFICA INDIRIZZO ---
 async function geocodeAddress() {
-  locationError.value = null
-  isLoadingLocation.value = true
-  form.value.latitude = null
-  form.value.longitude = null
+  locationError.value = null;
+  isLoadingLocation.value = true;
+  form.value.latitude = null;
+  form.value.longitude = null;
 
   if (!isAddressValid.value) {
-    locationError.value = "Devi compilare i campi Via e CAP."
-    isLoadingLocation.value = false
-    return
+    locationError.value = "Devi compilare i campi Via e CAP.";
+    isLoadingLocation.value = false;
+    return;
   }
 
-  const addressPart = `${form.value.streetType} ${form.value.streetName} ${form.value.houseNumber || ''}, ${form.value.zipCode} ${form.value.city}`
-  const url = `${geocodingServiceUrl}/${encodeURIComponent(addressPart)}.json?key=${mapTilerApiKey}&limit=1&language=it&country=IT&bbox=12.2,41.7,12.7,42.0`
+  const addressPart = `${form.value.streetType} ${form.value.streetName} ${
+    form.value.houseNumber || ""
+  }, ${form.value.zipCode} ${form.value.city}`;
+  const url = `${geocodingServiceUrl}/${encodeURIComponent(
+    addressPart
+  )}.json?key=${mapTilerApiKey}&limit=1&language=it&country=IT&bbox=12.2,41.7,12.7,42.0`;
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Geocodifica fallita: Errore HTTP ${response.status}`)
+      throw new Error(`Geocodifica fallita: Errore HTTP ${response.status}`);
     }
 
-    const data = await response.json()
+    const data = await response.json();
     if (data.features && data.features.length > 0) {
-      const [lng, lat] = data.features[0].geometry.coordinates
-      form.value.latitude = lat
-      form.value.longitude = lng
-      console.log(`Geocodifica riuscita: Lat=${lat}, Lng=${lng}`)
+      const [lng, lat] = data.features[0].geometry.coordinates;
+      form.value.latitude = lat;
+      form.value.longitude = lng;
+      console.log(`Geocodifica riuscita: Lat=${lat}, Lng=${lng}`);
     } else {
-      locationError.value = "Indirizzo non trovato o non valido nell'area di Roma."
+      locationError.value =
+        "Indirizzo non trovato o non valido nell'area di Roma.";
     }
   } catch (e) {
-    console.error("Errore Geocoding API:", e)
-    locationError.value = `Errore API: ${e.message}. Riprova.`
+    console.error("Errore Geocoding API:", e);
+    locationError.value = `Errore API: ${e.message}. Riprova.`;
   } finally {
-    isLoadingLocation.value = false
+    isLoadingLocation.value = false;
   }
 }
 
@@ -442,13 +482,13 @@ async function saveLocation() {
   // Gestione modalità indirizzo: geocodifica se necessario
   if (locationMode.value === "address") {
     if (!isAddressValid.value) {
-      locationError.value = "Devi compilare i campi Via e CAP."
-      return
+      locationError.value = "Devi compilare i campi Via e CAP.";
+      return;
     }
 
     if (!form.value.latitude || !form.value.longitude) {
-      await geocodeAddress()
-      if (locationError.value || !form.value.latitude) return
+      await geocodeAddress();
+      if (locationError.value || !form.value.latitude) return;
     }
   }
 
@@ -459,33 +499,34 @@ async function saveLocation() {
       longitude: form.value.longitude,
       blurRadius: form.value.blurRadius,
       visibility: form.value.visibility,
-    }
+    };
 
     try {
-      await apiClient.post('/users/set-location', payload) 
-      console.log("Posizione salvata con successo. Payload:", payload)
-      router.push({ 
-        path: '/library', 
-        query: { from: 'setup', visibility: form.value.visibility } 
-      })
+      await apiClient.post("/users/set-location", payload);
+      console.log("Posizione salvata con successo. Payload:", payload);
+      router.push({
+        path: "/library",
+        query: { from: "setup", visibility: form.value.visibility },
+      });
     } catch (e) {
-      locationError.value = "Errore durante il salvataggio della posizione nel server."
-      console.error("Errore salvataggio BE:", e)
+      locationError.value =
+        "Errore durante il salvataggio della posizione nel server.";
+      console.error("Errore salvataggio BE:", e);
     }
   } else {
-    locationError.value = "Seleziona una posizione valida prima di salvare."
+    locationError.value = "Seleziona una posizione valida prima di salvare.";
   }
 }
 
 function skipAndContinue() {
-  console.log("Posizione saltata. Navigazione a /library in modalità setup.")
-  router.push({ 
-    path: '/library', 
-    query: { 
-      from: 'setup', 
-      visibility: form.value.visibility, 
-      locationSkipped: true 
-    } 
-  })
+  console.log("Posizione saltata. Navigazione a /library in modalità setup.");
+  router.push({
+    path: "/library",
+    query: {
+      from: "setup",
+      visibility: form.value.visibility,
+      locationSkipped: true,
+    },
+  });
 }
 </script>

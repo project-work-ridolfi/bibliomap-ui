@@ -10,7 +10,7 @@
             {{ stat.value }}
           </div>
           <div
-            class="text-[10px] opacity-70 font-bold tracking-wider uppercase leading-tight">
+            class="text-[10px] opacity-70 font-bold tracking-wider leading-tight">
             {{ stat.label }}
           </div>
         </div>
@@ -33,7 +33,7 @@
             :key="s.label"
             class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center">
             <p
-              class="text-[9px] font-black opacity-40 tracking-widest mb-1 uppercase">
+              class="text-[9px] font-black opacity-40 tracking-widest mb-1">
               {{ s.label }}
             </p>
             <p
@@ -52,7 +52,7 @@
           <div
             class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
             <p
-              class="text-[10px] font-black uppercase opacity-50 mb-6 tracking-widest text-center">
+              class="text-[10px] font-black opacity-50 mb-6 tracking-widest text-center">
               scambi conclusi (ultimi 6 mesi)
             </p>
             <div class="h-[200px]">
@@ -62,7 +62,7 @@
           <div
             class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
             <p
-              class="text-[10px] font-black uppercase opacity-50 mb-6 tracking-widest text-center">
+              class="text-[10px] font-black opacity-50 mb-6 tracking-widest text-center">
               richieste community per settimana
             </p>
             <div class="h-[200px]">
@@ -74,7 +74,7 @@
             v-if="filteredMostViewedBooks.length > 0"
             class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
             <p
-              class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">
+              class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               i libri più visti
             </p>
             <div class="space-y-3">
@@ -88,7 +88,7 @@
                   {{ index + 1 }}. {{ item.name }}
                 </span>
                 <span
-                  class="text-[10px] font-black uppercase opacity-60 shrink-0">
+                  class="text-[10px] font-black opacity-60 shrink-0">
                   <i class="fa-solid fa-eye mr-1"></i> {{ item.views }}
                 </span>
               </div>
@@ -99,7 +99,7 @@
             v-if="filteredLibraries.length > 0"
             class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm text-theme-main">
             <p
-              class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">
+              class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               le librerie più visitate
             </p>
             <div class="space-y-3">
@@ -112,7 +112,7 @@
                   class="font-bold text-sm group-hover:text-zomp truncate flex-1 mr-4"
                   >{{ item.name }}</span
                 >
-                <span class="text-[10px] font-black uppercase opacity-60"
+                <span class="text-[10px] font-black opacity-60"
                   >{{ item.views }} visite</span
                 >
               </div>
@@ -122,7 +122,7 @@
           <div
             class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
             <p
-              class="text-[10px] font-black uppercase opacity-50 mb-6 text-center tracking-widest">
+              class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               top 5 titoli più prestati
             </p>
             <div class="space-y-3">
@@ -144,7 +144,7 @@
                   >
                 </div>
                 <div
-                  class="text-[11px] font-black uppercase bg-thistle/30 px-3 py-1 rounded-full opacity-70">
+                  class="text-[11px] font-black bg-thistle/30 px-3 py-1 rounded-full opacity-70">
                   {{ fullData.paretoBooks.data[index] }} scambi
                 </div>
               </div>

@@ -36,7 +36,7 @@
         </p>
       </div>
 
-     <div>
+      <div>
         <label
           for="email"
           class="block text-sm font-medium mb-1 text-paynes-gray">
@@ -48,8 +48,10 @@
           type="email"
           required
           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
-          :class="{ 'border-red-500': !isEmailValid && form.email.length > 0 }"
-          /> <p
+          :class="{
+            'border-red-500': !isEmailValid && form.email.length > 0,
+          }" />
+        <p
           v-if="!isEmailValid && form.email.length > 0"
           class="text-xs text-red-500 mt-1">
           Inserisci un'email valida (es. nome@dominio.it).
@@ -165,9 +167,7 @@
             type="checkbox"
             required
             class="mt-1 mr-2 form-checkbox text-zomp rounded border-ash-gray focus:ring-zomp" />
-          <span class="text-sm">
-            Dichiaro di essere maggiorenne *
-          </span>
+          <span class="text-sm"> Dichiaro di essere maggiorenne * </span>
         </label>
       </div>
 
@@ -299,17 +299,17 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch } from "vue"
-import { useRouter } from "vue-router"
-import AppModal from "@/components/AppModal.vue"
-import { apiClient } from "@/services/apiClient"
-import { TERMS_AND_CONDITIONS, PRIVACY_POLICY } from "@/utils/legalTexts"
-import { useAuthStore } from '@/stores/authStore'
-import { validateEmailFormat } from '@/utils/helpers' 
+import { ref, computed, nextTick, watch } from "vue";
+import { useRouter } from "vue-router";
+import AppModal from "@/components/AppModal.vue";
+import { apiClient } from "@/services/apiClient";
+import { TERMS_AND_CONDITIONS, PRIVACY_POLICY } from "@/utils/legalTexts";
+import { useAuthStore } from "@/stores/authStore";
+import { validateEmailFormat } from "@/utils/helpers";
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
-const router = useRouter()
+const router = useRouter();
 
 // ============================================================================
 //                             STATO FORM PRINCIPALE
@@ -324,30 +324,30 @@ const form = ref({
   password: "",
   acceptTerms: false,
   acceptPrivacy: false,
-  ofAge: false
-})
+  ofAge: false,
+});
 
 // ============================================================================
 //                          MODALI TERMINI E PRIVACY
 // ============================================================================
 
-const showTermsModal = ref(false)
-const showPrivacyModal = ref(false)
-const termsContent = TERMS_AND_CONDITIONS
-const privacyContent = PRIVACY_POLICY
+const showTermsModal = ref(false);
+const showPrivacyModal = ref(false);
+const termsContent = TERMS_AND_CONDITIONS;
+const privacyContent = PRIVACY_POLICY;
 
 // ============================================================================
 //          VALIDAZIONE USERNAME (con debounce e controllo disponibilità)
 // ============================================================================
 
 // Indica se l'username digitato è disponibile (non esiste nel database)
-const usernameAvailability = ref(true)
+const usernameAvailability = ref(true);
 // Indica se è in corso la verifica asincrona dell'username
-const isCheckingUsername = ref(false)
+const isCheckingUsername = ref(false);
 // Stato finale di validità dell'username (disponibile e formato corretto)
-const isUsernameValid = ref(false)
+const isUsernameValid = ref(false);
 // Timer per debounce della validazione username (evita chiamate API ad ogni keystroke)
-let usernameCheckTimeout = null
+let usernameCheckTimeout = null;
 
 /**
  * Watcher che attiva la validazione username con debounce di 500ms
@@ -356,52 +356,52 @@ watch(
   () => form.value.username,
   (newUsername) => {
     if (usernameCheckTimeout) {
-      clearTimeout(usernameCheckTimeout)
+      clearTimeout(usernameCheckTimeout);
     }
 
-    isCheckingUsername.value = true
+    isCheckingUsername.value = true;
 
     usernameCheckTimeout = setTimeout(() => {
-      validateUsername(newUsername)
-      isCheckingUsername.value = false
-    }, 500)
+      validateUsername(newUsername);
+      isCheckingUsername.value = false;
+    }, 500);
   }
-)
+);
 
 /**
  * Verifica la disponibilità dell'username tramite chiamata API
  * @param {string} username - Username da verificare
  */
 async function validateUsername(username) {
-  usernameAvailability.value = true
-  isUsernameValid.value = false
+  usernameAvailability.value = true;
+  isUsernameValid.value = false;
 
   if (username.length === 0) {
-    return
+    return;
   }
 
   try {
-    const response = await apiClient.get(`/users/check-exists/${username}`)
+    const response = await apiClient.get(`/users/check-exists/${username}`);
 
     if (response && typeof response.exists === "boolean") {
-      const isTaken = response.exists
-      usernameAvailability.value = !isTaken
-      isUsernameValid.value = !isTaken
+      const isTaken = response.exists;
+      usernameAvailability.value = !isTaken;
+      isUsernameValid.value = !isTaken;
     } else {
-      console.error("Risposta API malformata:", response)
-      usernameAvailability.value = true
-      isUsernameValid.value = true
+      console.error("Risposta API malformata:", response);
+      usernameAvailability.value = true;
+      isUsernameValid.value = true;
     }
   } catch (error) {
-    console.error("Errore durante la verifica username:", error)
+    console.error("Errore durante la verifica username:", error);
 
     if (error.message.includes("500")) {
-      console.error("Errore server - assumo username disponibile")
-      usernameAvailability.value = true
-      isUsernameValid.value = true
+      console.error("Errore server - assumo username disponibile");
+      usernameAvailability.value = true;
+      isUsernameValid.value = true;
     } else {
-      usernameAvailability.value = false
-      isUsernameValid.value = false
+      usernameAvailability.value = false;
+      isUsernameValid.value = false;
     }
   }
 }
@@ -411,11 +411,11 @@ async function validateUsername(username) {
 // ============================================================================
 
 // Indica se il formato email è valido
-const isEmailValid = computed(() => { 
-  return validateEmailFormat(form.value.email)
-})
+const isEmailValid = computed(() => {
+  return validateEmailFormat(form.value.email);
+});
 // Indica se la password soddisfa tutti i requisiti
-const isPasswordValid = ref(true)
+const isPasswordValid = ref(true);
 // Dettaglio requisiti password per feedback visivo granulare
 const passwordRequirements = ref({
   minLength: false,
@@ -423,30 +423,28 @@ const passwordRequirements = ref({
   hasLower: false,
   hasNumber: false,
   hasSpecial: false,
-})
-
-
+});
 
 /**
  * Valida la password controllando ogni requisito di sicurezza
  */
 function validatePassword() {
-  const p = form.value.password
+  const p = form.value.password;
 
-  passwordRequirements.value.minLength = p.length >= 8
-  passwordRequirements.value.hasUpper = /[A-Z]/.test(p)
-  passwordRequirements.value.hasLower = /[a-z]/.test(p)
-  passwordRequirements.value.hasNumber = /\d/.test(p)
-  passwordRequirements.value.hasSpecial = /[@$!%*?&]/.test(p)
+  passwordRequirements.value.minLength = p.length >= 8;
+  passwordRequirements.value.hasUpper = /[A-Z]/.test(p);
+  passwordRequirements.value.hasLower = /[a-z]/.test(p);
+  passwordRequirements.value.hasNumber = /\d/.test(p);
+  passwordRequirements.value.hasSpecial = /[@$!%*?&]/.test(p);
 
   const allValid =
     passwordRequirements.value.minLength &&
     passwordRequirements.value.hasUpper &&
     passwordRequirements.value.hasLower &&
     passwordRequirements.value.hasNumber &&
-    passwordRequirements.value.hasSpecial
+    passwordRequirements.value.hasSpecial;
 
-  isPasswordValid.value = allValid || p.length === 0
+  isPasswordValid.value = allValid || p.length === 0;
 }
 
 // ============================================================================
@@ -454,14 +452,14 @@ function validatePassword() {
 // ============================================================================
 
 // Indica se è in corso l'invio della richiesta OTP
-const isSendingOtp = ref(false)
+const isSendingOtp = ref(false);
 
 /**
  * Disabilita il pulsante submit se il form non è valido o è in corso una verifica
  */
 const isSubmittingDisabled = computed(() => {
-  return !isFormValid.value || isCheckingUsername.value || isSendingOtp.value
-})
+  return !isFormValid.value || isCheckingUsername.value || isSendingOtp.value;
+});
 
 /**
  * Il form è valido se tutti i campi rispettano le regole e le checkbox sono spuntate
@@ -477,36 +475,36 @@ const isFormValid = computed(() => {
     form.value.acceptTerms &&
     form.value.acceptPrivacy &&
     form.value.ofAge
-  )
-})
+  );
+});
 
 // ============================================================================
 //                               GESTIONE FASE OTP
 // ============================================================================
 
 // Array di 6 cifre per l'input OTP
-const otpDigits = ref(["", "", "", "", "", ""])
+const otpDigits = ref(["", "", "", "", "", ""]);
 // Indica se la schermata OTP è visibile (fase 2 registrazione)
-const otpSent = ref(false)
+const otpSent = ref(false);
 // OTP mock ricevuto dal backend in modalità debug
-const mockOtp = ref(null)
+const mockOtp = ref(null);
 // Indica se è presente un errore di verifica OTP
-const otpError = ref(false)
+const otpError = ref(false);
 // Messaggio di errore dinamico ricevuto dal backend
-const otpErrorMessage = ref("")
+const otpErrorMessage = ref("");
 // Numero di tentativi rimasti (sincronizzato con il backend)
-const retryCount = ref(3)
+const retryCount = ref(3);
 // Numero massimo di tentativi consentiti
-const maxRetries = 3
+const maxRetries = 3;
 // Indica se l'account è bloccato per troppi tentativi falliti
-const isBlocked = ref(false)
+const isBlocked = ref(false);
 // Indica se è in corso il reinvio del codice OTP
-const isResending = ref(false)
+const isResending = ref(false);
 
 // l'OTP è completo quando tutte e 6 le cifre sono inserite
 const isOtpComplete = computed(() => {
-  return otpDigits.value.every((digit) => digit.length === 1)
-})
+  return otpDigits.value.every((digit) => digit.length === 1);
+});
 
 /**
  * Gestisce l'input di una singola cifra OTP e sposta il focus al campo successivo
@@ -514,14 +512,14 @@ const isOtpComplete = computed(() => {
  */
 async function handleOtpInput(index) {
   // Limita l'input a un solo carattere
-  otpDigits.value[index] = otpDigits.value[index].slice(0, 1)
+  otpDigits.value[index] = otpDigits.value[index].slice(0, 1);
 
   // Sposta il focus al campo successivo se presente
   if (otpDigits.value[index] && index < otpDigits.value.length - 1) {
-    await nextTick()
-    const nextInput = document.getElementById(`otp-input-${index + 1}`)
+    await nextTick();
+    const nextInput = document.getElementById(`otp-input-${index + 1}`);
     if (nextInput) {
-      nextInput.focus()
+      nextInput.focus();
     }
   }
 }
@@ -533,13 +531,13 @@ async function handleOtpInput(index) {
  */
 async function handleBackspace(index, event) {
   if (!otpDigits.value[index] && index > 0) {
-    event.preventDefault()
+    event.preventDefault();
 
-    await nextTick()
-    const prevInput = document.getElementById(`otp-input-${index - 1}`)
+    await nextTick();
+    const prevInput = document.getElementById(`otp-input-${index - 1}`);
     if (prevInput) {
-      prevInput.focus()
-      prevInput.select()
+      prevInput.focus();
+      prevInput.select();
     }
   }
 }
@@ -550,33 +548,33 @@ async function handleBackspace(index, event) {
  */
 function handleOtpError(errorDetails) {
   // Aggiorna lo stato con i valori ricevuti dal backend
-  retryCount.value = Math.max(0, errorDetails.retriesRemaining || 0)
-  isBlocked.value = errorDetails.isBlocked || retryCount.value === 0
-  otpError.value = true
+  retryCount.value = Math.max(0, errorDetails.retriesRemaining || 0);
+  isBlocked.value = errorDetails.isBlocked || retryCount.value === 0;
+  otpError.value = true;
 
   console.warn(
     `Tentativi rimasti: ${retryCount.value}. Bloccato: ${isBlocked.value}`
-  )
+  );
 }
 
 /**
  * Resetta lo stato di errore OTP e pulisce i campi di input
  */
 function resetOtpError() {
-  otpError.value = false
-  otpErrorMessage.value = ""
-  otpDigits.value = ["", "", "", "", "", ""]
+  otpError.value = false;
+  otpErrorMessage.value = "";
+  otpDigits.value = ["", "", "", "", "", ""];
 }
 
 /**
  * Torna alla schermata di registrazione iniziale
  */
 function resetToInitialForm() {
-  otpSent.value = false
-  resetOtpError()
-  retryCount.value = maxRetries
-  isBlocked.value = false
-  mockOtp.value = null
+  otpSent.value = false;
+  resetOtpError();
+  retryCount.value = maxRetries;
+  isBlocked.value = false;
+  mockOtp.value = null;
 }
 
 // ============================================================================
@@ -588,44 +586,44 @@ function resetToInitialForm() {
  */
 async function handleSubmit() {
   if (!isFormValid.value || isSendingOtp.value) {
-    alert("Compilare tutti i campi correttamente e accettare i termini.")
-    return
+    alert("Compilare tutti i campi correttamente e accettare i termini.");
+    return;
   }
 
-  isSendingOtp.value = true
-  console.log("Tentativo di invio OTP per:", form.value.email)
+  isSendingOtp.value = true;
+  console.log("Tentativo di invio OTP per:", form.value.email);
 
   try {
     const payload = {
       email: form.value.email,
       username: form.value.username,
-    }
+    };
 
-    const response = await apiClient.post("/auth/register-init", payload)
+    const response = await apiClient.post("/auth/register-init", payload);
 
     // Verifica se il backend ha restituito un OTP mock (modalità debug)
     if (response && response.mockOtp && response.mockOtp !== null) {
-      mockOtp.value = response.mockOtp
-      console.log("Mock OTP ricevuto dal backend:", mockOtp.value)
+      mockOtp.value = response.mockOtp;
+      console.log("Mock OTP ricevuto dal backend:", mockOtp.value);
     } else {
-      mockOtp.value = null
+      mockOtp.value = null;
     }
 
     // Passa alla schermata di verifica OTP
-    otpSent.value = true
+    otpSent.value = true;
   } catch (error) {
-    let errorMessage = "Impossibile completare la richiesta."
+    let errorMessage = "Impossibile completare la richiesta.";
 
     if (error.message.includes("API Error 409")) {
-      errorMessage = "Email già registrata."
+      errorMessage = "Email già registrata.";
     } else if (error.message.includes("API Error 500")) {
-      errorMessage = "Errore interno del server durante l'invio email."
+      errorMessage = "Errore interno del server durante l'invio email.";
     }
 
-    alert(`Errore durante l'avvio della registrazione: ${errorMessage}`)
-    console.error("Errore Backend in handleSubmit:", error)
+    alert(`Errore durante l'avvio della registrazione: ${errorMessage}`);
+    console.error("Errore Backend in handleSubmit:", error);
   } finally {
-    isSendingOtp.value = false
+    isSendingOtp.value = false;
   }
 }
 
@@ -634,19 +632,19 @@ async function handleSubmit() {
  */
 async function resendOtp() {
   if (isBlocked.value || isResending.value) {
-    return
+    return;
   }
 
-  isResending.value = true
-  resetOtpError()
+  isResending.value = true;
+  resetOtpError();
 
   try {
     const payload = {
       email: form.value.email,
       username: form.value.username,
-    }
+    };
 
-    const response = await apiClient.post("/auth/register-init", payload)
+    const response = await apiClient.post("/auth/register-init", payload);
 
     if (
       response &&
@@ -654,32 +652,32 @@ async function resendOtp() {
       response.mockOtp !== "null" &&
       response.mockOtp !== null
     ) {
-      mockOtp.value = response.mockOtp
-      console.log("Nuovo Mock OTP ricevuto dal backend:", mockOtp.value)
+      mockOtp.value = response.mockOtp;
+      console.log("Nuovo Mock OTP ricevuto dal backend:", mockOtp.value);
     } else {
-      mockOtp.value = null
+      mockOtp.value = null;
     }
 
     // Reset completo dello stato OTP
-    retryCount.value = maxRetries
-    isBlocked.value = false
+    retryCount.value = maxRetries;
+    isBlocked.value = false;
 
-    await nextTick()
-    const firstInput = document.getElementById("otp-input-0")
+    await nextTick();
+    const firstInput = document.getElementById("otp-input-0");
     if (firstInput) {
-      firstInput.focus()
+      firstInput.focus();
     }
   } catch (error) {
-    let errorMessage = "Impossibile inviare un nuovo codice."
+    let errorMessage = "Impossibile inviare un nuovo codice.";
 
     if (error.message.includes("API Error 500")) {
-      errorMessage = "Errore interno: Impossibile inviare l'email di verifica."
+      errorMessage = "Errore interno: Impossibile inviare l'email di verifica.";
     }
 
-    alert(`Errore di reinvio: ${errorMessage}`)
-    console.error("Errore Backend in resendOtp:", error)
+    alert(`Errore di reinvio: ${errorMessage}`);
+    console.error("Errore Backend in resendOtp:", error);
   } finally {
-    isResending.value = false
+    isResending.value = false;
   }
 }
 
@@ -692,46 +690,46 @@ async function resendOtp() {
  */
 async function handleOtpSubmit() {
   if (isBlocked.value) {
-    alert("Account bloccato. Richiedi un nuovo codice.")
-    return
+    alert("Account bloccato. Richiedi un nuovo codice.");
+    return;
   }
 
-  const inputOtpString = otpDigits.value.join("")
+  const inputOtpString = otpDigits.value.join("");
 
   const payload = {
     email: form.value.email,
     otp: inputOtpString,
-  }
+  };
 
   try {
     // Se la verifica ha successo, il backend risponde con 204 No Content
-    await apiClient.post("/auth/register-verify", payload)
+    await apiClient.post("/auth/register-verify", payload);
 
-    console.log("Verifica OTP riuscita.")
+    console.log("Verifica OTP riuscita.");
     // Procede con la registrazione finale
-    await completeRegistration()
+    await completeRegistration();
   } catch (error) {
     // Il backend risponde con 403 Forbidden in caso di OTP errato
     if (error.status === 403) {
       try {
-        const errorData = JSON.parse(error.message)
-        handleOtpError(errorData)
+        const errorData = JSON.parse(error.message);
+        handleOtpError(errorData);
       } catch (e) {
-        console.error("Errore durante la lettura dei dettagli OTP 403:", e)
+        console.error("Errore durante la lettura dei dettagli OTP 403:", e);
         handleOtpError({
           message: "Codice OTP non valido o scaduto. Riprova.",
           retriesRemaining: Math.max(0, retryCount.value - 1),
           isBlocked: retryCount.value <= 1,
-        })
+        });
       }
     } else if (error.status === 401) {
       console.error(
         "Verifica OTP fallita per errore 401: Controllare la configurazione apiClient."
-      )
-      alert("Errore di autenticazione inatteso.")
+      );
+      alert("Errore di autenticazione inatteso.");
     } else {
-      alert("Errore di sistema durante la verifica OTP.")
-      console.error("Verifica OTP fallita per errore API:", error)
+      alert("Errore di sistema durante la verifica OTP.");
+      console.error("Verifica OTP fallita per errore API:", error);
     }
   }
 }
@@ -740,58 +738,56 @@ async function handleOtpSubmit() {
  * Completa la registrazione inviando i dati finali al backend che effettua il login automatico
  */
 async function completeRegistration() {
+  console.log("Completamento registrazione per:", form.value.email);
 
-    console.log("Completamento registrazione per:", form.value.email);
-    
-    const payload = {
-        username: form.value.username,
-        email: form.value.email,
-        password: form.value.password,
-        acceptTerms: form.value.acceptTerms,
-        acceptPrivacy: form.value.acceptPrivacy
-    };
+  const payload = {
+    username: form.value.username,
+    email: form.value.email,
+    password: form.value.password,
+    acceptTerms: form.value.acceptTerms,
+    acceptPrivacy: form.value.acceptPrivacy,
+  };
 
-    try {
-        // La risposta dal BE contiene { userId, message } e imposta il Cookie SESSION_ID
-        const response = await apiClient.post('/auth/register', payload); 
+  try {
+    // La risposta dal BE contiene { userId, message } e imposta il Cookie SESSION_ID
+    const response = await apiClient.post("/auth/register", payload);
 
-        console.log('Registrazione finale riuscita:', response);
-        
-        // Verifica la presenza dell'ID utente (unico dato atteso nel corpo)
-        if (response && response.userId) {
-            
-            // L'autenticazione è avvenuta con successo (Cookie SESSION_ID impostato dal BE)
-            authStore.setAuth(response.userId); // Chiama setAuth con il solo ID
-            console.log('Utente creato e accesso automatico riuscito (tramite Session ID).');
+    console.log("Registrazione finale riuscita:", response);
 
-            await nextTick();
-            // Naviga alla pagina di configurazione della posizione
-            router.push('/set-location'); 
+    // Verifica la presenza dell'ID utente (unico dato atteso nel corpo)
+    if (response && response.userId) {
+      // L'autenticazione è avvenuta con successo (Cookie SESSION_ID impostato dal BE)
+      authStore.setAuth(response.userId); // Chiama setAuth con il solo ID
+      console.log(
+        "Utente creato e accesso automatico riuscito (tramite Session ID)."
+      );
 
-        } else {
-            // BE risponde 201 ma non manda l'ID utente nel corpo
-            throw new Error("ID utente mancante nella risposta del server.");
-        }
-
-    } catch (error) {
-        // gestione degli errori API 409 o 500
-        let errorMessage = 'Errore durante la creazione finale dell\'utente.';
-        
-        // Se error ha un messaggio API specifico (es. API Error 409), usalo
-        if (error.message && error.message.includes("API Error")) {
-             errorMessage = `Errore API: ${error.message}`;
-        }
-        
-        alert(`Errore: ${errorMessage}`);
-        console.error('Errore registrazione finale:', error);
+      await nextTick();
+      // Naviga alla pagina di configurazione della posizione
+      router.push("/set-location");
+    } else {
+      // BE risponde 201 ma non manda l'ID utente nel corpo
+      throw new Error("ID utente mancante nella risposta del server.");
     }
+  } catch (error) {
+    // gestione degli errori API 409 o 500
+    let errorMessage = "Errore durante la creazione finale dell'utente.";
+
+    // Se error ha un messaggio API specifico (es. API Error 409), usalo
+    if (error.message && error.message.includes("API Error")) {
+      errorMessage = `Errore API: ${error.message}`;
+    }
+
+    alert(`Errore: ${errorMessage}`);
+    console.error("Errore registrazione finale:", error);
+  }
 }
 
 /**
  * Reindirizza alla home page
  */
 function goHome() {
-  router.push("/")
+  router.push("/");
 }
 </script>
 

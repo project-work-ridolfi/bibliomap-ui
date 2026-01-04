@@ -5,7 +5,7 @@
       v-if="overdueLoans.length > 0"
       class="bg-red-100 dark:bg-red-900/20 border-2 border-red-500 p-6 rounded-2xl animate-pulse">
       <h3
-        class="text-red-700 dark:text-red-400 font-black flex items-center gap-2 uppercase tracking-tighter">
+        class="text-red-700 dark:text-red-400 font-black flex items-center gap-2 tracking-tighter">
         <i class="fa-solid fa-triangle-exclamation"></i> azioni urgenti
         richieste
       </h3>
@@ -20,7 +20,7 @@
           </p>
           <button
             @click="openContactModal(loan)"
-            class="mt-3 md:mt-0 bg-red-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-red-700 transition">
+            class="mt-3 md:mt-0 bg-red-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-red-700 transition">
             contatta proprietario
           </button>
         </div>
@@ -40,7 +40,7 @@
       <div class="flex gap-3">
         <router-link
           to="/add-book"
-          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-md hover:opacity-90 transition flex items-center gap-2">
+          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] shadow-md hover:opacity-90 transition flex items-center gap-2">
           <i class="fa-solid fa-plus"></i> nuovo libro
         </router-link>
       </div>
@@ -96,7 +96,8 @@
                   }}</span></template
                 >
                 <template v-else
-                  >Hai ricevuto <span class="font-bold">{{ loan.title }}</span> da
+                  >Hai ricevuto
+                  <span class="font-bold">{{ loan.title }}</span> da
                   <span class="text-zomp">{{
                     loan.ownerUsername
                   }}</span></template
@@ -157,9 +158,7 @@
                 <div
                   class="mt-4 flex justify-between items-end pt-3 border-t border-thistle/50">
                   <div class="min-w-0">
-                    <p class="text-[8px] uppercase font-black opacity-40">
-                      scadenza
-                    </p>
+                    <p class="text-[8px] font-black opacity-40">scadenza</p>
                     <p
                       class="text-xs font-mono"
                       :class="
@@ -228,12 +227,12 @@
                   class="mt-4 flex flex-col gap-2 pt-3 border-t border-thistle/50">
                   <button
                     @click="openReturnModal(loan)"
-                    class="w-full bg-zomp text-white py-2 rounded-lg font-bold text-[9px] uppercase tracking-wider shadow-sm">
+                    class="w-full bg-zomp text-white py-2 rounded-lg font-bold text-[9px] tracking-wider shadow-sm">
                     segnala rientro
                   </button>
                   <button
                     @click="openExtendModal(loan)"
-                    class="w-full border border-thistle text-theme-main py-2 rounded-lg font-bold text-[9px] uppercase opacity-70">
+                    class="w-full border border-thistle text-theme-main py-2 rounded-lg font-bold text-[9px] opacity-70">
                     allunga scadenza
                   </button>
                 </div>
@@ -247,7 +246,7 @@
         <section
           class="bg-theme-primary p-6 rounded-2xl shadow-md border border-thistle space-y-6">
           <h3
-            class="font-display text-xs uppercase text-zomp tracking-widest border-b border-thistle pb-2">
+            class="font-display text-xs text-zomp tracking-widest border-b border-thistle pb-2">
             Navigazione
           </h3>
           <nav class="flex flex-col gap-3">
@@ -269,9 +268,7 @@
         <section
           v-if="userData"
           class="p-5 bg-ash-gray/10 rounded-2xl border border-dashed border-thistle">
-          <p class="text-[9px] font-black uppercase opacity-40 mb-2">
-            Privacy Corrente
-          </p>
+          <p class="text-[9px] font-black opacity-40 mb-2">Privacy Corrente</p>
           <p class="text-xs font-bold text-theme-main">
             Visibilità:
             <span class="text-zomp">{{
@@ -314,8 +311,7 @@
           </button>
         </div>
         <div class="space-y-2">
-          <label
-            class="text-[10px] font-black uppercase opacity-40 tracking-widest"
+          <label class="text-[10px] font-black opacity-40 tracking-widest"
             >messaggio per l'utente</label
           >
           <textarea
@@ -326,8 +322,7 @@
         <div
           v-if="modalForm.action === 'ACCEPT' || isContactMode"
           class="space-y-4">
-          <label
-            class="text-[10px] font-black uppercase opacity-40 tracking-widest"
+          <label class="text-[10px] font-black opacity-40 tracking-widest"
             >proponi disponibilità per lo scambio</label
           >
           <div class="flex flex-wrap gap-2">
@@ -377,8 +372,7 @@
           Il libro è tornato? Aggiorna la condizione attuale della copia.
         </p>
         <div class="space-y-2">
-          <label
-            class="text-[10px] font-black uppercase opacity-40 tracking-widest"
+          <label class="text-[10px] font-black opacity-40 tracking-widest"
             >condizione attuale</label
           >
           <select
@@ -407,8 +401,7 @@
       <div class="p-6 space-y-6 text-theme-main">
         <p class="text-sm">Di quanti giorni vuoi estendere il prestito?</p>
         <div class="space-y-2">
-          <label
-            class="text-[10px] font-black uppercase opacity-40 tracking-widest"
+          <label class="text-[10px] font-black opacity-40 tracking-widest"
             >giorni da aggiungere</label
           >
           <select

@@ -13,12 +13,10 @@
           <h3 class="font-bold text-lg text-theme-main">{{ library.name }}</h3>
           <p
             v-if="library.books && library.books.length > 0"
-            class="text-[10px] opacity-60 uppercase font-black tracking-widest">
+            class="text-[10px] opacity-60 font-black tracking-widest">
             {{ library.books.length }} libri
           </p>
-          <p
-            v-else
-            class="text-[10px] opacity-60 uppercase font-black tracking-widest">
+          <p v-else class="text-[10px] opacity-60 font-black tracking-widest">
             clicca per caricare i libri
           </p>
         </div>
@@ -114,7 +112,7 @@
               </div>
               <div>
                 <span
-                  class="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-theme-main border border-[var(--thistle)]/20">
+                  class="text-[9px] font-black px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-theme-main border border-[var(--thistle)]/20">
                   {{ book.status }}
                 </span>
               </div>

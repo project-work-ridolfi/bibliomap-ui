@@ -7,22 +7,20 @@
       <i class="fa-solid fa-arrow-left"></i> {{ isSetup ? "salta" : "annulla" }}
     </button>
 
-    <h1
-      class="text-3xl font-display text-center text-theme-main lowercase pt-4">
+    <h1 class="text-3xl font-display text-center text-theme-main pt-4">
       aggiungi un libro
     </h1>
 
     <div
       class="space-y-3 p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-[var(--bg-secondary)]">
-      <label
-        class="block text-sm font-bold text-theme-main lowercase opacity-70"
+      <label class="block text-sm font-bold text-theme-main opacity-70"
         >libreria di destinazione *</label
       >
-      <p v-if="isFetchingLibraries" class="text-sm animate-pulse lowercase">
+      <p v-if="isFetchingLibraries" class="text-sm animate-pulse">
         caricamento librerie...
       </p>
       <div v-else-if="!hasLibraries" class="text-center py-4">
-        <p class="text-sm text-red-500 mb-2 lowercase">
+        <p class="text-sm text-red-500 mb-2">
           non hai ancora creato nessuna libreria
         </p>
         <router-link
@@ -58,7 +56,7 @@
             ? 'bg-[var(--zomp)] text-white border-transparent'
             : 'bg-white border-gray-200 text-theme-main'
         "
-        class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2 lowercase">
+        class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2">
         <i class="fa-solid fa-pen-to-square mb-1"></i><br />
         manuale
       </button>
@@ -69,7 +67,7 @@
             ? 'bg-[var(--zomp)] text-white border-transparent'
             : 'bg-white border-gray-200 text-theme-main'
         "
-        class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2 lowercase">
+        class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2">
         <i class="fa-solid fa-barcode mb-1"></i><br />
         isbn
       </button>
@@ -81,7 +79,7 @@
       <div v-if="!isScanning" class="flex flex-col md:flex-row gap-6">
         <div class="flex-grow space-y-2">
           <div class="flex items-center gap-2">
-            <label class="block text-sm font-bold opacity-70 lowercase"
+            <label class="block text-sm font-bold opacity-70"
               >codice isbn</label
             >
             <div class="relative group">
@@ -90,7 +88,7 @@
                 ?
               </button>
               <div
-                class="absolute left-6 top-0 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 text-paynes-gray lowercase">
+                class="absolute left-6 top-0 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 text-paynes-gray">
                 l'isbn è un codice di 13 cifre che identifica univocamente un
                 libro.
               </div>
@@ -112,7 +110,7 @@
         </div>
         <button
           @click="handleStartScan"
-          class="md:w-48 bg-[var(--paynes-gray)] text-white py-2 px-4 rounded-lg shadow font-bold flex items-center justify-center gap-2 self-end lowercase">
+          class="md:w-48 bg-[var(--paynes-gray)] text-white py-2 px-4 rounded-lg shadow font-bold flex items-center justify-center gap-2 self-end">
           <i class="fa-solid fa-camera"></i> scanner
         </button>
       </div>
@@ -123,14 +121,14 @@
           class="border-2 border-[var(--zomp)] rounded-xl overflow-hidden h-48 relative bg-black">
           <div
             v-if="isLoadingCamera"
-            class="absolute inset-0 flex items-center justify-center text-white/70 z-10 lowercase">
+            class="absolute inset-0 flex items-center justify-center text-white/70 z-10">
             avvio fotocamera...
           </div>
           <div class="scanning-bar"></div>
         </div>
         <button
           @click="handleStopScan"
-          class="w-full py-2 text-red-500 font-bold text-sm lowercase">
+          class="w-full py-2 text-red-500 font-bold text-sm">
           ferma scanner
         </button>
       </div>
@@ -167,9 +165,7 @@
           </div>
           <div v-else class="space-y-1 opacity-50">
             <i class="fa-solid fa-cloud-arrow-up text-2xl text-theme-main"></i>
-            <p class="text-xs lowercase text-theme-main">
-              carica o trascina copertina
-            </p>
+            <p class="text-xs text-theme-main">carica o trascina copertina</p>
           </div>
           <input
             type="file"
@@ -180,7 +176,7 @@
 
         <button
           @click="startPhotoCapture"
-          class="h-[180px] rounded-xl border-2 border-dashed border-[var(--paynes-gray)] text-[var(--paynes-gray)] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition lowercase font-bold">
+          class="h-[180px] rounded-xl border-2 border-dashed border-[var(--paynes-gray)] text-[var(--paynes-gray)] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition font-bold">
           <i class="fa-solid fa-camera text-2xl"></i>
           <span class="text-xs">scatta foto alla copia</span>
         </button>
@@ -189,7 +185,7 @@
       <div
         class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--bg-secondary)] p-6 rounded-xl">
         <div class="md:col-span-2">
-          <label class="block text-xs font-bold opacity-70 mb-1 lowercase"
+          <label class="block text-xs font-bold opacity-70 mb-1"
             >titolo *</label
           >
           <input
@@ -200,7 +196,7 @@
             class="w-full px-3 py-2 border rounded-lg bg-theme-primary outline-none focus:ring-2 focus:ring-[var(--zomp)] border-gray-300 text-theme-main" />
         </div>
         <div>
-          <label class="block text-xs font-bold opacity-70 mb-1 lowercase"
+          <label class="block text-xs font-bold opacity-70 mb-1"
             >autore *</label
           >
           <input
@@ -211,9 +207,7 @@
             class="w-full px-3 py-2 border rounded-lg bg-theme-primary outline-none focus:ring-2 focus:ring-[var(--zomp)] border-gray-300 text-theme-main" />
         </div>
         <div>
-          <label class="block text-xs font-bold opacity-70 mb-1 lowercase"
-            >editore</label
-          >
+          <label class="block text-xs font-bold opacity-70 mb-1">editore</label>
           <input
             v-model="form.publisher"
             type="text"
@@ -222,16 +216,14 @@
         </div>
         <div class="grid grid-cols-2 gap-4 md:col-span-2">
           <div>
-            <label class="block text-xs font-bold opacity-70 mb-1 lowercase"
-              >anno</label
-            >
+            <label class="block text-xs font-bold opacity-70 mb-1">anno</label>
             <input
               v-model.number="form.publicationYear"
               type="number"
               class="w-full px-3 py-2 border rounded-lg bg-theme-primary outline-none focus:ring-2 focus:ring-[var(--zomp)] border-gray-300 text-theme-main" />
           </div>
           <div>
-            <label class="block text-xs font-bold opacity-70 mb-1 lowercase"
+            <label class="block text-xs font-bold opacity-70 mb-1"
               >lingua</label
             >
             <input
@@ -244,13 +236,13 @@
 
       <div class="space-y-6">
         <h2
-          class="text-xl font-display text-[var(--paynes-gray)] lowercase text-theme-main">
+          class="text-xl font-display text-[var(--paynes-gray)] text-theme-main">
           dati della tua copia
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-xs font-bold opacity-70 mb-2 lowercase"
+            <label class="block text-xs font-bold opacity-70 mb-2"
               >condizione *</label
             >
             <div class="flex flex-wrap gap-2">
@@ -263,13 +255,13 @@
                     ? 'bg-[var(--zomp)] text-white border-transparent'
                     : 'bg-white border-gray-200 text-theme-main'
                 "
-                class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all lowercase">
+                class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all">
                 {{ cond.label }}
               </button>
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold opacity-70 mb-2 lowercase"
+            <label class="block text-xs font-bold opacity-70 mb-2"
               >stato *</label
             >
             <div class="flex flex-wrap gap-2">
@@ -282,7 +274,7 @@
                     ? 'bg-[var(--paynes-gray)] text-white border-transparent'
                     : 'bg-white border-gray-200 text-theme-main'
                 "
-                class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all lowercase">
+                class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all">
                 {{ stat.label }}
               </button>
             </div>
@@ -290,7 +282,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold opacity-70 mb-2 lowercase"
+          <label class="block text-xs font-bold opacity-70 mb-2"
             >tag e generi</label
           >
           <div class="flex flex-wrap gap-2">
@@ -298,7 +290,7 @@
               v-for="tag in copyForm.tags"
               :key="tag"
               @click="toggleTag(tag)"
-              class="bg-[var(--zomp)] text-white px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-transparent transition-all lowercase">
+              class="bg-[var(--zomp)] text-white px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-transparent transition-all">
               {{ tag }} <i class="fa-solid fa-xmark ml-1"></i>
             </button>
             <hr
@@ -313,7 +305,7 @@
                   ? 'hidden'
                   : 'bg-white border-gray-200 text-theme-main'
               "
-              class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all lowercase">
+              class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all">
               {{ tag }}
             </button>
             <button
@@ -339,7 +331,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold opacity-70 mb-1 lowercase"
+          <label class="block text-xs font-bold opacity-70 mb-1"
             >note personali</label
           >
           <textarea
@@ -353,13 +345,13 @@
     <div v-if="hasLibraries" class="flex gap-4 pt-6">
       <button
         @click="handleCancel"
-        class="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-[var(--paynes-gray)] hover:bg-gray-50 transition lowercase text-theme-main">
+        class="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-[var(--paynes-gray)] hover:bg-gray-50 transition text-theme-main">
         {{ isSetup ? "salta" : "annulla" }}
       </button>
       <button
         @click="submitBook"
         :disabled="isSubmitting"
-        class="flex-[2] py-3 rounded-xl font-bold text-white shadow-lg transition duration-150 lowercase disabled:opacity-30"
+        class="flex-[2] py-3 rounded-xl font-bold text-white shadow-lg transition duration-150 disabled:opacity-30"
         :class="isReadyToSave ? 'bg-[var(--zomp)]' : 'bg-gray-400'">
         <span v-if="isSubmitting"
           ><i class="fa-solid fa-circle-notch fa-spin mr-2"></i
@@ -374,7 +366,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div
         class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-slide-up">
-        <h3 class="font-display text-lg mb-4 lowercase text-paynes-gray">
+        <h3 class="font-display text-lg mb-4 text-paynes-gray">
           libri simili trovati
         </h3>
         <div class="space-y-3 max-h-80 overflow-y-auto pr-2">
@@ -399,7 +391,7 @@
         </div>
         <button
           @click="showConflictModal = false"
-          class="mt-6 w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-sm lowercase text-paynes-gray">
+          class="mt-6 w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-sm text-paynes-gray">
           inserisci i dati manualmente
         </button>
       </div>
@@ -410,10 +402,8 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div
         class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center space-y-4 animate-slide-up">
-        <h3 class="font-display text-lg lowercase text-paynes-gray">
-          isbn mancante
-        </h3>
-        <p class="text-sm text-paynes-gray lowercase">
+        <h3 class="font-display text-lg text-paynes-gray">isbn mancante</h3>
+        <p class="text-sm text-paynes-gray">
           per salvare questo libro nel database mondiale è necessario l'isbn.
         </p>
         <div class="flex gap-2 items-center justify-center">
@@ -427,17 +417,17 @@
           <button
             @click="handleIsbnModalSubmit"
             :disabled="!isIsbnValid"
-            class="w-full py-3 bg-[var(--zomp)] text-white rounded-xl font-bold lowercase disabled:opacity-30">
+            class="w-full py-3 bg-[var(--zomp)] text-white rounded-xl font-bold disabled:opacity-30">
             cerca e valida
           </button>
           <button
             @click="forceSubmitWithoutIsbn"
-            class="w-full py-2 text-[var(--paynes-gray)] text-xs underline lowercase">
+            class="w-full py-2 text-[var(--paynes-gray)] text-xs underline">
             non lo trovo / procedi senza isbn
           </button>
           <button
             @click="showIsbnRequestModal = false"
-            class="w-full py-2 text-red-500 text-xs lowercase">
+            class="w-full py-2 text-red-500 text-xs">
             annulla
           </button>
         </div>
@@ -471,7 +461,7 @@
       <div
         v-if="isCropping"
         class="w-full h-full flex flex-col items-center animate-fade-in">
-        <h2 class="text-white mb-4 lowercase font-bold">regola l'immagine</h2>
+        <h2 class="text-white mb-4 font-bold">regola l'immagine</h2>
         <div
           class="relative max-w-full max-h-[65vh] border-4 border-white rounded-xl overflow-hidden bg-white shadow-2xl flex items-center justify-center">
           <img
@@ -506,12 +496,12 @@
         <div class="mt-8 flex gap-6">
           <button
             @click="applyCrop"
-            class="bg-[var(--zomp)] text-white px-10 py-3 rounded-xl font-bold lowercase shadow-xl">
+            class="bg-[var(--zomp)] text-white px-10 py-3 rounded-xl font-bold shadow-xl">
             conferma
           </button>
           <button
             @click="isCropping = false"
-            class="bg-red-500 text-white px-10 py-3 rounded-xl font-bold lowercase shadow-xl text-xs">
+            class="bg-red-500 text-white px-10 py-3 rounded-xl font-bold shadow-xl text-xs">
             annulla
           </button>
         </div>
@@ -527,7 +517,7 @@
         <p class="text-theme-main">{{ modalContent }}</p>
         <button
           @click="handleModalClose"
-          class="bg-[var(--zomp)] text-white px-8 py-2 rounded-xl font-bold lowercase">
+          class="bg-[var(--zomp)] text-white px-8 py-2 rounded-xl font-bold">
           finito
         </button>
       </div>
@@ -892,7 +882,7 @@ const debouncedManualSearch = debounce(async () => {
     isSearching.value
   )
     return;
-  const cacheKey = `${form.value.title.toLowerCase()}|${form.value.author?.toLowerCase()}`;
+  const cacheKey = `${form.value.title}|${form.value.author}`;
   if (searchCache.has(cacheKey)) {
     handleSearchResults(searchCache.get(cacheKey));
     return;

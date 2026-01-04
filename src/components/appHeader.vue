@@ -3,23 +3,33 @@
     <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="flex items-center justify-between h-auto">
         <div class="flex items-center space-x-3">
-          <button @click="emit('toggle-sidebar')" class="header-icon" title="Menu">
+          <button
+            @click="emit('toggle-sidebar')"
+            class="header-icon"
+            title="Menu">
             <VueFeather type="menu" size="24"></VueFeather>
           </button>
         </div>
 
         <router-link to="/" class="header-center-title">
-          <h1 class="header-title-main text-paynes-gray uppercase">BIBLIOMAP</h1>
+          <h1 class="header-title-main text-paynes-gray uppercase">
+            BIBLIOMAP
+          </h1>
         </router-link>
 
         <div class="flex items-center space-x-3">
           <button @click="toggleTheme" class="header-icon" title="Cambia Tema">
-            <VueFeather :type="isDarkTheme ? 'sun' : 'moon'" size="24"></VueFeather>
+            <VueFeather
+              :type="isDarkTheme ? 'sun' : 'moon'"
+              size="24"></VueFeather>
           </button>
 
           <template v-if="authStore.isAuthenticated">
             <div class="relative" v-click-outside="closeUserMenu">
-              <button @click="toggleUserMenu" class="header-icon" title="Profilo">
+              <button
+                @click="toggleUserMenu"
+                class="header-icon"
+                title="Profilo">
                 <VueFeather type="user" size="24"></VueFeather>
               </button>
 
@@ -27,19 +37,35 @@
                 <div v-if="isUserMenuOpen" class="user-dropdown">
                   <div class="user-info-header">
                     <span class="username-display">
-                      CIAO, {{ authStore.user?.username || authStore.username || 'utente' }}
+                      CIAO,
+                      {{
+                        authStore.user?.username ||
+                        authStore.username ||
+                        "utente"
+                      }}
                     </span>
                   </div>
-                  
+
                   <div class="dropdown-divider"></div>
 
-                  <router-link :to="`/profile/${authStore.userId}`" @click="closeUserMenu" class="dropdown-item">
-                    <VueFeather type="settings" size="16" class="icon-margin"></VueFeather>
+                  <router-link
+                    :to="`/profile/${authStore.userId}`"
+                    @click="closeUserMenu"
+                    class="dropdown-item">
+                    <VueFeather
+                      type="settings"
+                      size="16"
+                      class="icon-margin"></VueFeather>
                     visualizza profilo
                   </router-link>
-                  
-                  <button @click="handleLogout" class="dropdown-item text-red-500">
-                    <VueFeather type="log-out" size="16" class="icon-margin"></VueFeather>
+
+                  <button
+                    @click="handleLogout"
+                    class="dropdown-item text-red-500">
+                    <VueFeather
+                      type="log-out"
+                      size="16"
+                      class="icon-margin"></VueFeather>
                     logout
                   </button>
                 </div>
@@ -59,53 +85,57 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import { useAuthStore } from "@/stores/authStore"
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
 
-const authStore = useAuthStore()
-const router = useRouter()
-const emit = defineEmits(["toggle-sidebar"])
+const authStore = useAuthStore();
+const router = useRouter();
+const emit = defineEmits(["toggle-sidebar"]);
 
-const isDarkTheme = ref(false)
-const isUserMenuOpen = ref(false)
+const isDarkTheme = ref(false);
+const isUserMenuOpen = ref(false);
 
-const toggleUserMenu = () => { isUserMenuOpen.value = !isUserMenuOpen.value }
-const closeUserMenu = () => { isUserMenuOpen.value = false }
+const toggleUserMenu = () => {
+  isUserMenuOpen.value = !isUserMenuOpen.value;
+};
+const closeUserMenu = () => {
+  isUserMenuOpen.value = false;
+};
 
 async function handleLogout() {
-  closeUserMenu()
-  await authStore.logout()
-  router.push("/")
+  closeUserMenu();
+  await authStore.logout();
+  router.push("/");
 }
 
 const applyTheme = (isDark) => {
-  isDarkTheme.value = isDark
-  document.documentElement.classList.toggle("dark", isDark)
-  localStorage.setItem("theme", isDark ? "dark" : "light")
-}
+  isDarkTheme.value = isDark;
+  document.documentElement.classList.toggle("dark", isDark);
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+};
 
-const toggleTheme = () => applyTheme(!isDarkTheme.value)
+const toggleTheme = () => applyTheme(!isDarkTheme.value);
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem("theme")
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-  applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark))
-})
+  const savedTheme = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark));
+});
 
 const vClickOutside = {
   mounted(el, binding) {
     el.clickOutsideEvent = (event) => {
       if (!(el === event.target || el.contains(event.target))) {
-        binding.value()
+        binding.value();
       }
-    }
-    document.addEventListener("click", el.clickOutsideEvent)
+    };
+    document.addEventListener("click", el.clickOutsideEvent);
   },
   unmounted(el) {
-    document.removeEventListener("click", el.clickOutsideEvent)
-  }
-}
+    document.removeEventListener("click", el.clickOutsideEvent);
+  },
+};
 </script>
 
 <style scoped>
@@ -144,7 +174,6 @@ const vClickOutside = {
   color: var(--zomp);
   font-size: 0.875rem;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
@@ -213,16 +242,22 @@ const vClickOutside = {
   margin-top: 2px;
 }
 
-.fade-slide-enter-active, .fade-slide-leave-active {
+.fade-slide-enter-active,
+.fade-slide-leave-active {
   transition: all 0.2s ease;
 }
-.fade-slide-enter-from, .fade-slide-leave-to {
+.fade-slide-enter-from,
+.fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-10px);
 }
 
 @media (max-width: 768px) {
-  .header-title-main { font-size: min(1.3em, 8vw); }
-  .login-btn-header { display: none; }
+  .header-title-main {
+    font-size: min(1.3em, 8vw);
+  }
+  .login-btn-header {
+    display: none;
+  }
 }
 </style>

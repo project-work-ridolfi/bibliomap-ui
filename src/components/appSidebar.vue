@@ -35,7 +35,7 @@
               :type="item.icon"
               size="20"
               class="nav-icon"></VueFeather>
-            <span class="font-medium  ">{{ item.label }}</span>
+            <span class="font-medium">{{ item.label }}</span>
           </router-link>
 
           <div v-else class="flex flex-col">
@@ -48,7 +48,7 @@
                   :type="item.icon"
                   size="20"
                   class="nav-icon"></VueFeather>
-                <span class="font-medium  ">{{ item.label }}</span>
+                <span class="font-medium">{{ item.label }}</span>
               </div>
               <VueFeather
                 type="chevron-down"
@@ -62,20 +62,20 @@
               v-if="isLibrariesExpanded"
               class="flex flex-col pl-10 gap-1 mt-1 animate-fade-in">
               <router-link
-              v-for="lib in userLibraries"
-              :key="lib.id"
-              :to="`/libraries/${lib.id}`"
-              @click="emit('close')"
-              class="sub-nav-link  ">
-              {{ lib.name }}
-            </router-link>
-            <router-link
-              to="/libraries"
-              @click="emit('close')"
-              class="sub-nav-link italic opacity-70">
-                        <i class="fa-solid fa-gear"></i>
-                        <span class="ml-2"><strong>Gestisci tutte</strong></span>
-            </router-link>
+                v-for="lib in userLibraries"
+                :key="lib.id"
+                :to="`/libraries/${lib.id}`"
+                @click="emit('close')"
+                class="sub-nav-link">
+                {{ lib.name }}
+              </router-link>
+              <router-link
+                to="/libraries"
+                @click="emit('close')"
+                class="sub-nav-link italic opacity-70">
+                <i class="fa-solid fa-gear"></i>
+                <span class="ml-2"><strong>Gestisci tutte</strong></span>
+              </router-link>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@
         class="absolute bottom-0 left-0 right-0 p-6 border-t border-thistle bg-theme-primary">
         <button @click="handleLogout" class="logout-btn">
           <VueFeather type="log-out" size="20"></VueFeather>
-          <span class="font-bold   tracking-tight">logout</span>
+          <span class="font-bold tracking-tight">Logout</span>
         </button>
       </div>
     </aside>

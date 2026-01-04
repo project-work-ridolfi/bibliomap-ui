@@ -37,7 +37,7 @@
             <div>
               <label
                 for="libraryName"
-                class="block text-xs font-bold text-paynes-gray uppercase mb-1"
+                class="block text-xs font-bold text-paynes-gray mb-1"
                 >nome libreria</label
               >
               <input
@@ -51,7 +51,7 @@
             <div>
               <label
                 for="visibility"
-                class="block text-xs font-bold text-paynes-gray uppercase mb-1"
+                class="block text-xs font-bold text-paynes-gray mb-1"
                 >visibilità</label
               >
               <select
@@ -649,7 +649,7 @@ async function saveChanges() {
 
   // determina se la location è stata modificata
   const isLocationChanged =
-    tempLocation.latitude != form.latitude||
+    tempLocation.latitude != form.latitude ||
     tempLocation.longitude != form.longitude;
 
   // Crea payload

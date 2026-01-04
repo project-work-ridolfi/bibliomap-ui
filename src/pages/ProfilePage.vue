@@ -9,7 +9,7 @@
 
     <div v-if="isLoading" role="status" class="text-center py-20 opacity-70">
       <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-2 text-zomp"></i>
-      <p class="uppercase text-[10px] font-bold tracking-widest">Caricamento profilo...</p>
+      <p class="text-[10px] font-bold tracking-widest">Caricamento profilo...</p>
     </div>
 
     <div v-else-if="profile" class="grid md:grid-cols-4 gap-8">
@@ -26,7 +26,7 @@
         </div>
 
         <section class="bg-theme-primary p-5 rounded-xl shadow border border-thistle space-y-4">
-          <h3 class="font-bold text-lg border-b border-thistle pb-2 mb-3 lowercase text-theme-main">Dati Utente</h3>
+          <h3 class="font-bold text-lg border-b border-thistle pb-2 mb-3 text-theme-main">Dati Utente</h3>
           <dl class="text-sm space-y-3">
             <div class="flex justify-between">
               <dt class="opacity-70">Libri totali:</dt>
@@ -48,7 +48,7 @@
           </button>
 
           <div v-else-if="isAuthenticated" class="pt-4 border-t border-thistle">
-            <p class="text-[10px] font-black uppercase opacity-60 mb-1">Affinità Gusti</p>
+            <p class="text-[10px] font-black opacity-60 mb-1">Affinità Gusti</p>
             <p class="text-2xl font-display text-zomp">{{ affinityScore }}%</p>
             <p class="text-[10px] italic opacity-60 leading-tight">{{ affinityMessage }}</p>
           </div>
@@ -58,14 +58,14 @@
       <section class="md:col-span-3">
 
         <div v-if="isEditMode && isMyProfile" class="animate-fade-in">
-          <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-4 mb-8">Impostazioni Account</h2>
+          <h2 class="text-xl font-display tracking-widest border-b border-thistle pb-4 mb-8">Impostazioni Account</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div class="space-y-8">
               <div class="space-y-4">
-                <h3 class="font-display text-xs uppercase text-zomp tracking-widest">credenziali</h3>
+                <h3 class="font-display text-xs text-zomp tracking-widest">credenziali</h3>
                 <div>
-                  <label class="block text-[10px] font-bold uppercase mb-1 opacity-60">username</label>
+                  <label class="block text-[10px] font-bold mb-1 opacity-60">username</label>
                   <input v-model="profileForm.username" type="text" class="input-field" :class="{'border-red-500': profileForm.username && !usernameAvailability}" />
                   <p v-if="isUsernameModified && !usernameAvailability" class="text-[10px] text-red-500 mt-1 font-bold uppercase">username occupato</p>
                   <p v-else-if="isUsernameModified && usernameAvailability" class="text-[10px] text-zomp mt-1 font-bold uppercase">disponibile</p>
@@ -99,25 +99,25 @@
               </div>
 
               <div class="pt-6 border-t border-thistle space-y-4">
-                <h3 class="font-display text-xs uppercase text-paynes-gray tracking-widest">documenti e dati</h3>
+                <h3 class="font-display text-xs text-paynes-gray tracking-widest">documenti e dati</h3>
                 <div v-for="type in ['privacy', 'terms']" :key="type" class="flex items-center justify-between p-3 border border-thistle rounded-xl bg-white/50">
-                  <span @click="openLegal(type)" class="text-xs font-bold uppercase underline cursor-pointer decoration-zomp">{{ type === 'privacy' ? 'privacy policy' : 'termini e condizioni' }}</span>
+                  <span @click="openLegal(type)" class="text-xs font-bold underline cursor-pointer decoration-zomp">{{ type === 'privacy' ? 'privacy policy' : 'termini e condizioni' }}</span>
                   <button @click="downloadPDF(type)" class="text-zomp"><VueFeather type="download" size="18"></VueFeather></button>
                 </div>
-                <button @click="handleExportRequest" class="w-full text-[10px] font-bold uppercase py-2 border-2 border-dashed border-ash-gray rounded-xl hover:bg-ash-gray/10 transition-colors">richiedi copia dati</button>
+                <button @click="handleExportRequest" class="w-full text-[10px] font-bold py-2 border-2 border-dashed border-ash-gray rounded-xl hover:bg-ash-gray/10 transition-colors">richiedi copia dati</button>
               </div>
             </div>
 
             <div class="space-y-8">
               <div class="space-y-4">
-                <h3 class="font-display text-xs uppercase text-zomp tracking-widest">privacy mappa</h3>
+                <h3 class="font-display text-xs text-zomp tracking-widest">privacy mappa</h3>
                 <select v-model="profileForm.visibility" class="input-field font-bold text-[11px]">
                   <option value="all">pubblico</option>
                   <option value="logged-in">utenti registrati</option>
                   <option value="private">privato</option>
                 </select>
                 <div>
-                  <div class="flex justify-between text-[10px] font-bold uppercase mb-2 text-theme-main">
+                  <div class="flex justify-between text-[10px] font-bold mb-2 text-theme-main">
                     <span>raggio sfocatura</span><span>{{ profileForm.blurRadius }} metri</span>
                   </div>
                   <input v-model.number="profileForm.blurRadius" type="range" min="0" max="500" step="10" class="w-full accent-zomp" />
@@ -125,14 +125,14 @@
                 <button @click="handlePrivacyUpdate" :disabled="!isPrivacyModified" class="btn-primary uppercase">salva privacy</button>
               </div>
               <div class="pt-6 border-t border-thistle space-y-4">
-                <h3 class="font-display text-xs uppercase text-zomp tracking-widest">la tua posizione</h3>
+                <h3 class="font-display text-xs text-zomp tracking-widest">la tua posizione</h3>
                 <div id="mini-map-edit" class="h-32 rounded-xl border-2 border-thistle overflow-hidden bg-ash-gray/10"></div>
-                <button @click="router.push('/set-location')" class="w-full btn-outline uppercase flex items-center justify-center">
+                <button @click="router.push('/set-location')" class="w-full btn-outline flex items-center justify-center">
                   <VueFeather type="map-pin" size="14" class="mr-2"></VueFeather>cambia posizione
                 </button>
               </div>
               <div class="flex justify-end pt-4">
-                <button @click="confirmDelete = true" class="text-[10px] font-bold uppercase text-red-600 hover:underline">elimina definitivamente l'account</button>
+                <button @click="confirmDelete = true" class="text-[10px] font-bold text-red-600 hover:underline">elimina definitivamente l'account</button>
               </div>
             </div>
           </div>
@@ -140,14 +140,14 @@
 
         <div v-else class="space-y-12 animate-fade-in">
           <div class="space-y-4">
-            <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-2">
+            <h2 class="text-xl font-display tracking-widest border-b border-thistle pb-2">
               {{ isMyProfile ? 'Le tue statistiche' : 'Le statistiche di ' + profile.userName }}
             </h2>
             <UserStats :userId="profileId" />
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-xl font-display uppercase tracking-widest border-b border-thistle pb-2 text-theme-main">Librerie</h2>
+            <h2 class="text-xl font-display tracking-widest border-b border-thistle pb-2 text-theme-main">Librerie</h2>
             <div v-if="libraries.length === 0" class="p-10 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center opacity-60 italic">
               Nessuna libreria disponibile.
             </div>
@@ -165,17 +165,17 @@
 
     <AppModal :is-open="uiModal.open" :title="uiModal.title" @close="uiModal.open = false">
       <div class="p-4 text-center space-y-4 text-theme-main">
-        <p class="text-sm uppercase font-bold">{{ uiModal.message }}</p>
+        <p class="text-sm font-bold">{{ uiModal.message }}</p>
         <button @click="uiModal.open = false" class="btn-primary w-32 mx-auto uppercase">chiudi</button>
       </div>
     </AppModal>
 
     <AppModal :is-open="confirmDelete" title="eliminazione profilo" @close="confirmDelete = false">
       <div class="p-4 text-center space-y-6 text-theme-main">
-        <p class="text-sm uppercase font-bold">attenzione operazione irreversibile</p>
+        <p class="text-sm font-bold">attenzione operazione irreversibile</p>
         <div class="flex gap-4">
-          <button @click="handleDeleteAccount" class="flex-1 btn-red py-3 uppercase font-bold">conferma</button>
-          <button @click="confirmDelete = false" class="flex-1 btn-outline py-3 uppercase font-bold">annulla</button>
+          <button @click="handleDeleteAccount" class="flex-1 btn-red py-3 font-bold">conferma</button>
+          <button @click="confirmDelete = false" class="flex-1 btn-outline py-3 font-bold">annulla</button>
         </div>
       </div>
     </AppModal>
