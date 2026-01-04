@@ -1,300 +1,136 @@
 <template>
-  <div
-    class="max-w-md mx-auto p-6 bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle">
-    <h1 class="text-3xl font-display mb-6 text-paynes-gray text-center">
+  <div class="max-w-md mx-auto p-6 bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle">
+    <h1 class="text-3xl font-display mb-6 text-theme-main text-center">
       REGISTRAZIONE
     </h1>
 
     <form v-if="!otpSent" @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label
-          for="username"
-          class="block text-sm font-medium mb-1 text-paynes-gray">
-          Username *
+        <label class="block text-sm font-medium mb-1 text-theme-main">
+          username*
         </label>
         <input
-          id="username"
           v-model="form.username"
           type="text"
           required
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
-          :class="{
-            'border-red-500': form.username.length > 0 && !usernameAvailability,
-          }" />
-
-        <p
-          v-if="form.username.length > 0 && !usernameAvailability"
-          class="text-xs text-red-500 mt-1">
-          Questo username è già in uso.
+          class="filter-input"
+          :class="{ 'border-red-500': form.username.length > 0 && !usernameAvailability }" />
+        
+        <p v-if="form.username.length > 0 && !usernameAvailability" class="text-xs text-red-500 mt-1">
+          questo username è già in uso.
         </p>
-        <p
-          v-else-if="
-            form.username.length > 0 && usernameAvailability && isUsernameValid
-          "
-          class="text-xs text-zomp mt-1">
-          Username disponibile!
+        <p v-else-if="form.username.length > 0 && usernameAvailability && isUsernameValid" class="text-xs text-zomp mt-1">
+          username disponibile!
         </p>
       </div>
 
       <div>
-        <label
-          for="email"
-          class="block text-sm font-medium mb-1 text-paynes-gray">
-          Email *
+        <label class="block text-sm font-medium mb-1 text-theme-main">
+          email*
         </label>
         <input
-          id="email"
           v-model="form.email"
           type="email"
           required
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
-          :class="{
-            'border-red-500': !isEmailValid && form.email.length > 0,
-          }" />
-        <p
-          v-if="!isEmailValid && form.email.length > 0"
-          class="text-xs text-red-500 mt-1">
-          Inserisci un'email valida (es. nome@dominio.it).
-        </p>
+          class="filter-input"
+          :class="{ 'border-red-500': !isEmailValid && form.email.length > 0 }" />
       </div>
 
       <div>
-        <label
-          for="password"
-          class="block text-sm font-medium mb-1 text-paynes-gray">
-          Password *
+        <label class="block text-sm font-medium mb-1 text-theme-main">
+          password*
         </label>
         <input
-          id="password"
           v-model="form.password"
           type="password"
           required
-          minlength="8"
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150"
-          :class="{
-            'border-red-500': !isPasswordValid && form.password.length > 0,
-          }"
+          class="filter-input"
+          :class="{ 'border-red-500': !isPasswordValid && form.password.length > 0 }"
           @input="validatePassword" />
 
-        <div
-          v-if="!isPasswordValid && form.password.length > 0"
-          class="mt-2 p-2 rounded-lg bg-red-100 dark:bg-red-900 border border-red-300">
-          <p class="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
-            La password non soddisfa i requisiti minimi:
+        <div v-if="!isPasswordValid && form.password.length > 0" class="mt-2 p-2 rounded-lg bg-red-100 dark:bg-red-900/30 border border-red-300">
+          <p class="text-xs font-semibold text-red-700 dark:text-red-400 mb-1">
+            requisiti password:
           </p>
           <ul class="text-xs list-disc pl-5 space-y-0.5">
-            <li
-              :class="
-                passwordRequirements.minLength
-                  ? 'text-zomp dark:text-tea-rose-red'
-                  : 'text-red-500 dark:text-red-300'
-              ">
-              Almeno 8 caratteri.
-            </li>
-            <li
-              :class="
-                passwordRequirements.hasUpper
-                  ? 'text-zomp dark:text-tea-rose-red'
-                  : 'text-red-500 dark:text-red-300'
-              ">
-              Almeno una lettera Maiuscola (A-Z).
-            </li>
-            <li
-              :class="
-                passwordRequirements.hasLower
-                  ? 'text-zomp dark:text-tea-rose-red'
-                  : 'text-red-500 dark:text-red-300'
-              ">
-              Almeno una lettera minuscola (a-z).
-            </li>
-            <li
-              :class="
-                passwordRequirements.hasNumber
-                  ? 'text-zomp dark:text-tea-rose-red'
-                  : 'text-red-500 dark:text-red-300'
-              ">
-              Almeno un numero (0-9).
-            </li>
-            <li
-              :class="
-                passwordRequirements.hasSpecial
-                  ? 'text-zomp dark:text-tea-rose-red'
-                  : 'text-red-500 dark:text-red-300'
-              ">
-              Almeno un carattere speciale (@$!%*?&).
-            </li>
+            <li :class="passwordRequirements.minLength ? 'text-zomp' : 'text-red-500'">almeno 8 caratteri.</li>
+            <li :class="passwordRequirements.hasUpper ? 'text-zomp' : 'text-red-500'">maiuscola (a-z).</li>
+            <li :class="passwordRequirements.hasLower ? 'text-zomp' : 'text-red-500'">minuscola (a-z).</li>
+            <li :class="passwordRequirements.hasNumber ? 'text-zomp' : 'text-red-500'">numero (0-9).</li>
+            <li :class="passwordRequirements.hasSpecial ? 'text-zomp' : 'text-red-500'">speciale (@$!%*?&).</li>
           </ul>
         </div>
       </div>
 
-      <div class="space-y-2 text-paynes-gray">
-        <label class="flex items-start">
-          <input
-            v-model="form.acceptTerms"
-            type="checkbox"
-            required
-            class="mt-1 mr-2 form-checkbox text-zomp rounded border-ash-gray focus:ring-zomp" />
+      <div class="space-y-2 text-theme-main">
+        <div class="filter-checkbox-group items-center">
+          <input v-model="form.acceptTerms" type="checkbox" required class="filter-checkbox" />
           <span class="text-sm">
-            Accetto i
-            <a
-              @click.stop.prevent="showTermsModal = true"
-              class="text-zomp hover:underline font-semibold transition duration-150 cursor-pointer"
-              >termini e condizioni</a
-            >
-            *
+            accetto i 
+            <span @click="showTermsModal = true" class="text-zomp hover:underline font-bold cursor-pointer ml-1">
+              termini e condizioni
+            </span>*
           </span>
-        </label>
+        </div>
 
-        <label class="flex items-start">
-          <input
-            v-model="form.acceptPrivacy"
-            type="checkbox"
-            required
-            class="mt-1 mr-2 form-checkbox text-zomp rounded border-ash-gray focus:ring-zomp" />
+        <div class="filter-checkbox-group items-center">
+          <input v-model="form.acceptPrivacy" type="checkbox" required class="filter-checkbox" />
           <span class="text-sm">
-            Accetto il
-            <a
-              @click.stop.prevent="showPrivacyModal = true"
-              class="text-zomp hover:underline font-semibold transition duration-150 cursor-pointer"
-              >trattamento dei dati personali</a
-            >
-            *
+            accetto il 
+            <span @click="showPrivacyModal = true" class="text-zomp hover:underline font-bold cursor-pointer ml-1">
+              trattamento dei dati
+            </span>*
           </span>
-        </label>
-        <label class="flex items-start">
-          <input
-            v-model="form.ofAge"
-            type="checkbox"
-            required
-            class="mt-1 mr-2 form-checkbox text-zomp rounded border-ash-gray focus:ring-zomp" />
-          <span class="text-sm"> Dichiaro di essere maggiorenne * </span>
-        </label>
+        </div>
+
+        <div class="filter-checkbox-group items-center">
+          <input v-model="form.ofAge" type="checkbox" required class="filter-checkbox" />
+          <span class="text-sm">dichiaro di essere maggiorenne* </span>
+        </div>
       </div>
 
-      <button
-        type="submit"
-        class="w-full bg-zomp text-white py-2 rounded-lg hover:bg-paynes-gray transition duration-150"
-        :disabled="isSubmittingDisabled">
-        {{ isSendingOtp ? "Invio in corso..." : "Registrati" }}
+      <button type="submit" class="btn-modal-confirm w-full justify-center py-3" :disabled="isSubmittingDisabled">
+        {{ isSendingOtp ? "invio in corso..." : "registrati" }}
       </button>
     </form>
 
-    <div
-      v-else
-      class="text-center p-4 bg-tea-rose-red/20 shadow-xl rounded-2xl border-2 border-thistle">
-      <h2 class="text-2xl font-display mb-4 text-paynes-gray">
-        Verifica Email
-      </h2>
-
-      <p
-        v-if="mockOtp && !isBlocked"
-        class="text-sm font-bold text-red-600 mb-6 p-2 bg-theme-primary rounded border border-red-300">
-        MOCK: Il codice OTP da inserire è: <strong>{{ mockOtp }}</strong>
-      </p>
-
-      <div
-        v-if="otpError"
-        class="p-3 mb-4 text-sm font-semibold rounded-lg border"
-        :class="{
-          'text-gray-700 bg-gray-200 border-gray-300': isBlocked,
-          'text-red-700 bg-red-200 border-red-300': !isBlocked,
-        }">
-        <span v-if="isBlocked">
-          <strong>ATTENZIONE: </strong> Hai superato il limite massimo di
-          tentativi. La sessione di verifica è bloccata.
-        </span>
-        <span v-else>
-          {{ otpErrorMessage }}
-          <span v-if="retryCount > 0">
-            Hai ancora <strong>{{ retryCount }}</strong>
-            {{ retryCount === 1 ? "tentativo" : "tentativi" }} rimanenti.
-          </span>
-        </span>
+    <div v-else class="text-center p-4 bg-theme-primary rounded-2xl border-2 border-thistle">
+      <h2 class="text-2xl font-display mb-4 text-theme-main uppercase">verifica email</h2>
+      
+      <div class="flex justify-center space-x-2 mb-6">
+        <input
+          v-for="(digit, index) in otpDigits"
+          :key="index"
+          :id="'otp-input-' + index"
+          v-model="otpDigits[index]"
+          class="otp-input"
+          @input="handleOtpInput(index)"
+          @keydown.backspace="handleBackspace(index, $event)" />
       </div>
 
-      <p v-else class="text-paynes-gray text-lg mb-4">
-        Codice di attivazione inviato all'indirizzo <b>{{ form.email }}</b
-        >.
-      </p>
-
-      <div v-if="!isBlocked">
-        <label
-          for="otp-input-0"
-          class="block text-sm font-medium mb-2 text-paynes-gray">
-          Inserisci il codice di 6 cifre:
-        </label>
-
-        <div class="flex justify-center space-x-2 mb-6">
-          <input
-            v-for="(digit, index) in otpDigits"
-            :key="index"
-            :id="'otp-input-' + index"
-            v-model="otpDigits[index]"
-            type="text"
-            maxlength="1"
-            inputmode="numeric"
-            pattern="[0-9]"
-            class="otp-input"
-            :disabled="isBlocked"
-            @input="handleOtpInput(index)"
-            @keydown.backspace="handleBackspace(index, $event)"
-            @paste.prevent />
-        </div>
-
-        <button
-          @click="handleOtpSubmit"
-          :disabled="!isOtpComplete || isBlocked"
-          class="w-full bg-zomp text-white py-2 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50">
-          Verifica e Continua
+      <button @click="handleOtpSubmit" :disabled="!isOtpComplete || isBlocked" class="btn-modal-confirm w-full justify-center py-3">
+        verifica e continua
+      </button>
+      
+      <div class="mt-4 flex justify-center space-x-4">
+        <button @click="resendOtp" :disabled="isResending" class="text-sm text-theme-main hover:text-zomp underline">
+          {{ isResending ? "invio..." : "invia di nuovo" }}
         </button>
-      </div>
-
-      <div class="mt-4">
-        <div v-if="!isBlocked" class="flex justify-center space-x-4">
-          <button
-            @click="resendOtp"
-            :disabled="isResending"
-            class="text-sm text-paynes-gray hover:text-zomp underline disabled:text-gray-400">
-            {{ isResending ? "Invio..." : "Invia di nuovo Codice" }}
-          </button>
-
-          <button
-            @click="resetToInitialForm"
-            class="text-sm text-paynes-gray hover:text-zomp underline">
-            Torna alla registrazione
-          </button>
-        </div>
-
-        <div v-else>
-          <button
-            @click="goHome"
-            class="text-sm text-paynes-gray hover:text-zomp underline font-semibold">
-            Torna alla Home Page
-          </button>
-        </div>
+        <button @click="resetToInitialForm" class="text-sm text-theme-main hover:text-zomp underline">
+          indietro
+        </button>
       </div>
     </div>
 
-    <p v-if="!otpSent" class="mt-6 text-center text-sm text-paynes-gray">
+    <p v-if="!otpSent" class="mt-6 text-right text-sm text-theme-main">
       Hai già un account?
-      <router-link
-        to="/login"
-        class="text-zomp hover:text-paynes-gray font-semibold transition duration-150">
+      <router-link to="/login" class="text-zomp hover:underline font-bold">
         Accedi
       </router-link>
     </p>
 
-    <AppModal
-      :is-open="showTermsModal"
-      title="Termini e Condizioni"
-      :content="termsContent"
-      @close="showTermsModal = false" />
-
-    <AppModal
-      :is-open="showPrivacyModal"
-      title="Informativa sulla Privacy"
-      :content="privacyContent"
-      @close="showPrivacyModal = false" />
+    <AppModal :is-open="showTermsModal" title="termini e condizioni" :content="termsContent" @close="showTermsModal = false" />
+    <AppModal :is-open="showPrivacyModal" title="privacy" :content="privacyContent" @close="showPrivacyModal = false" />
   </div>
 </template>
 
