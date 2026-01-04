@@ -285,12 +285,12 @@
           <label class="block text-xs font-bold opacity-70 mb-2"
             >tag e generi</label
           >
-          <div class="flex flex-wrap gap-2">
+          <div class="tag-list tag-list-scrollable">
             <button
               v-for="tag in copyForm.tags"
               :key="tag"
               @click="toggleTag(tag)"
-              class="bg-[var(--zomp)] text-white px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-transparent transition-all">
+              class="btn-tag bg-[var(--zomp)] text-white px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-transparent transition-all">
               {{ tag }} <i class="fa-solid fa-xmark ml-1"></i>
             </button>
             <hr
@@ -300,12 +300,7 @@
               v-for="tag in availableTags"
               :key="tag"
               @click="toggleTag(tag)"
-              :class="
-                copyForm.tags.includes(tag)
-                  ? 'hidden'
-                  : 'bg-white border-gray-200 text-theme-main'
-              "
-              class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all">
+              :class="copyForm.tags.includes(tag) ? 'hidden' : 'btn-tag px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all'">
               {{ tag }}
             </button>
             <button
@@ -323,7 +318,7 @@
                 class="px-3 py-1 text-xs border-2 rounded-lg w-24 bg-white outline-none focus:border-[var(--zomp)] text-theme-main" />
               <button
                 @click="addCustomTag"
-                class="bg-[var(--zomp)] text-white px-2 rounded-lg text-xs font-bold">
+                class="btn-tag bg-[var(--zomp)] text-white px-2 rounded-lg text-xs font-bold">
                 ok
               </button>
             </div>
@@ -365,7 +360,7 @@
       v-if="showConflictModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div
-        class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-slide-up">
+        class="modal-book-box animate-slide-up max-w-lg w-full">
         <h3 class="font-display text-lg mb-4 text-paynes-gray">
           libri simili trovati
         </h3>
@@ -391,7 +386,7 @@
         </div>
         <button
           @click="showConflictModal = false"
-          class="mt-6 w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-sm text-paynes-gray">
+          class="btn-modal-cancel mt-6 w-full">
           inserisci i dati manualmente
         </button>
       </div>
@@ -513,7 +508,7 @@
       :isOpen="isModalOpen"
       :title="modalTitle"
       @close="handleModalClose">
-      <div class="p-6 text-center space-y-4">
+      <div class="modal-request-content">
         <p class="text-theme-main">{{ modalContent }}</p>
         <button
           @click="handleModalClose"
@@ -957,5 +952,61 @@ watch([() => form.value.title, () => form.value.author], () => {
 }
 .font-display {
   font-family: "Mochiy Pop P One", cursive;
+}
+
+.tag-list {
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.tag-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tag-list::-webkit-scrollbar-thumb {
+  background-color: var(--zomp);
+  border-radius: 10px;
+}
+
+.tag-list::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.btn-tag {
+  background-color: var(--bg-secondary);
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.btn-tag:hover {
+  background-color: var(--zomp);
+  color: white;
+  border-color: var(--zomp);
+}
+
+.modal-book-box {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  animation: slide-up 0.4s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-request-content {
+  padding: 1.5rem;
+  text-align: center;
 }
 </style>
