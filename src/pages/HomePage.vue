@@ -1,85 +1,57 @@
 <template>
-  <div
-    id="home-page"
-    class="flex flex-col w-full h-[calc(100vh-80px)] lg:px-4 gap-3 overflow-hidden">
-    <div
-      v-if="!authStore.isAuthenticated"
-      class="shrink-0 w-full flex justify-between items-center p-3 rounded-xl bg-theme-primary shadow-sm px-6 h-auto border border-[var(--border-color)]">
+  <div id="home-page" class="page-container">
+    <div v-if="!authStore.isAuthenticated" class="welcome-banner">
       <div class="flex flex-col">
-        <h2 class="font-bold text-theme-main text-sm">
-          benvenuto su bibliomap
-        </h2>
-        <p
-          class="text-theme-main opacity-70 text-xs mt-1 max-w-2xl font-medium">
-          accedi per funzionalita complete.
-        </p>
+        <h2 class="welcome-title">Benvenuta/o su BIBLIOMAP!</h2>
+        <p class="welcome-subtitle">Accedi per vedere tutte funzionalità.</p>
       </div>
-      <router-link
-        to="/login"
-        class="bg-[var(--paynes-gray)] text-white px-4 py-2 rounded-lg hover:bg-[var(--zomp)] transition text-xs font-bold whitespace-nowrap ml-4 border-none">
-        accedi o registrati
+      <router-link to="/login" class="btn-login">
+        Accedi o Registrati
       </router-link>
     </div>
 
-    <main
-      class="flex flex-col lg:flex-row w-full flex-grow gap-4 overflow-hidden h-full">
-      <aside
-        class="w-full lg:w-4/12 flex flex-col rounded-xl border border-[var(--border-color)] bg-theme-primary shadow-lg overflow-hidden h-full relative">
-        <div
-          class="p-3 border-b border-[var(--border-color)] flex justify-between items-center shrink-0 z-20 bg-theme-primary">
-          <h2 class="font-display text-lg text-theme-main">
-            vicini a te:
-            <span class="font-bold">{{ filteredBooks.length }}</span>
+    <main class="main-layout">
+      <aside class="sidebar-container">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">
+            Vicini a te: <span>{{ filteredBooks.length }}</span>
           </h2>
           <button
             @click="toggleFilters"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition font-bold text-xs uppercase"
+            class="btn-filters"
             :class="
-              showFilters
-                ? 'bg-[var(--zomp)] text-white border-[var(--zomp)]'
-                : 'bg-theme-primary text-theme-main border-[var(--border-color)] hover:border-[var(--zomp)]'
+              showFilters ? 'btn-filters--active' : 'btn-filters--inactive'
             ">
             <i class="fa-solid fa-filter"></i>
-            filtri
+            Filtri
           </button>
         </div>
 
-        <div
-          v-if="showFilters"
-          class="p-3 bg-[var(--bg-secondary)] border-b border-[var(--border-color)] text-xs space-y-3 shrink-0 animate-fade-in z-10 flex flex-col">
+        <div v-if="showFilters" class="filters-drawer">
           <input
             v-model="filters.searchText"
             type="text"
             placeholder="cerca titolo o autore..."
-            class="w-full p-2 rounded border border-[var(--border-color)] bg-theme-primary text-theme-main focus:outline-none focus:border-[var(--accent-color)]" />
+            class="filter-input" />
 
-          <div class="flex items-center gap-2 py-1">
+          <div class="filter-checkbox-group">
             <input
               type="checkbox"
               id="avail-filter"
               v-model="filters.onlyAvailable"
-              class="w-4 h-4 accent-[var(--zomp)]" />
-            <label
-              for="avail-filter"
-              class="font-bold text-theme-main opacity-80 cursor-pointer"
-              >mostra solo disponibili</label
+              class="filter-checkbox" />
+            <label for="avail-filter" class="filter-label"
+              >Mostra solo libri disponibili</label
             >
           </div>
 
-          <div class="flex flex-col gap-1">
-            <span
-              class="text-[10px] uppercase font-bold text-theme-main opacity-70"
-              >ordina per</span
-            >
-            <div class="flex gap-2">
+          <div class="sort-section">
+            <span class="sort-label">ordina per:</span>
+            <div class="sort-buttons">
               <button
                 @click="handleSort('distance')"
-                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1"
-                :class="
-                  sortField === 'distance'
-                    ? 'bg-[var(--paynes-gray)] text-white border-transparent'
-                    : 'bg-theme-primary hover:bg-[var(--bg-secondary)] text-theme-main'
-                ">
+                class="btn-sort"
+                :class="{ 'btn-sort--active': sortField === 'distance' }">
                 distanza
                 <i
                   v-if="sortField === 'distance'"
@@ -90,12 +62,8 @@
               </button>
               <button
                 @click="handleSort('title')"
-                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1"
-                :class="
-                  sortField === 'title'
-                    ? 'bg-[var(--paynes-gray)] text-white border-transparent'
-                    : 'bg-theme-primary hover:bg-[var(--bg-secondary)] text-theme-main'
-                ">
+                class="btn-sort"
+                :class="{ 'btn-sort--active': sortField === 'title' }">
                 titolo
                 <i
                   v-if="sortField === 'title'"
@@ -106,12 +74,8 @@
               </button>
               <button
                 @click="handleSort('author')"
-                class="flex-1 py-1.5 rounded border border-[var(--border-color)] transition text-center flex items-center justify-center gap-1"
-                :class="
-                  sortField === 'author'
-                    ? 'bg-[var(--paynes-gray)] text-white border-transparent'
-                    : 'bg-theme-primary hover:bg-[var(--bg-secondary)] text-theme-main'
-                ">
+                class="btn-sort"
+                :class="{ 'btn-sort--active': sortField === 'author' }">
                 autore
                 <i
                   v-if="sortField === 'author'"
@@ -123,56 +87,47 @@
             </div>
           </div>
 
-          <div v-if="availableTags.length > 0" class="flex flex-col gap-1">
-            <span
-              class="text-[10px] uppercase font-bold text-theme-main opacity-70"
-              >filtra per tag</span
-            >
-            <div class="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+          <div v-if="availableTags.length > 0" class="sort-section">
+            <span class="sort-label">filtra per tag</span>
+            <div class="tag-list-scrollable">
               <button
                 v-for="tag in availableTags"
                 :key="tag"
                 @click="toggleTag(tag)"
-                class="px-2 py-1 rounded-full text-[10px] border transition"
-                :class="
-                  selectedTag === tag
-                    ? 'bg-[var(--zomp)] text-white border-transparent'
-                    : 'bg-theme-primary border-[var(--border-color)] text-theme-main hover:border-[var(--zomp)]'
-                ">
+                class="btn-tag"
+                :class="{ 'btn-tag--active': selectedTag === tag }">
                 {{ tag }}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          ref="listContainer"
-          class="flex-grow p-3 relative overflow-hidden flex flex-col bg-theme-primary">
+        <div ref="listContainer" class="book-list-container">
           <div
             v-if="isFetchingBooks"
-            class="absolute inset-0 flex flex-col items-center justify-center bg-theme-primary z-20">
-            <i
-              class="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--paynes-gray)]"></i>
+            class="flex-center absolute inset-0 z-20 bg-theme-primary">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
           </div>
 
           <div
             v-else-if="filteredBooks.length === 0"
-            class="flex flex-col items-center justify-center mt-4 px-4 text-center">
-            <p class="text-theme-main opacity-70 text-sm mb-4">
+            class="flex-center flex-col mt-4 px-4 text-center">
+            <p class="opacity-70 text-sm mb-4">
               nessun libro trovato in quest area.
             </p>
             <div
               class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)]">
               <div class="flex justify-between items-center">
-                <span
-                  class="text-[10px] uppercase font-bold text-theme-main opacity-80"
+                <span class="text-[10px] uppercase font-bold opacity-80"
                   >espandi raggio</span
                 >
-                <span class="text-xs font-bold text-[var(--zomp)]">{{
-                  expansionRadius >= 1000
-                    ? (expansionRadius / 1000).toFixed(1) + " km"
-                    : expansionRadius + " m"
-                }}</span>
+                <span class="text-xs font-bold text-[var(--zomp)]">
+                  {{
+                    expansionRadius >= 1000
+                      ? (expansionRadius / 1000).toFixed(1) + " km"
+                      : expansionRadius + " m"
+                  }}
+                </span>
               </div>
               <input
                 type="range"
@@ -185,132 +140,104 @@
             </div>
           </div>
 
-          <div v-else class="flex flex-col gap-2 w-full h-full overflow-y-auto">
+          <div v-else class="book-scroll-area">
             <div
               v-for="book in paginatedBooks"
               :key="book.id"
               @click="zoomToBook(book)"
-              class="cursor-pointer p-2 rounded-xl flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-sm hover:border-[var(--accent-color)] transition duration-200">
-              <div class="flex items-start w-full">
-                <div
-                  class="w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-200 relative">
+              class="book-card">
+              <div class="book-card-content">
+                <div class="book-cover">
                   <img
                     :src="book.coverUrl"
-                    class="w-full h-full object-cover"
-                    alt="copertina"
                     @error="
                       (e) => (e.target.src = assignDefaultCover(book.id))
                     " />
                 </div>
-                <div
-                  class="flex-grow ml-3 flex flex-col min-h-[96px] text-left">
-                  <div>
-                    <p
-                      class="font-bold text-theme-main text-sm leading-tight mb-0.5">
-                      {{ book.title }}
-                    </p>
-                    <p class="text-xs text-theme-main opacity-80 italic">
-                      {{ book.author }}
-                    </p>
+                <div class="book-info">
+                  <p class="book-title">{{ book.title }}</p>
+                  <p class="book-author">{{ book.author }}</p>
+                  <div v-if="book.tags && book.tags.length" class="book-tags">
+                    <span v-for="t in book.tags" :key="t">{{ t }}</span>
                   </div>
-                  <div
-                    v-if="book.tags && book.tags.length > 0"
-                    class="flex flex-wrap gap-1 mt-1 mb-1">
-                    <span
-                      v-for="t in book.tags"
-                      :key="t"
-                      class="text-[9px] bg-[var(--ash-gray)]/30 px-1.5 py-0.5 rounded text-theme-main opacity-80"
-                      >{{ t }}</span
-                    >
-                  </div>
-                  <div class="mt-auto space-y-1">
+                  <div class="book-footer-info">
                     <div
                       v-if="book.libraryName"
-                      class="flex items-center text-xs text-theme-main opacity-70 font-medium">
-                      <i class="fa-solid fa-shop mr-1.5 text-[10px]"></i>
-                      <span class="truncate">{{ book.libraryName }}</span>
+                      class="flex items-center gap-1 opacity-70">
+                      <i class="fa-solid fa-shop text-[10px]"></i>
+                      {{ book.libraryName }}
                     </div>
-                    <div
-                      class="flex items-center text-xs text-theme-main opacity-60">
-                      <i class="fa-solid fa-location-dot mr-2 text-[10px]"></i>
-                      <span>{{ book.distance.toFixed(1) }} km</span>
+                    <div class="flex items-center gap-1 opacity-60">
+                      <i class="fa-solid fa-location-dot text-[10px]"></i>
+                      {{ book.distance.toFixed(1) }} km
                     </div>
                   </div>
+                  <div class="book-footer-btns">
+                    <button
+                      @click.stop="goToBookDetails(book.id)"
+                      class="book-footer-btn view">
+                      <i class="fa-solid fa-eye"></i> vedi
+                    </button>
+                    <button
+                      v-if="authStore.isAuthenticated"
+                      @click.stop="openConfirmModal(book)"
+                      class="book-footer-btn request">
+                      <i class="fa-solid fa-hand-holding-hand"></i> richiedi
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div
-                class="flex gap-2 mt-1 border-t border-[var(--border-color)] pt-2 opacity-90">
-                <button
-                  @click.stop="goToBookDetails(book.id)"
-                  class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--paynes-gray)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-eye"></i> vedi
-                </button>
-                <button
-                  v-if="authStore.isAuthenticated"
-                  @click.stop="openConfirmModal(book)"
-                  class="flex-1 py-1.5 px-2 rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white text-theme-main text-xs font-semibold transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-hand-holding-hand"></i> richiedi
-                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <div
-          class="p-2 border-t border-[var(--border-color)] bg-theme-primary flex justify-between items-center shrink-0 text-xs text-theme-main font-semibold h-12">
+        <div class="pagination-footer">
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="w-8 h-8 flex items-center justify-center rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white disabled:opacity-30 transition">
+            class="btn-pagination">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
-          <span>pag {{ currentPage }} / {{ totalPages || 1 }}</span>
+          <span class="text-xs font-semibold"
+            >pag {{ currentPage }} / {{ totalPages || 1 }}</span
+          >
           <button
             @click="nextPage"
             :disabled="currentPage >= totalPages || totalPages === 0"
-            class="w-8 h-8 flex items-center justify-center rounded bg-[var(--ash-gray)]/20 hover:bg-[var(--zomp)] hover:text-white disabled:opacity-30 transition">
+            class="btn-pagination">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
       </aside>
 
-      <section
-        class="w-full lg:w-8/12 flex-grow flex flex-col gap-3 relative h-full">
-        <div
-          class="flex-grow rounded-xl overflow-hidden shadow-xl border border-[var(--border-color)] relative">
-          <div id="map" class="w-full h-full bg-gray-100"></div>
-          <div
-            class="absolute bottom-6 left-4 bg-theme-primary border border-[var(--border-color)] p-2 rounded-lg shadow text-xs text-theme-main z-10">
+      <section class="map-layout-section">
+        <div class="map-wrapper">
+          <div id="map" class="w-full h-full"></div>
+          <div class="map-legend">
             <div class="flex items-center">
-              <span
-                class="inline-block w-3 h-3 rounded-full bg-[var(--zomp)] mr-2 border border-white"></span>
+              <span class="legend-dot"></span>
               <span>librerie vicine</span>
             </div>
           </div>
         </div>
 
-        <div
-          class="text-[10px] text-center p-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex flex-col gap-1 shrink-0 shadow-sm">
-          <div
-            v-if="isLocationLoading"
-            class="text-[var(--zomp)] font-bold animate-pulse">
+        <div class="location-status-bar">
+          <div v-if="isLocationLoading" class="location-loading">
             <i class="fa-solid fa-satellite-dish"></i> ricerca posizione...
           </div>
           <div v-else class="flex flex-col gap-1 w-full px-2">
-            <div class="flex justify-between items-center w-full">
-              <span class="opacity-70"
+            <div class="flex justify-between items-center w-full opacity-70">
+              <span
                 >posizione stimata ({{
                   gpsAccuracy ? "~" + Math.round(gpsAccuracy) + "m" : "n/a"
                 }})</span
               >
-              <button
-                @click="handleGeolocationFlow"
-                class="underline text-blue-500 hover:text-blue-700">
+              <button @click="handleGeolocationFlow" class="btn-retry-location">
                 riprova
               </button>
             </div>
             <div
-              class="text-[var(--paynes-gray)] font-bold border-t border-gray-300 pt-1 mt-1">
+              class="font-bold border-t border-[var(--border-color)] pt-1 mt-1">
               <i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>
               trascina il segnaposto rosa sulla mappa se la posizione e'
               sbagliata.
@@ -325,23 +252,20 @@
     :is-open="isConfirmModalOpen"
     title="conferma richiesta"
     @close="isConfirmModalOpen = false">
-    <div v-if="bookToRequest" class="space-y-4 text-theme-main">
+    <div v-if="bookToRequest" class="modal-request-content">
       <p class="text-sm">richiedi in prestito:</p>
-      <div
-        class="p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg">
+      <div class="modal-book-box">
         <p class="font-bold text-base">{{ bookToRequest.title }}</p>
         <p class="text-xs italic opacity-80">{{ bookToRequest.author }}</p>
       </div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button
-          @click="isConfirmModalOpen = false"
-          class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--ash-gray)]/20">
+      <div class="modal-actions">
+        <button @click="isConfirmModalOpen = false" class="btn-modal-cancel">
           annulla
         </button>
         <button
           @click="confirmLoanRequest"
           :disabled="isSending"
-          class="bg-[var(--zomp)] text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 flex items-center gap-2">
+          class="btn-modal-confirm">
           <i v-if="isSending" class="fa-solid fa-circle-notch fa-spin"></i>
           {{ isSending ? "invio..." : "conferma" }}
         </button>
