@@ -15,8 +15,13 @@
           :key="loan.id"
           class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-red-200 dark:border-red-800">
           <p class="text-sm font-bold text-red-800 dark:text-red-300">
-            devi restituire <span class="italic"></span> (scaduto il
-            {{ formatDate(loan.expectedReturnDate) }})
+            devi restituire
+            <router-link
+              :to="`/books/${loan.copyId}`"
+              class="italic hover:underline"
+              >{{ loan.title }}</router-link
+            >
+            (scaduto il {{ formatDate(loan.expectedReturnDate) }})
           </p>
           <button
             @click="openContactModal(loan)"
@@ -62,9 +67,17 @@
               :key="req.id"
               class="flex justify-between items-center bg-theme-primary p-4 rounded-xl shadow-sm border border-thistle">
               <p class="text-sm">
-                <span class="font-bold">{{ req.requesterUsername }}</span>
+                <router-link
+                  :to="`/profile/${req.requesterId}`"
+                  class="font-bold hover:text-zomp"
+                  >{{ req.requesterUsername }}</router-link
+                >
                 vorrebbe leggere
-                <span class="italic text-zomp">{{ req.title }}</span>
+                <router-link
+                  :to="`/books/${req.copyId}`"
+                  class="italic text-zomp hover:underline"
+                  >{{ req.title }}</router-link
+                >
               </p>
               <button
                 @click="openManageModal(req)"
@@ -80,7 +93,8 @@
           class="bg-zomp/10 border-l-4 border-zomp p-6 rounded-r-2xl space-y-4">
           <h3
             class="font-display text-m text-theme-main flex items-center gap-2">
-            <i class="fa-solid fa-handshake text-zomp"></i> Scambi da confermare:
+            <i class="fa-solid fa-handshake text-zomp"></i> Scambi da
+            confermare:
           </h3>
           <div class="space-y-3">
             <div
@@ -90,18 +104,32 @@
               <p class="text-sm">
                 <template v-if="loan.ownerId === userData?.id"
                   >Conferma la consegna di
-                  <span class="font-bold">{{ loan.title }}</span> a
-                  <span class="text-zomp">{{
-                    loan.requesterUsername
-                  }}</span></template
-                >
+                  <router-link
+                    :to="`/books/${loan.copyId}`"
+                    class="font-bold hover:text-zomp"
+                    >{{ loan.title }}</router-link
+                  >
+                  a
+                  <router-link
+                    :to="`/profile/${loan.requesterId}`"
+                    class="text-zomp hover:underline"
+                    >{{ loan.requesterUsername }}</router-link
+                  >
+                </template>
                 <template v-else
                   >Hai ricevuto
-                  <span class="font-bold">{{ loan.title }}</span> da
-                  <span class="text-zomp">{{
-                    loan.ownerUsername
-                  }}</span></template
-                >
+                  <router-link
+                    :to="`/books/${loan.copyId}`"
+                    class="font-bold hover:text-zomp"
+                    >{{ loan.title }}</router-link
+                  >
+                  da
+                  <router-link
+                    :to="`/profile/${loan.ownerId}`"
+                    class="text-zomp hover:underline"
+                    >{{ loan.ownerUsername }}</router-link
+                  >
+                </template>
               </p>
               <button
                 @click="confirmExchange(loan.id)"
@@ -147,12 +175,13 @@
                 :key="loan.id"
                 class="w-full md:w-[calc(33.333%-11px)] shrink-0 bg-theme-primary p-5 rounded-xl shadow-sm border border-thistle flex flex-col justify-between min-h-[160px]">
                 <div>
-                  <h4
-                    class="font-bold text-zomp text-lg leading-tight truncate">
-                    {{ loan.title }}
-                  </h4>
+                  <router-link :to="`/books/${loan.copyId}`" class="block">
+                    <h4
+                      class="font-bold text-zomp text-lg leading-tight truncate hover:underline">
+                    </h4>
+                  </router-link>
                   <p class="text-[10px] opacity-60">
-                    Proprietario: {{ loan.ownerUsername }}
+                    Proprietario:
                   </p>
                 </div>
                 <div
@@ -221,6 +250,9 @@
                   </h4>
                   <p class="text-[10px] opacity-60">
                     Lettore: {{ loan.requesterUsername }}
+                      class="hover:text-zomp"
+                      >{{ loan.requesterUsername }}</router-link
+                    >
                   </p>
                 </div>
                 <div
