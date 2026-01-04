@@ -80,8 +80,8 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div class="space-y-8">
               <div class="space-y-4">
-                <h3 class="font-display text-xs text-zomp tracking-widest">
-                  credenziali
+                <h3 class="font-display text-s text-zomp tracking-widest">
+                  Credenziali
                 </h3>
                 <div>
                   <label class="block text-[10px] font-bold mb-1 opacity-60"
@@ -200,8 +200,8 @@
 
               <div class="pt-6 border-t border-thistle space-y-4">
                 <h3
-                  class="font-display text-xs text-paynes-gray tracking-widest">
-                  documenti e dati
+                  class="font-display text-s text-paynes-gray tracking-widest">
+                  Documenti e dati
                 </h3>
                 <div
                   v-for="type in ['privacy', 'terms']"
@@ -230,8 +230,8 @@
 
             <div class="space-y-8">
               <div class="space-y-4">
-                <h3 class="font-display text-xs text-zomp tracking-widest">
-                  privacy mappa
+                <h3 class="font-display text-s text-zomp tracking-widest">
+                  Privacy mappa
                 </h3>
                 <select
                   v-model="profileForm.visibility"
@@ -262,8 +262,8 @@
                 </button>
               </div>
               <div class="pt-6 border-t border-thistle space-y-4">
-                <h3 class="font-display text-xs text-zomp tracking-widest">
-                  la tua posizione
+                <h3 class="font-display text-s text-zomp tracking-widest">
+                  La tua posizione
                 </h3>
                 <div
                   id="mini-map-edit"

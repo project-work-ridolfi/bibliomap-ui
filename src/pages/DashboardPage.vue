@@ -30,8 +30,8 @@
     <div
       class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-thistle pb-6">
       <div>
-        <h1 class="text-3xl font-display text-theme-main">
-          Centro <span class="text-zomp">Operativo</span>
+        <h1 class="text-5xl font-display text-theme-main">
+          Centro <span class="text-zomp">operativo</span>
         </h1>
         <p class="opacity-60 text-sm">
           Gestisci i tuoi scambi e le tue letture in corso
@@ -52,9 +52,9 @@
           v-if="pendingRequests.length > 0"
           class="bg-tea-rose/10 border-l-4 border-tea-rose p-6 rounded-r-2xl space-y-4">
           <h3
-            class="font-display text-sm text-theme-main flex items-center gap-2">
-            <i class="fa-solid fa-bell text-tea-rose"></i> nuove richieste di
-            prestito
+            class="font-display text-m text-theme-main flex items-center gap-2">
+            <i class="fa-solid fa-bell text-tea-rose"></i> Nuove richieste di
+            prestito:
           </h3>
           <div class="space-y-3">
             <div
@@ -79,8 +79,8 @@
           v-if="acceptedLoans.length > 0"
           class="bg-zomp/10 border-l-4 border-zomp p-6 rounded-r-2xl space-y-4">
           <h3
-            class="font-display text-sm text-theme-main flex items-center gap-2">
-            <i class="fa-solid fa-handshake text-zomp"></i> scambi da confermare
+            class="font-display text-m text-theme-main flex items-center gap-2">
+            <i class="fa-solid fa-handshake text-zomp"></i> Scambi da confermare:
           </h3>
           <div class="space-y-3">
             <div
@@ -246,7 +246,7 @@
         <section
           class="bg-theme-primary p-6 rounded-2xl shadow-md border border-thistle space-y-6">
           <h3
-            class="font-display text-xs text-zomp tracking-widest border-b border-thistle pb-2">
+            class="font-display text-s text-zomp tracking-widest border-b border-thistle pb-2">
             Navigazione
           </h3>
           <nav class="flex flex-col gap-3">

@@ -7,7 +7,7 @@
     <form v-if="!otpSent" @submit.prevent="handleSubmit" class="space-y-4">
       <div>
         <label class="block text-sm font-medium mb-1 text-theme-main">
-          username*
+          Username*
         </label>
         <input
           v-model="form.username"
@@ -26,19 +26,20 @@
 
       <div>
         <label class="block text-sm font-medium mb-1 text-theme-main">
-          email*
+          Email*
         </label>
         <input
           v-model="form.email"
           type="email"
           required
           class="filter-input"
+          placeholder="nome@dominio.it"
           :class="{ 'border-red-500': !isEmailValid && form.email.length > 0 }" />
       </div>
 
       <div>
         <label class="block text-sm font-medium mb-1 text-theme-main">
-          password*
+          Password*
         </label>
         <input
           v-model="form.password"
@@ -90,7 +91,7 @@
       </div>
 
       <button type="submit" class="btn-modal-confirm w-full justify-center py-3" :disabled="isSubmittingDisabled">
-        {{ isSendingOtp ? "invio in corso..." : "registrati" }}
+        {{ isSendingOtp ? "invio in corso..." : "Registrati" }}
       </button>
     </form>
 
@@ -122,7 +123,7 @@
       </div>
     </div>
 
-    <p v-if="!otpSent" class="mt-6 text-right text-sm text-theme-main">
+    <p v-if="!otpSent" class="mt-6 text-center text-sm text-theme-main">
       Hai già un account?
       <router-link to="/login" class="text-zomp hover:underline font-bold">
         Accedi

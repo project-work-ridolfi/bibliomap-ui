@@ -1,8 +1,8 @@
 <template>
   <div
-    class="max-w-md mx-auto p-6 bg-white shadow-xl rounded-2xl border-2 border-thistle">
+    class="max-w-md mx-auto p-6 bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle">
     <h1
-      class="text-3xl font-display text-center text-paynes-gray mb-6 uppercase">
+      class="text-3xl font-display text-center text-theme-main mb-6 uppercase">
       {{
         mode === "login"
           ? "Accedi"
@@ -19,8 +19,8 @@
       <div>
         <label
           for="email"
-          class="block text-sm font-medium mb-1 text-paynes-gray"
-          >Email *</label
+          class="block text-sm font-medium mb-1 text-theme-main"
+          >Email*</label
         >
         <input
           id="email"
@@ -28,7 +28,7 @@
           type="text"
           required
           placeholder="nome@dominio.it"
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150" />
+          class="filter-input" />
         <p
           v-if="!isEmailValid && form.email.length > 0"
           class="text-xs text-red-500 mt-1">
@@ -39,15 +39,15 @@
       <div>
         <label
           for="password"
-          class="block text-sm font-medium mb-1 text-paynes-gray"
-          >Password *</label
+          class="block text-sm font-medium mb-1 text-theme-main"
+          >Password*</label
         >
         <input
           id="password"
           v-model="form.password"
           type="password"
           required
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp transition duration-150" />
+          class="filter-input" />
       </div>
 
       <p
@@ -60,49 +60,49 @@
         <button
           type="button"
           @click="mode = 'forgot'"
-          class="text-sm text-zomp hover:text-paynes-gray transition duration-150 underline">
+          class="text-sm text-zomp hover:text-theme-main transition duration-150 underline">
           Password Dimenticata?
         </button>
       </div>
 
       <button
         type="submit"
-        class="w-full bg-zomp text-white py-2 rounded-lg hover:bg-paynes-gray transition duration-150 font-bold text-lg">
+        class="btn-modal-confirm w-full justify-center py-2 text-lg">
         Accedi
       </button>
     </form>
 
     <div v-else-if="mode === 'forgot'" class="space-y-4">
       <div v-if="!otpSent">
-        <p class="text-sm text-paynes-gray mb-4">
+        <p class="text-sm text-theme-main mb-4">
           Inserisci la tua email per ricevere un codice di verifica.
         </p>
         <input
           v-model="form.email"
           type="email"
           placeholder="Email"
-          class="w-full px-3 py-2 border rounded-lg mb-4" />
+          class="filter-input mb-4" />
         <button
           @click="sendOtp"
           :disabled="!isEmailValid || isProcessing"
-          class="w-full bg-zomp text-white py-2 rounded-lg font-bold disabled:opacity-50">
+          class="btn-modal-confirm w-full justify-center py-2">
           {{ isProcessing ? "Invio in corso..." : "Invia OTP" }}
         </button>
         <button
           @click="mode = 'login'"
-          class="w-full text-sm text-paynes-gray mt-2 underline">
+          class="w-full text-sm text-theme-main mt-2 underline">
           Torna al login
         </button>
       </div>
 
       <div v-else class="text-center">
-        <p class="text-sm mb-4 text-paynes-gray">
+        <p class="text-sm mb-4 text-theme-main">
           Inserisci il codice di 6 cifre inviato a <b>{{ form.email }}</b>
         </p>
 
         <div
           v-if="mockOtp"
-          class="text-xs font-bold text-red-600 mb-4 p-2 bg-red-50 border border-red-200 rounded">
+          class="text-xs font-bold text-red-600 mb-4 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
           MOCK OTP: {{ mockOtp }}
         </div>
 
@@ -123,31 +123,31 @@
         <button
           @click="verifyOtp"
           :disabled="!isOtpComplete || isProcessing"
-          class="w-full bg-zomp text-white py-2 rounded-lg font-bold">
+          class="btn-modal-confirm w-full justify-center py-2">
           Verifica Codice
         </button>
         <button
           @click="otpSent = false"
-          class="w-full text-sm text-paynes-gray mt-4 underline">
+          class="w-full text-sm text-theme-main mt-4 underline">
           Cambia email
         </button>
       </div>
     </div>
 
     <div v-else-if="mode === 'reset'" class="space-y-4">
-      <p class="text-sm text-paynes-gray mb-2 font-bold uppercase">
+      <p class="text-sm text-theme-main mb-2 font-bold uppercase">
         Imposta la nuova password
       </p>
       <input
         v-model="passwordForm.new"
         type="password"
         placeholder="Nuova Password"
-        class="w-full px-3 py-2 border rounded-lg"
+        class="filter-input"
         @input="validatePassword" />
 
       <div
         v-if="passwordForm.new"
-        class="p-2 rounded-lg bg-red-50 border border-red-200">
+        class="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
         <ul class="text-[10px] space-y-1 font-bold uppercase">
           <li
             :class="passRequirements.minLength ? 'text-zomp' : 'text-red-500'">
@@ -171,23 +171,23 @@
         v-model="passwordForm.confirm"
         type="password"
         placeholder="Conferma Password"
-        class="w-full px-3 py-2 border rounded-lg" />
+        class="filter-input" />
 
       <button
         @click="handleFinalReset"
         :disabled="!isPasswordValid || isProcessing"
-        class="w-full bg-zomp text-white py-2 rounded-lg font-bold">
+        class="btn-modal-confirm w-full justify-center py-2">
         {{ isProcessing ? "Salvataggio..." : "Salva Nuova Password" }}
       </button>
     </div>
 
     <p
       v-if="mode === 'login'"
-      class="mt-6 text-center text-sm text-paynes-gray">
+      class="mt-6 text-center text-sm text-theme-main">
       Non hai un account?
       <router-link
         to="/signup"
-        class="text-zomp hover:text-paynes-gray font-semibold transition duration-150"
+        class="text-zomp hover:underline font-semibold transition duration-150"
         >Registrati</router-link
       >
     </p>
@@ -196,15 +196,17 @@
       :is-open="modal.isOpen"
       :title="modal.title"
       @close="modal.isOpen = false">
-      <p class="text-center font-bold uppercase py-4">{{ modal.message }}</p>
+      <p class="text-center font-bold uppercase py-4 text-theme-main">{{ modal.message }}</p>
       <button
         @click="modal.isOpen = false"
-        class="w-full bg-zomp text-white py-2 rounded-lg font-bold mt-4 uppercase">
+        class="btn-modal-confirm w-full justify-center py-2 uppercase">
         Chiudi
       </button>
     </AppModal>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, computed, nextTick, reactive } from "vue";
@@ -385,20 +387,16 @@ function handleBackspace(index, event) {
   text-align: center;
   font-size: 1.25rem;
   font-weight: bold;
-  border: 2px solid var(--thistle);
+  /* usa variabili tema */
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
   border-radius: 8px;
   outline: none;
+  transition: all 0.15s;
 }
 .otp-input:focus {
-  border-color: var(--zomp);
-  box-shadow: 0 0 0 2px rgba(98, 150, 119, 0.2);
-}
-.btn-primary {
-  background: var(--zomp);
-  color: white;
-  transition: 0.2s;
-}
-.btn-primary:hover {
-  background: var(--paynes-gray);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-color);
 }
 </style>
