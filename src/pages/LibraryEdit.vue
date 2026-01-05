@@ -1,34 +1,34 @@
 <template>
-  <main class="max-w-4xl mx-auto p-6 space-y-8 relative">
+  <main class="max-w-4xl mx-auto p-6 space-y-8 relative text-theme-main">
     <div class="flex justify-between items-center mb-4">
       <button
         @click="goBack"
-        class="flex items-center text-paynes-gray hover:text-zomp transition font-medium">
+        class="flex items-center text-theme-main opacity-70 hover:text-accent-color transition font-medium uppercase text-xs">
         <i class="fa-solid fa-arrow-left mr-2"></i> annulla
       </button>
-      <h1 class="font-display text-2xl text-paynes-gray">modifica libreria</h1>
+      <h1 class="font-display text-2xl text-theme-main uppercase">modifica libreria</h1>
     </div>
 
     <div v-if="isLoading" class="text-center py-10">
-      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-paynes-gray"></i>
+      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-accent-color"></i>
     </div>
     <div
       v-else-if="error"
-      class="p-4 bg-red-50 text-red-700 rounded text-center">
+      class="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded text-center font-bold uppercase text-xs border border-red-200">
       {{ error }}
     </div>
 
     <article
       v-else-if="form.id"
-      class="bg-white shadow-xl rounded-2xl border-2 border-thistle overflow-hidden animate-fade-in">
+      class="bg-theme-primary shadow-xl rounded-2xl border-2 border-border-color overflow-hidden custom-fade-in">
       <div class="md:grid md:grid-cols-2">
         <section
-          class="p-6 flex flex-col justify-start space-y-6 border-b md:border-b-0 md:border-r border-thistle">
-          <header class="border-b border-thistle pb-4">
-            <h2 class="text-2xl font-display text-paynes-gray">
+          class="p-6 flex flex-col justify-start space-y-6 border-b md:border-b-0 md:border-r border-border-color">
+          <header class="border-b border-border-color pb-4">
+            <h2 class="text-2xl font-display text-theme-main uppercase">
               {{ form.name }}
             </h2>
-            <p class="text-sm text-paynes-gray/60">
+            <p class="text-sm text-theme-main opacity-60">
               modifica il dettaglio della libreria
             </p>
           </header>
@@ -37,7 +37,7 @@
             <div>
               <label
                 for="libraryName"
-                class="block text-xs font-bold text-paynes-gray mb-1"
+                class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                 >nome libreria</label
               >
               <input
@@ -45,41 +45,41 @@
                 id="libraryName"
                 type="text"
                 placeholder="nome della collezione"
-                class="w-full p-2 rounded-lg border border-thistle bg-white focus:outline-none focus:ring-2 focus:ring-zomp text-sm" />
+                class="filter-input" />
             </div>
 
             <div>
               <label
                 for="visibility"
-                class="block text-xs font-bold text-paynes-gray mb-1"
+                class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                 >visibilità</label
               >
               <select
                 v-model="form.visibility"
                 id="visibility"
-                class="w-full p-2 rounded-lg border border-thistle bg-white focus:outline-none focus:ring-2 focus:ring-zomp text-sm">
+                class="filter-input">
                 <option value="all">pubblica (visibile a tutti)</option>
                 <option value="logged_in">
                   visibile solo a utente registrato
                 </option>
                 <option value="private">privata (visibile solo a te)</option>
               </select>
-              <p class="text-xs text-paynes-gray/70 mt-1">
+              <p class="text-[10px] text-theme-main opacity-60 mt-1 italic font-medium uppercase">
                 se è privata, solo tu potrai vedere i libri e la posizione.
               </p>
             </div>
 
-            <hr class="border-thistle" />
+            <hr class="border-border-color" />
 
             <div class="space-y-2">
               <label
                 for="precision"
-                class="block text-xs font-bold text-paynes-gray uppercase">
+                class="block text-[10px] font-bold text-theme-main uppercase">
                 livello di offuscamento
               </label>
 
               <div
-                class="text-center text-lg font-bold text-zomp p-1 bg-ash-gray/20 rounded-md">
+                class="text-center text-lg font-bold text-accent-color p-1 bg-theme-secondary rounded-md border border-border-color">
                 {{ displayBlurRadius }}
               </div>
 
@@ -91,10 +91,10 @@
                   min="0"
                   max="500"
                   step="10"
-                  class="w-full h-2 bg-thistle rounded-lg appearance-none cursor-pointer range-lg focus:outline-none focus:ring-2 focus:ring-zomp" />
+                  class="w-full h-2 bg-thistle rounded-lg appearance-none cursor-pointer accent-accent-color" />
               </div>
 
-              <div class="flex justify-between text-xs text-paynes-gray/70">
+              <div class="flex justify-between text-[10px] text-theme-main opacity-60 font-bold uppercase">
                 <span>posizione esatta (0m)</span>
                 <span>area larga (500m)</span>
               </div>
@@ -102,13 +102,13 @@
           </div>
         </section>
 
-        <section class="p-6 space-y-4">
+        <section class="p-6 space-y-4 bg-theme-secondary md:bg-theme-primary">
           <h3
-            class="text-lg font-bold text-paynes-gray border-b border-thistle pb-2">
+            class="text-sm font-bold text-theme-main border-b border-border-color pb-2 uppercase">
             posizione libreria
           </h3>
 
-          <p v-if="form.latitude" class="text-sm text-zomp font-semibold">
+          <p v-if="form.latitude" class="text-[10px] text-accent-color font-bold uppercase">
             posizione attuale: lat {{ form.latitude.toFixed(4) }}, lng
             {{ form.longitude.toFixed(4) }}
           </p>
@@ -118,10 +118,10 @@
               @click="locationMode = 'geo'"
               :class="
                 locationMode === 'geo'
-                  ? 'bg-zomp text-white'
-                  : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'
+                  ? 'btn-filters--active border-accent-color'
+                  : 'bg-theme-primary border-border-color text-theme-main opacity-70'
               "
-              class="p-2 rounded-lg shadow-md transition font-semibold border-2 border-thistle text-xs">
+              class="p-2 rounded-lg shadow-sm transition font-bold border-2 text-[10px] uppercase">
               <i class="fa-solid fa-location-arrow mb-1"></i><br />
               gps
             </button>
@@ -129,10 +129,10 @@
               @click="locationMode = 'map'"
               :class="
                 locationMode === 'map'
-                  ? 'bg-zomp text-white'
-                  : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'
+                  ? 'btn-filters--active border-accent-color'
+                  : 'bg-theme-primary border-border-color text-theme-main opacity-70'
               "
-              class="p-2 rounded-lg shadow-md transition font-semibold border-2 border-thistle text-xs">
+              class="p-2 rounded-lg shadow-sm transition font-bold border-2 text-[10px] uppercase">
               <i class="fa-solid fa-map-pin mb-1"></i><br />
               mappa
             </button>
@@ -140,10 +140,10 @@
               @click="locationMode = 'address'"
               :class="
                 locationMode === 'address'
-                  ? 'bg-zomp text-white'
-                  : 'bg-tea-rose-red/20 text-paynes-gray hover:bg-tea-rose-red/40'
+                  ? 'btn-filters--active border-accent-color'
+                  : 'bg-theme-primary border-border-color text-theme-main opacity-70'
               "
-              class="p-2 rounded-lg shadow-md transition font-semibold border-2 border-thistle text-xs">
+              class="p-2 rounded-lg shadow-sm transition font-bold border-2 text-[10px] uppercase">
               <i class="fa-solid fa-house mb-1"></i><br />
               indirizzo
             </button>
@@ -152,20 +152,20 @@
           <div class="relative h-96 pt-2">
             <div
               v-if="locationError"
-              class="absolute inset-x-0 top-0 text-sm text-red-700 font-medium p-2 border border-red-300 rounded z-10">
+              class="absolute inset-x-0 top-0 text-[10px] text-red-500 font-bold uppercase p-2 border border-red-200 bg-red-50 dark:bg-red-900/20 rounded z-10">
               errore: {{ locationError }}
             </div>
 
             <div
               v-if="locationMode === 'geo'"
-              class="flex flex-col h-full justify-center items-center text-center p-4 bg-zomp/20 rounded-lg space-y-2">
-              <p class="text-sm text-paynes-gray font-semibold">
+              class="flex flex-col h-full justify-center items-center text-center p-4 bg-theme-secondary rounded-xl border border-border-color space-y-2">
+              <p class="text-xs text-theme-main font-bold uppercase opacity-70">
                 clicca per usare la posizione del browser.
               </p>
               <button
                 @click="getGeolocation"
                 :disabled="isLoadingLocation"
-                class="bg-paynes-gray text-white py-2 px-4 rounded-lg hover:bg-paynes-gray/80 transition disabled:opacity-50">
+                class="btn-sort px-6 py-2">
                 <i
                   :class="
                     isLoadingLocation ? 'fa-spinner fa-spin' : 'fa-crosshairs'
@@ -173,35 +173,35 @@
                   class="fa-solid mr-2"></i>
                 {{ isLoadingLocation ? "ricerca..." : "ottieni posizione" }}
               </button>
-              <p v-if="tempLocation.latitude" class="text-sm text-zomp">
+              <p v-if="tempLocation.latitude" class="text-[10px] text-accent-color font-bold uppercase">
                 posizione ottenuta!
               </p>
             </div>
 
             <div v-else-if="locationMode === 'map'" class="h-full space-y-2">
-              <div id="map-container" class="h-64 w-full rounded-lg">
-                <div id="map" class="h-full w-full rounded-lg"></div>
+              <div id="map-container" class="h-64 w-full rounded-xl border border-border-color overflow-hidden shadow-inner">
+                <div id="map" class="h-full w-full"></div>
               </div>
               <p
                 v-if="tempLocation.latitude"
-                class="mt-2 text-sm text-zomp font-semibold">
+                class="mt-2 text-[10px] text-accent-color font-bold uppercase">
                 posizione selezionata! lat:
                 {{ tempLocation.latitude.toFixed(4) }}, lng:
                 {{ tempLocation.longitude.toFixed(4) }}
               </p>
-              <p v-else class="mt-2 text-sm text-paynes-gray/70">
+              <p v-else class="mt-2 text-[10px] text-theme-main opacity-60 font-bold uppercase text-center">
                 clicca sulla mappa per selezionare la posizione.
               </p>
             </div>
 
             <div
               v-else-if="locationMode === 'address'"
-              class="space-y-3 p-4 border rounded-lg border-thistle h-full overflow-y-auto">
+              class="space-y-3 p-4 border rounded-xl border-border-color bg-theme-secondary h-full overflow-y-auto">
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label
                     for="streetType"
-                    class="block text-sm font-medium text-paynes-gray"
+                    class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                     >tipo *</label
                   >
                   <input
@@ -210,12 +210,12 @@
                     type="text"
                     required
                     placeholder="via, piazza, ecc."
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+                    class="filter-input" />
                 </div>
                 <div>
                   <label
                     for="streetName"
-                    class="block text-sm font-medium text-paynes-gray"
+                    class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                     >nome via *</label
                   >
                   <input
@@ -223,8 +223,8 @@
                     id="streetName"
                     type="text"
                     required
-                    placeholder="Roma, garibaldi, ecc."
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+                    placeholder="garibaldi, ecc."
+                    class="filter-input" />
                 </div>
               </div>
 
@@ -232,7 +232,7 @@
                 <div>
                   <label
                     for="houseNumber"
-                    class="block text-sm font-medium text-paynes-gray"
+                    class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                     >civico</label
                   >
                   <input
@@ -240,12 +240,12 @@
                     id="houseNumber"
                     type="text"
                     placeholder="10a"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+                    class="filter-input" />
                 </div>
                 <div>
                   <label
                     for="zipCode"
-                    class="block text-sm font-medium text-paynes-gray"
+                    class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                     >cap *</label
                   >
                   <input
@@ -254,25 +254,25 @@
                     type="text"
                     required
                     placeholder="001xx"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp" />
+                    class="filter-input" />
                 </div>
                 <div>
                   <label
                     for="city"
-                    class="block text-sm font-medium text-paynes-gray"
+                    class="block text-[10px] font-bold text-theme-main uppercase mb-1"
                     >città</label
                   >
                   <input
                     id="city"
                     value="Roma"
                     disabled
-                    class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-paynes-gray/80 cursor-not-allowed" />
+                    class="filter-input opacity-60 cursor-not-allowed" />
                 </div>
               </div>
               <button
                 @click="geocodeAddress"
                 :disabled="isLoadingLocation || !isAddressValid"
-                class="w-full mt-2 bg-paynes-gray text-white py-2 px-4 rounded-lg hover:bg-paynes-gray/80 transition disabled:opacity-50">
+                class="btn-sort w-full mt-2 py-2">
                 <i
                   :class="
                     isLoadingLocation ? 'fa-spinner fa-spin' : 'fa-search'
@@ -282,7 +282,7 @@
               </button>
               <p
                 v-if="tempLocation.latitude && !locationError"
-                class="text-sm text-zomp font-semibold mt-2">
+                class="text-[10px] text-accent-color font-bold uppercase mt-2">
                 indirizzo convertito! lat:
                 {{ tempLocation.latitude.toFixed(4) }}, lng:
                 {{ tempLocation.longitude.toFixed(4) }}
@@ -292,21 +292,17 @@
         </section>
       </div>
 
-      <div class="p-6 border-t border-thistle flex justify-between gap-3">
+      <div class="p-6 border-t border-border-color flex justify-between gap-3 bg-theme-secondary">
         <button
           @click="openDeleteModal"
-          class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition border border-transparent hover:border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm font-semibold">
+          class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition border border-transparent hover:border-red-200 font-bold uppercase text-[10px] tracking-wider">
           <i class="fa-solid fa-trash mr-1"></i> elimina libreria
         </button>
         <button
           @click="saveChanges"
           :disabled="isSaving || !form.name"
-          :class="[
-            'px-6 py-2 rounded-lg font-bold shadow transition flex items-center gap-2',
-            isSaving || !form.name
-              ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-              : 'bg-zomp text-white hover:bg-opacity-90',
-          ]">
+          class="btn-modal-confirm px-8 py-2 justify-center text-xs tracking-widest uppercase"
+          :class="isSaving || !form.name ? 'opacity-30 cursor-not-allowed' : ''">
           <span v-if="isSaving">
             <i class="fa-solid fa-circle-notch fa-spin"></i> salvataggio...
           </span>
@@ -321,18 +317,18 @@
       @close="handleModalClose">
       <div
         v-if="deleteStep === 'confirm'"
-        class="flex flex-col items-center text-center space-y-4">
+        class="flex flex-col items-center text-center space-y-4 p-4 text-theme-main">
         <div
-          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
+          class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mb-2">
           <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
 
-        <p class="text-lg font-medium text-paynes-gray">
+        <p class="text-lg font-bold uppercase tracking-tight">
           sei sicuro di voler eliminare la libreria "{{ form.name }}"?
         </p>
 
         <p
-          class="text-sm text-gray-500 bg-red-50 p-3 rounded-lg border border-red-100">
+          class="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-100 dark:border-red-800 uppercase tracking-tighter">
           <i class="fa-solid fa-circle-info mr-1"></i>
           azione <strong>irreversibile</strong>. questa operazione cancellerà
           anche **tutti i libri** al suo interno.
@@ -341,12 +337,12 @@
         <div class="flex gap-3 w-full mt-4">
           <button
             @click="showDeleteModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition">
+            class="flex-1 btn-modal-cancel uppercase text-xs font-bold">
             annulla
           </button>
           <button
             @click="confirmDelete"
-            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition flex justify-center items-center gap-2">
+            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition flex justify-center items-center gap-2 uppercase text-xs">
             <i class="fa-solid fa-trash"></i> elimina definitivamente
           </button>
         </div>
@@ -356,41 +352,41 @@
         v-else-if="deleteStep === 'loading'"
         class="flex flex-col items-center justify-center py-8 space-y-4">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
-        <p class="text-paynes-gray font-medium">eliminazione in corso...</p>
+        <p class="text-theme-main font-bold uppercase text-sm">eliminazione in corso...</p>
       </div>
 
       <div
         v-else-if="deleteStep === 'success'"
-        class="flex flex-col items-center text-center space-y-4">
+        class="flex flex-col items-center text-center space-y-4 p-4">
         <div
-          class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mb-2 animate-bounce">
+          class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-accent-color mb-2 animate-bounce">
           <i class="fa-solid fa-check text-3xl"></i>
         </div>
-        <h3 class="text-xl font-bold text-paynes-gray">libreria eliminata!</h3>
-        <p class="text-sm text-gray-600">
+        <h3 class="text-xl font-bold text-theme-main uppercase">libreria eliminata!</h3>
+        <p class="text-sm text-theme-main opacity-70 italic font-medium">
           l'operazione è andata a buon fine. sarai reindirizzato alla home page.
         </p>
         <button
           @click="handleModalClose"
-          class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
+          class="w-full mt-4 btn-modal-confirm justify-center uppercase font-bold text-xs tracking-widest py-3">
           chiudi e vai alla home
         </button>
       </div>
 
       <div
         v-else-if="deleteStep === 'error'"
-        class="flex flex-col items-center text-center space-y-4">
+        class="flex flex-col items-center text-center space-y-4 p-4 text-theme-main">
         <div
-          class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-2">
+          class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mb-2">
           <i class="fa-solid fa-xmark text-3xl"></i>
         </div>
-        <h3 class="text-xl font-bold text-red-600">qualcosa è andato storto</h3>
-        <p class="text-sm text-gray-600">
+        <h3 class="text-xl font-bold uppercase text-red-600">qualcosa è andato storto</h3>
+        <p class="text-sm opacity-70 uppercase font-bold">
           non è stato possibile eliminare la libreria. riprova.
         </p>
         <button
           @click="showDeleteModal = false"
-          class="w-full mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-bold transition">
+          class="w-full mt-4 btn-modal-cancel uppercase font-bold text-xs py-3">
           chiudi
         </button>
       </div>
@@ -404,7 +400,7 @@ import { useRoute, useRouter } from "vue-router";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { apiClient } from "@/services/apiClient";
-import AppModal from "@/components/AppModal.vue"; // si assume esista
+import AppModal from "@/components/AppModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -413,19 +409,17 @@ const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY;
 const geocodingServiceUrl = "https://api.maptiler.com/geocoding";
 const ROME_CENTER = [12.4963, 41.9029];
 
-// stati dati libreria
 const form = reactive({
   id: "",
   name: "",
   visibility: "all",
-  latitude: null, // latitudine salvata
-  longitude: null, // longitudine salvata
+  latitude: null,
+  longitude: null,
   blurRadius: 0,
 });
 
-// stati per logica di localizzazione temporanea
-const locationMode = ref("map"); // default mappa per la modifica
-const tempLocation = reactive({ latitude: null, longitude: null }); // posizione scelta dall'utente (temporanea)
+const locationMode = ref("map");
+const tempLocation = reactive({ latitude: null, longitude: null });
 const formAddress = reactive({
   streetType: "via",
   streetName: "",
@@ -434,35 +428,28 @@ const formAddress = reactive({
   city: "Roma",
 });
 
-// stati ui
 const isLoading = ref(true);
 const isSaving = ref(false);
 const isLoadingLocation = ref(false);
 const error = ref(null);
 const locationError = ref(null);
 
-// stati per eliminazione modale
 const showDeleteModal = ref(false);
-const deleteStep = ref("confirm"); // 'confirm', 'loading', 'success', 'error'
+const deleteStep = ref("confirm");
 
-// maplibre states
 const map = ref(null);
 const marker = ref(null);
 const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`;
 
-// --- computed properties ---
-
 const displayBlurRadius = computed(() => {
-  // descrive il raggio di offuscamento
   const radius = form.blurRadius;
   if (radius === 0 || radius === null || isNaN(radius))
-    return "posizione esatta (0 metri)";
-  if (radius < 1000) return `offuscamento: ${radius} metri di raggio`;
-  return `offuscamento: ${(radius / 1000).toFixed(1)} km di raggio`;
+    return "esatta (0m)";
+  if (radius < 1000) return `${radius}m di raggio`;
+  return `${(radius / 1000).toFixed(1)} km di raggio`;
 });
 
 const isAddressValid = computed(() => {
-  // verifica se indirizzo è minimo valido per geocodifica
   return formAddress.streetName.length > 0 && formAddress.zipCode.length > 0;
 });
 
@@ -473,7 +460,7 @@ const deleteModalTitle = computed(() => {
     case "loading":
       return "attendere...";
     case "success":
-      return "operazione completata";
+      return "completato";
     case "error":
       return "errore";
     default:
@@ -481,13 +468,10 @@ const deleteModalTitle = computed(() => {
   }
 });
 
-// --- methods ---
-
 function goBack() {
   router.back();
 }
 
-// fetch dati libreria
 async function loadData() {
   isLoading.value = true;
   error.value = null;
@@ -495,8 +479,6 @@ async function loadData() {
 
   try {
     const response = await apiClient.get(`/libraries/${libraryId}`);
-
-    // popola form con i dati esistenti
     form.id = response.id;
     form.name = response.name;
     form.visibility = response.visibility || "all";
@@ -504,24 +486,20 @@ async function loadData() {
     form.longitude = response.longitude;
     form.blurRadius = response.blurRadius || 0;
 
-    // inizializza la posizione temporanea con i dati esistenti (da modificare)
     tempLocation.latitude = form.latitude;
     tempLocation.longitude = form.longitude;
   } catch (e) {
-    error.value = "errore caricamento dati della libreria";
+    error.value = "errore caricamento dati";
     console.error(e);
   } finally {
     isLoading.value = false;
   }
 }
 
-// --- logica mappa ---
 const initMap = async () => {
-  // inizializza la mappa
-  await nextTick(); // aspetta che l'elemento #map sia nel dom e visibile
-
-  if (document.getElementById("map")) {
-    // se l'oggetto mappa esiste già, lo distruggiamo per una re-inizializzazione pulita
+  await nextTick();
+  const mapDiv = document.getElementById("map");
+  if (mapDiv) {
     if (map.value) {
       map.value.remove();
       map.value = null;
@@ -539,7 +517,7 @@ const initMap = async () => {
       zoom: 12,
     });
 
-    marker.value = new maplibregl.Marker({ color: "#495d63" })
+    marker.value = new maplibregl.Marker({ color: "#629677" })
       .setLngLat(initialCenter)
       .addTo(map.value);
 
@@ -552,19 +530,14 @@ const initMap = async () => {
   }
 };
 
-// --- geolocalizzazione browser (gps) ---
 async function getGeolocation() {
   locationError.value = null;
   isLoadingLocation.value = true;
-  tempLocation.latitude = null;
-  tempLocation.longitude = null;
-
   if (!navigator.geolocation) {
-    locationError.value = "geolocalizzazione non supportata dal browser.";
+    locationError.value = "geolocalizzazione non supportata.";
     isLoadingLocation.value = false;
     return;
   }
-
   navigator.geolocation.getCurrentPosition(
     (position) => {
       tempLocation.latitude = position.coords.latitude;
@@ -572,56 +545,37 @@ async function getGeolocation() {
       isLoadingLocation.value = false;
     },
     (e) => {
-      let errorMessage = "errore sconosciuto";
-      if (e.code === e.PERMISSION_DENIED)
-        errorMessage = "permesso negato. abilita la geolocalizzazione.";
-      if (e.code === e.POSITION_UNAVAILABLE)
-        errorMessage = "posizione non disponibile.";
-      locationError.value = errorMessage;
+      locationError.value = "permesso negato o posizione non disponibile.";
       isLoadingLocation.value = false;
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
 }
 
-// --- geocodifica indirizzo ---
 async function geocodeAddress() {
-  // geocodifica l'indirizzo
   locationError.value = null;
   isLoadingLocation.value = true;
-  tempLocation.latitude = null;
-  tempLocation.longitude = null;
-
   if (!isAddressValid.value) {
-    locationError.value = "devi compilare i campi via e cap.";
+    locationError.value = "campi via e cap obbligatori.";
     isLoadingLocation.value = false;
     return;
   }
 
-  const addressPart = `${formAddress.streetType} ${formAddress.streetName} ${
-    formAddress.houseNumber || ""
-  }, ${formAddress.zipCode} ${formAddress.city}`;
-  // limitiamo la ricerca all'area di roma
-  const url = `${geocodingServiceUrl}/${encodeURIComponent(
-    addressPart
-  )}.json?key=${mapTilerApiKey}&limit=1&language=it&country=IT&bbox=12.2,41.7,12.7,42.0`;
+  const addressPart = `${formAddress.streetType} ${formAddress.streetName}, ${formAddress.zipCode} Roma`;
+  const url = `${geocodingServiceUrl}/${encodeURIComponent(addressPart)}.json?key=${mapTilerApiKey}&limit=1&country=IT`;
 
   try {
     const response = await fetch(url);
-    if (!response.ok)
-      throw new Error(`geocodifica fallita: errore http ${response.status}`);
-
     const data = await response.json();
     if (data.features && data.features.length > 0) {
       const [lng, lat] = data.features[0].geometry.coordinates;
       tempLocation.latitude = lat;
       tempLocation.longitude = lng;
     } else {
-      locationError.value =
-        "indirizzo non trovato o non valido nell'area di roma.";
+      locationError.value = "indirizzo non trovato a roma.";
     }
   } catch (e) {
-    locationError.value = `errore api: ${e.message}. riprova.`;
+    locationError.value = "errore nella ricerca indirizzo.";
   } finally {
     isLoadingLocation.value = false;
   }
@@ -631,7 +585,6 @@ async function saveChanges() {
   isSaving.value = true;
   locationError.value = null;
 
-  // gestione geocodifica se in modalità indirizzo
   if (locationMode.value === "address" && !tempLocation.latitude) {
     await geocodeAddress();
     if (locationError.value || !tempLocation.latitude) {
@@ -640,19 +593,16 @@ async function saveChanges() {
     }
   }
 
-  // verifica finale posizione
   if (!tempLocation.latitude || !tempLocation.longitude) {
-    locationError.value = "seleziona una posizione valida prima di salvare.";
+    locationError.value = "seleziona una posizione valida.";
     isSaving.value = false;
     return;
   }
 
-  // determina se la location è stata modificata
   const isLocationChanged =
     tempLocation.latitude != form.latitude ||
     tempLocation.longitude != form.longitude;
 
-  // Crea payload
   const payload = {
     name: form.name,
     visibility: form.visibility,
@@ -666,82 +616,52 @@ async function saveChanges() {
     await apiClient.put(`/libraries/${form.id}`, payload);
     router.push(`/libraries/${form.id}`);
   } catch (e) {
-    error.value = "errore durante il salvataggio della libreria.";
-    console.error(e);
+    error.value = "errore durante il salvataggio.";
   } finally {
     isSaving.value = false;
   }
 }
 
 function openDeleteModal() {
-  // apre la modale di conferma eliminazione
   deleteStep.value = "confirm";
   showDeleteModal.value = true;
 }
 
 async function confirmDelete() {
-  // esegue la cancellazione della libreria
   deleteStep.value = "loading";
-
   try {
-    // chiamata delete /api/libraries/{id}
     await apiClient.delete(`/libraries/${form.id}`);
-
-    // timeout estetico
-    setTimeout(() => {
-      deleteStep.value = "success";
-    }, 800);
+    setTimeout(() => { deleteStep.value = "success"; }, 800);
   } catch (e) {
-    console.error("errore durante l'eliminazione", e);
     deleteStep.value = "error";
   }
 }
 
 function handleModalClose() {
-  // gestisce la chiusura della modale di eliminazione
   showDeleteModal.value = false;
   if (deleteStep.value === "success") {
     router.push("/");
   }
 }
 
-// --- watch e hooks ---
-
-// watch per distruggere e ricreare la mappa quando la modalità cambia
 watch(locationMode, async (newMode, oldMode) => {
   locationError.value = null;
-
-  // 1. clean up quando esce dalla mappa (solo se era in modalità mappa)
   if (oldMode === "map" && map.value) {
     map.value.remove();
     map.value = null;
     marker.value = null;
   }
-
-  // resetta temp location se non si è nella modalità indirizzo
-  if (newMode !== "address") {
-    tempLocation.latitude = form.latitude;
-    tempLocation.longitude = form.longitude;
-  }
-
-  // 2. inizializza la mappa quando si torna in modalità 'map'
   if (newMode === "map") {
-    await nextTick(); // aspetta che il div sia ricostruito in v-else-if
-
-    await initMap(); // inizializza la mappa
-
-    // centra la mappa sulla posizione corrente/temporanea
+    await initMap();
     if (map.value && tempLocation.longitude) {
       map.value.setCenter([tempLocation.longitude, tempLocation.latitude]);
     }
   }
 });
 
-// watch per aggiornare il marker sulla mappa
 watch(
   () => [tempLocation.latitude, tempLocation.longitude],
   ([lat, lng]) => {
-    // sposta il marker sulla mappa
     if (locationMode.value === "map" && marker.value && lat && lng) {
       marker.value.setLngLat([lng, lat]);
     }
@@ -750,7 +670,6 @@ watch(
 
 onMounted(async () => {
   await loadData();
-  // inizializza la mappa all'avvio, se la modalità è 'map' (default)
   if (locationMode.value === "map") {
     await initMap();
   }

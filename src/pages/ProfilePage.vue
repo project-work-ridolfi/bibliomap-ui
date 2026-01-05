@@ -73,7 +73,7 @@
       <section class="md:col-span-3">
         <div v-if="isEditMode && isMyProfile" class="animate-fade-in">
           <h2
-            class="text-xl font-display tracking-widest border-b border-thistle pb-4 mb-8">
+            class="text-2xl font-display tracking-widest border-b border-thistle pb-4 mb-8">
             Impostazioni Account
           </h2>
 
@@ -84,7 +84,7 @@
                   Credenziali
                 </h3>
                 <div>
-                  <label class="block text-[10px] font-bold mb-1 opacity-60"
+                  <label class="block text-[12px] font-bold mb-1 opacity-60"
                     >username</label
                   >
                   <input
@@ -200,7 +200,7 @@
 
               <div class="pt-6 border-t border-thistle space-y-4">
                 <h3
-                  class="font-display text-s text-paynes-gray tracking-widest">
+                  class="font-display text-s text-zomp tracking-widest">
                   Documenti e dati
                 </h3>
                 <div
@@ -222,7 +222,7 @@
                 </div>
                 <button
                   @click="handleExportRequest"
-                  class="w-full text-[10px] font-bold py-2 border-2 border-dashed border-ash-gray rounded-xl hover:bg-ash-gray/10 transition-colors">
+                  class="w-full text-[12px] font-bold py-2 border-2 border-dashed border-ash-gray rounded-xl hover:bg-ash-gray/10 transition-colors">
                   richiedi copia dati
                 </button>
               </div>
@@ -231,19 +231,21 @@
             <div class="space-y-8">
               <div class="space-y-4">
                 <h3 class="font-display text-s text-zomp tracking-widest">
-                  Privacy mappa
+                  Impostazioni privacy
                 </h3>
+                <div  class="block text-[12px] font-bold mb-1 opacity-60"> <span> visibilità profilo: </span>
                 <select
                   v-model="profileForm.visibility"
                   class="input-field font-bold text-[11px]">
                   <option value="all">pubblico</option>
-                  <option value="logged-in">utenti registrati</option>
+                  <option value="logged_in">utenti registrati</option>
                   <option value="private">privato</option>
                 </select>
+                </div>
                 <div>
                   <div
-                    class="flex justify-between text-[10px] font-bold mb-2 text-theme-main">
-                    <span>raggio sfocatura</span
+                    class="block text-[12px] font-bold mb-1 opacity-60">
+                    <span>raggio sfocatura: &nbsp; &nbsp;</span
                     ><span>{{ profileForm.blurRadius }} metri</span>
                   </div>
                   <input
@@ -423,7 +425,7 @@ const isMapVisible = computed(
 const visibilityIta = computed(() => {
   const v = profile.value?.visibility;
   return (
-    { all: "pubblico", "logged-in": "utenti registrati", private: "privato" }[
+    { all: "pubblico", "logged_in": "utenti registrati", private: "privato" }[
       v
     ] || "privato"
   );

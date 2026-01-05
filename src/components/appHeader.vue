@@ -37,12 +37,11 @@
                 <div v-if="isUserMenuOpen" class="user-dropdown">
                   <div class="user-info-header">
                     <span class="username-display uppercase">
-                      CIAO
-                      {{
+                      CIAO {{
                         authStore.user?.username ||
                         authStore.username ||
                         ""
-                      }}!
+                      }}
                     </span>
                   </div>
 

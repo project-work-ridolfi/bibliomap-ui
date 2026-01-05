@@ -80,13 +80,13 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] non si deve poter eliminare un libro che non è in stato available
     - [x] attaccare per la richiesta prestito
     - [x] mappa nella pagina libreria
-- [ ] modifica libreria
-    - [ ] modalità notte da aggiustare
-- [ ] accordion libreria
+- [x] modifica libreria
+    - [x] modalità notte da aggiustare
+- [x] accordion libreria
     - [x] bottone per aprire la pagina anche dall'accordion
-    - [ ] bottone per modificare la libreria
-- [ ] profilo
-    - [ ] cambia visibilità
+    - [x] bottone per modificare la libreria
+- [x] profilo
+    - [x] cambia visibilità
     - [x] da fare completamente pagina profilo che riporta poi a quella che c'e' ora di gestione
     - [x] gestione richieste rivedere non si vedeno bene
 - [ ] dashboard
@@ -133,7 +133,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] fix switch light/dark
 - [x] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
 2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
-- [ ] controlla condizioni
+- [x] controlla condizioni
 - [x] aggiungi icona occhio a libreria che porta a libraries/id
 - [x] aggiungi icona occhio al libro
 - [x] sidebar con tutte le librerie?
