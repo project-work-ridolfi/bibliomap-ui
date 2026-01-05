@@ -53,8 +53,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
   - [x] set location non nella registrazione
   - [x] se vai nella mappa esci e ci torni la mappa e' vuota
 - [x] create library
-    - [ ] torna indietro da set location dovrebbe tornare su set location
-    - [ ] manca un bottone salta se ci si arriva da set location
+    - [x] torna indietro da set location dovrebbe tornare su set location
+    - [x] manca un bottone salta se ci si arriva da set location
 - [x] add book
     - [x] fix css, migliora distanze e togli righe brutte
     - [x] modalita' dark aggiungi libro, tag, note e riquadro per copertina sono bianchi
@@ -66,6 +66,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
     - [x] versione dark da aggiustare i bottoni (forse css global)
     - [x] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
+    - [ ] se clicchi sul libro dalla lista, ci si avvicina alla libreria di cui fa parte sulla mappa finchè non scompare
 - [x] stats
     - [x] dark
     - [x] metriche utilizzo

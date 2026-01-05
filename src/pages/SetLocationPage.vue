@@ -436,7 +436,14 @@ async function saveLocation() {
         blurRadius: form.value.blurRadius,
         visibility: form.value.visibility,
       });
-      router.push("/library");
+      router.push({
+        path: "/library",
+        query: {
+          from: "setup",
+          visibility: form.value.visibility,
+          returnTo: "/set-location",
+        },
+      });
     } catch (e) {
       locationError.value = "Errore nel salvataggio della posizione.";
     }
@@ -444,6 +451,14 @@ async function saveLocation() {
 }
 
 function skipAndContinue() {
-  router.push({ path: "/library", query: { locationSkipped: true } });
+  // passiamo returnTo anche nel caso in cui la posizione venga saltata
+  router.push({ 
+    path: "/library", 
+    query: { 
+      from: "setup",
+      locationSkipped: true,
+      returnTo: "/set-location"
+    } 
+  })
 }
 </script>

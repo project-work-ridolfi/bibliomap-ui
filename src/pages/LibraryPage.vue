@@ -1,23 +1,23 @@
 <template>
   <div
-    class="max-w-xl mx-auto p-8 bg-white shadow-xl rounded-2xl border-2 border-thistle space-y-6 relative">
+    class="max-w-xl mx-auto p-8 bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle space-y-6 relative">
     <button
       @click="handleBack"
-      class="absolute top-4 left-4 text-paynes-gray hover:text-zomp transition-colors flex items-center gap-2 font-bold text-xs">
+      class="absolute top-4 left-4 text-theme-main hover:text-zomp transition-colors flex items-center gap-2 font-bold text-xs uppercase">
       <i class="fa-solid fa-arrow-left"></i> torna indietro
     </button>
 
     <div v-if="isFirstLibrary" class="space-y-4 text-center pt-4">
-      <h1 class="text-3xl font-display text-paynes-gray">
+      <h1 class="text-3xl font-display text-theme-main uppercase">
         Crea la tua prima libreria
       </h1>
-      <p class="text-paynes-gray">
+      <p class="text-theme-main opacity-70 text-sm">
         una libreria in bibliomap rappresenta una collezione fisica di libri in
         un luogo specifico.
       </p>
     </div>
     <div v-else class="text-center pt-4">
-      <h1 class="text-3xl font-display text-paynes-gray">
+      <h1 class="text-3xl font-display text-theme-main uppercase">
         Aggiungi una Nuova Libreria
       </h1>
     </div>
@@ -28,7 +28,7 @@
       <div>
         <label
           for="libraryName"
-          class="block text-sm font-medium text-paynes-gray"
+          class="block text-xs font-bold uppercase mb-1 text-theme-main"
           >nome libreria *</label
         >
         <input
@@ -37,14 +37,14 @@
           type="text"
           required
           placeholder="es. scaffale in salotto"
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp outline-none" />
+          class="filter-input" />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-paynes-gray"
+        <label class="block text-xs font-bold uppercase mb-1 text-theme-main"
           >posizione</label
         >
-        <p class="text-xs text-paynes-gray/70 mb-2">
+        <p class="text-[10px] text-theme-main opacity-60 mb-2 uppercase font-bold">
           dove si trovano fisicamente questi libri?
         </p>
         <div class="grid grid-cols-2 gap-4">
@@ -52,47 +52,45 @@
             @click="form.location = 'user_default'"
             :class="
               form.location === 'user_default'
-                ? 'bg-zomp text-white'
-                : 'bg-tea-rose-red/20'
+                ? 'bg-zomp text-white border-zomp'
+                : 'bg-theme-primary text-theme-main border-thistle'
             "
             :disabled="userHasSkippedLocation"
-            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle disabled:opacity-50 disabled:cursor-not-allowed">
+            class="p-4 rounded-xl shadow-md transition duration-150 font-bold border-2 disabled:opacity-30 uppercase text-[10px]">
             usa la mia posizione
           </button>
           <button
             @click="form.location = 'new_location'"
             :class="
               form.location === 'new_location'
-                ? 'bg-zomp text-white'
-                : 'bg-tea-rose-red/20'
+                ? 'bg-zomp text-white border-zomp'
+                : 'bg-theme-primary text-theme-main border-thistle'
             "
-            class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2 border-thistle">
+            class="p-4 rounded-xl shadow-md transition duration-150 font-bold border-2 uppercase text-[10px]">
             nuova posizione
           </button>
         </div>
 
         <div
           v-if="form.location === 'new_location'"
-          class="mt-4 space-y-4 p-4 border rounded-xl border-thistle bg-[var(--bg-secondary)] animate-fade-in">
+          class="mt-4 space-y-4 p-4 border rounded-xl border-thistle bg-theme-secondary custom-fade-in">
           <div class="grid grid-cols-3 gap-2">
             <button
               @click="libLocMode = 'geo'"
-              :class="libLocMode === 'geo' ? 'bg-zomp text-white' : 'bg-white'"
-              class="p-2 border rounded-lg text-xs font-bold transition">
+              :class="libLocMode === 'geo' ? 'bg-zomp text-white border-zomp' : 'bg-theme-primary border-thistle'"
+              class="p-2 border rounded-lg text-[10px] font-bold uppercase transition">
               browser
             </button>
             <button
               @click="libLocMode = 'map'"
-              :class="libLocMode === 'map' ? 'bg-zomp text-white' : 'bg-white'"
-              class="p-2 border rounded-lg text-xs font-bold transition">
+              :class="libLocMode === 'map' ? 'bg-zomp text-white border-zomp' : 'bg-theme-primary border-thistle'"
+              class="p-2 border rounded-lg text-[10px] font-bold uppercase transition">
               mappa
             </button>
             <button
               @click="libLocMode = 'address'"
-              :class="
-                libLocMode === 'address' ? 'bg-zomp text-white' : 'bg-white'
-              "
-              class="p-2 border rounded-lg text-xs font-bold transition">
+              :class="libLocMode === 'address' ? 'bg-zomp text-white border-zomp' : 'bg-theme-primary border-thistle'"
+              class="p-2 border rounded-lg text-[10px] font-bold uppercase transition">
               indirizzo
             </button>
           </div>
@@ -102,25 +100,25 @@
               v-model="form.streetName"
               type="text"
               placeholder="nome della via"
-              class="w-full px-3 py-1 text-sm border rounded-lg outline-none" />
+              class="filter-input text-sm" />
             <div class="flex gap-2">
               <input
                 v-model="form.zipCode"
                 type="text"
                 placeholder="cap"
-                class="w-1/2 px-3 py-1 text-sm border rounded-lg outline-none" />
+                class="filter-input text-sm w-1/2" />
               <input
                 value="Roma"
                 disabled
-                class="w-1/2 px-3 py-1 text-sm border rounded-lg bg-gray-50 opacity-60" />
+                class="filter-input text-sm w-1/2 bg-theme-primary opacity-50 cursor-not-allowed" />
             </div>
           </div>
 
           <div v-else-if="libLocMode === 'map'" class="space-y-2">
             <div
               id="map-lib-container"
-              class="h-48 w-full rounded-lg border border-thistle">
-              <div id="map-lib" class="h-full w-full rounded-lg"></div>
+              class="h-48 w-full rounded-lg border-2 border-thistle overflow-hidden">
+              <div id="map-lib" class="h-full w-full"></div>
             </div>
           </div>
 
@@ -128,7 +126,7 @@
             <button
               @click="getLibGeolocation"
               :disabled="isLoadingLoc"
-              class="text-xs bg-paynes-gray text-white px-4 py-2 rounded-lg">
+              class="btn-sort inline-flex py-2 px-4 text-[10px]">
               <i
                 v-if="isLoadingLoc"
                 class="fa-solid fa-spinner fa-spin mr-2"></i>
@@ -136,7 +134,7 @@
             </button>
             <p
               v-if="form.latitude"
-              class="text-[10px] text-zomp font-bold animate-fade-in">
+              class="text-[10px] text-zomp font-bold uppercase">
               posizione ottenuta: {{ form.latitude.toFixed(4) }},
               {{ form.longitude.toFixed(4) }}
             </p>
@@ -144,14 +142,14 @@
 
           <p
             v-if="form.latitude"
-            class="text-center text-[10px] text-zomp font-bold">
+            class="text-center text-[10px] text-zomp font-bold uppercase">
             posizione libreria impostata!
           </p>
         </div>
 
         <p
           v-if="userHasSkippedLocation && form.location === 'user_default'"
-          class="text-xs text-red-700 font-semibold mt-2 text-center">
+          class="text-xs text-red-500 font-bold mt-2 text-center uppercase">
           devi specificare una nuova posizione per la libreria.
         </p>
       </div>
@@ -159,13 +157,13 @@
       <div>
         <label
           for="visibility"
-          class="block text-sm font-medium mb-1 text-paynes-gray"
+          class="block text-xs font-bold uppercase mb-1 text-theme-main"
           >visibilità libreria</label
         >
         <select
           v-model="form.visibility"
           id="visibility"
-          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-zomp focus:border-zomp outline-none">
+          class="filter-input">
           <option value="all">tutti</option>
           <option value="logged_in">solo gli utenti loggati</option>
           <option value="private">nessuno (solo io)</option>
@@ -175,7 +173,7 @@
 
     <p
       v-if="errorMessage"
-      class="text-sm text-red-700 font-medium mt-2 text-center">
+      class="text-xs text-red-500 font-bold mt-2 text-center uppercase">
       {{ errorMessage }}
     </p>
 
@@ -183,22 +181,22 @@
       <button
         v-if="isFirstLibrary"
         @click="skip"
-        class="w-1/2 bg-thistle text-paynes-gray py-3 rounded-lg hover:bg-ash-gray transition duration-150 font-bold text-lg">
+        class="w-1/2 btn-modal-cancel py-3 text-lg uppercase">
         salta
       </button>
       <button
         @click="createLibrary"
         :disabled="!isFormValid"
         :class="isFirstLibrary ? 'w-1/2' : 'w-full'"
-        class="bg-zomp text-white py-3 rounded-lg hover:bg-paynes-gray transition duration-150 disabled:opacity-50 font-bold text-lg">
-        {{ isFirstLibrary ? "crea e aggiungi libri" : "crea libreria" }}
+        class="btn-modal-confirm py-3 text-lg uppercase justify-center">
+        {{ isFirstLibrary ? "continua" : "crea libreria" }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from "vue";
+import { ref, computed, onMounted, nextTick, watch, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { apiClient } from "@/services/apiClient";
 import { useAuthStore } from "@/stores/authStore";
@@ -212,7 +210,12 @@ const isFirstLibrary = computed(() => route.query.from === "setup");
 const userHasSkippedLocation = computed(
   () => route.query.locationSkipped === "true"
 );
-const returnTo = computed(() => route.query.returnTo || "/");
+
+// se arriviamo da setup, il tasto indietro torna a set-location
+const returnTo = computed(() => {
+  if (isFirstLibrary.value) return "/set-location";
+  return route.query.returnTo || "/";
+});
 
 const libLocMode = ref("geo");
 const isLoadingLoc = ref(false);
@@ -252,11 +255,8 @@ const initLibMap = async () => {
   if (!container) return;
 
   if (map.value) {
-    // resize per contenitore precedentemente nascosto
-    setTimeout(() => {
-      map.value.resize();
-    }, 100);
-    return;
+    map.value.remove();
+    map.value = null;
   }
 
   const mapTilerKey = import.meta.env.VITE_MAPTILER_KEY;
@@ -276,9 +276,10 @@ const initLibMap = async () => {
     form.value.longitude = e.lngLat.lng;
     marker.value.setLngLat([e.lngLat.lng, e.lngLat.lat]);
   });
+  
+  map.value.on('load', () => { map.value.resize(); });
 };
 
-// watcher per inizializzazione mappa
 watch(
   [libLocMode, () => form.value.location],
   async ([newMode, newLoc]) => {
@@ -305,27 +306,19 @@ const getLibGeolocation = () => {
 
 const createLibrary = async () => {
   errorMessage.value = null;
-  if (
-    form.value.location === "new_location" &&
-    libLocMode.value === "address" &&
-    !form.value.latitude
-  ) {
+  
+  // geocodifica se indirizzo
+  if (form.value.location === "new_location" && libLocMode.value === "address" && !form.value.latitude) {
     const mapTilerKey = import.meta.env.VITE_MAPTILER_KEY;
     const addr = `Via ${form.value.streetName}, ${form.value.zipCode} Roma`;
     try {
-      const res = await fetch(
-        `https://api.maptiler.com/geocoding/${encodeURIComponent(
-          addr
-        )}.json?key=${mapTilerKey}`
-      );
+      const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(addr)}.json?key=${mapTilerKey}`);
       const data = await res.json();
       if (data.features?.length) {
         form.value.latitude = data.features[0].geometry.coordinates[1];
         form.value.longitude = data.features[0].geometry.coordinates[0];
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   }
 
   const payload = {
@@ -338,7 +331,6 @@ const createLibrary = async () => {
 
   try {
     const response = await apiClient.post("/libraries", payload);
-    // propagazione ritorno alla pagina successiva
     router.push({
       path: "/add-book",
       query: {
@@ -348,12 +340,11 @@ const createLibrary = async () => {
       },
     });
   } catch (error) {
-    errorMessage.value =
-      error.body?.message || "errore durante la creazione della libreria";
+    errorMessage.value = error.body?.message || "errore durante la creazione della libreria";
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   if (isFirstLibrary.value) {
     form.value.name = "la mia prima libreria";
     const initialVisibility = route.query.visibility;
@@ -363,23 +354,7 @@ onMounted(async () => {
   }
 });
 
-const skip = () => {
-  router.push("/");
-};
-</script>
+onUnmounted(() => { if (map.value) map.value.remove(); });
 
-<style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>
+const skip = () => { router.push("/"); };
+</script>
