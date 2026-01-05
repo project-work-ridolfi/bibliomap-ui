@@ -75,7 +75,7 @@
             class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
-              libri più visitati
+              libri più visti
             </p>
             <div class="space-y-3">
               <div

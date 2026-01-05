@@ -15,7 +15,7 @@
       <i
         class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-zomp"
         aria-hidden="true"></i>
-      <p>recupero dettagli libro...</p>
+      <p class="uppercase font-bold text-xs tracking-widest">recupero dettagli libro...</p>
     </div>
 
     <div
@@ -34,12 +34,12 @@
 
     <article
       v-else-if="book"
-      class="bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle overflow-hidden transition-colors duration-300">
+      class="bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle overflow-hidden transition-colors duration-300 custom-fade-in">
       <div class="md:grid md:grid-cols-3">
         <section
-          class="bg-[var(--bg-secondary)] p-6 md:col-span-1 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-thistle">
+          class="bg-theme-secondary p-6 md:col-span-1 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-thistle">
           <div
-            class="relative w-48 h-72 shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-[var(--border-color)]">
+            class="relative w-48 h-72 shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-border-color">
             <img
               v-if="displayCover"
               :src="displayCover"
@@ -58,7 +58,7 @@
           <div class="mt-6">
             <span
               :class="statusBadgeClass"
-              class="px-4 py-2 rounded-full text-sm font-bold shadow-sm border">
+              class="px-4 py-2 rounded-full text-xs font-bold shadow-sm border uppercase tracking-wider">
               {{ statusLabel }}
             </span>
           </div>
@@ -67,98 +67,87 @@
         <section
           class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
           <header>
-            <h1 class="text-3xl font-display text-theme-main mb-1">
+            <h1 class="text-3xl font-display text-theme-main mb-1 uppercase tracking-tight">
               {{ book.title }}
             </h1>
-            <h2 class="text-xl text-theme-main opacity-80 font-medium">
+            <h2 class="text-xl text-theme-main opacity-80 font-medium italic">
               di {{ book.author }}
             </h2>
           </header>
 
           <div class="space-y-3">
             <h3
-              class="text-sm font-bold tracking-wider text-theme-main opacity-60 border-b border-thistle pb-1">
+              class="text-[10px] font-bold tracking-widest text-theme-main opacity-60 border-b border-thistle pb-1 uppercase">
               Dettagli Edizione
             </h3>
 
             <dl class="text-theme-main space-y-2 text-sm">
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70">
-                  <i
-                    class="fa-solid fa-calendar-days w-5 text-zomp mr-1"
-                    aria-hidden="true"></i>
+                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  <i class="fa-solid fa-calendar-days w-5 text-zomp mr-1"></i>
                   Anno:
                 </dt>
                 <dd>
-                  <strong>{{ book.publicationYear || "N/D" }}</strong>
+                  <strong class="text-xs">{{ book.publicationYear || "N/D" }}</strong>
                 </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70">
-                  <i
-                    class="fa-solid fa-building w-5 text-zomp mr-1"
-                    aria-hidden="true"></i>
+                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  <i class="fa-solid fa-building w-5 text-zomp mr-1"></i>
                   Editore:
                 </dt>
                 <dd>
-                  <strong>{{ book.publisher || "N/D" }}</strong>
+                  <strong class="text-xs">{{ book.publisher || "N/D" }}</strong>
                 </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70">
-                  <i
-                    class="fa-solid fa-language w-5 text-zomp mr-1"
-                    aria-hidden="true"></i>
+                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  <i class="fa-solid fa-language w-5 text-zomp mr-1"></i>
                   Lingua:
                 </dt>
                 <dd>
-                  <strong>{{ book.language || "Italiano" }}</strong>
+                  <strong class="text-xs">{{ book.language || "Italiano" }}</strong>
                 </dd>
               </div>
             </dl>
 
             <h3
-              class="text-sm font-bold tracking-wider text-theme-main opacity-60 border-b border-thistle pb-1 mt-4">
+              class="text-[10px] font-bold tracking-widest text-theme-main opacity-60 border-b border-thistle pb-1 mt-4 uppercase">
               Info Copia
             </h3>
             <dl class="text-theme-main space-y-2 text-sm">
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70">
-                  <i
-                    class="fa-solid fa-location-dot w-5 text-zomp mr-1"
-                    aria-hidden="true"></i>
+                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  <i class="fa-solid fa-location-dot w-5 text-zomp mr-1"></i>
                   Libreria:
                 </dt>
                 <dd>
                   <router-link
                     :to="`/libraries/${book.libraryId}`"
-                    class="font-bold text-theme-main hover:text-zomp underline decoration-2 underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-zomp rounded px-1 -ml-1"
-                    :aria-label="`Vai alla libreria ${book.libraryName}`">
+                    class="font-bold text-xs text-theme-main hover:text-zomp underline decoration-2 underline-offset-2 transition-colors">
                     {{ book.libraryName }}
                   </router-link>
                 </dd>
               </div>
 
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70">
-                  <i
-                    class="fa-solid fa-heart-pulse w-5 text-zomp mr-1"
-                    aria-hidden="true"></i>
+                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  <i class="fa-solid fa-heart-pulse w-5 text-zomp mr-1"></i>
                   Condizioni:
                 </dt>
                 <dd>
-                  <strong>{{ book.condition }}</strong>
+                  <strong class="text-xs">{{ mappedCondition }}</strong>
                 </dd>
               </div>
             </dl>
           </div>
 
           <div v-if="book.tags && book.tags.length > 0">
-            <div class="flex flex-wrap gap-2 mt-2" aria-label="Tag del libro">
+            <div class="flex flex-wrap gap-2 mt-2">
               <span
                 v-for="tag in book.tags"
                 :key="tag"
-                class="px-3 py-1 bg-ash-gray/30 text-theme-main text-xs rounded-full border border-thistle/50">
+                class="px-3 py-1 bg-zomp/10 text-accent-color text-[10px] font-bold uppercase rounded-full border border-accent-color/20">
                 #{{ tag }}
               </span>
             </div>
@@ -166,46 +155,35 @@
 
           <div
             v-if="book.ownerNotes"
-            class="relative bg-yellow-50 dark:bg-yellow-900/10 p-6 rounded-xl border border-yellow-100 dark:border-yellow-900/30 text-sm text-theme-main italic mt-2">
-            <i
-              class="fa-solid fa-quote-left absolute top-2 left-2 text-yellow-400 text-xl opacity-80"
-              aria-hidden="true"></i>
+            class="relative bg-theme-secondary p-6 rounded-xl border border-thistle text-sm text-theme-main italic mt-2">
+            <i class="fa-solid fa-quote-left absolute top-2 left-2 text-zomp text-xl opacity-40"></i>
             <p class="px-4 py-1 text-center">
               {{ book.ownerNotes }}
             </p>
-            <i
-              class="fa-solid fa-quote-right absolute bottom-2 right-2 text-yellow-400 text-xl opacity-80"
-              aria-hidden="true"></i>
+            <i class="fa-solid fa-quote-right absolute bottom-2 right-2 text-zomp text-xl opacity-40"></i>
           </div>
 
           <div class="pt-4 border-t border-thistle flex justify-end">
             <div v-if="isOwner" class="flex space-x-3">
               <button
                 @click="router.push(`/books/${book.id}/edit`)"
-                aria-label="modifica dettagli libro"
                 title="Modifica"
-                class="p-3 text-theme-main hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
-                <i
-                  class="fa-solid fa-pen-to-square text-lg"
-                  aria-hidden="true"></i>
+                class="btn-pagination w-10 h-10">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
               </button>
 
               <button
                 @click="openMoveModal"
-                aria-label="sposta in altra libreria"
-                title="Sposta in altra libreria"
-                class="p-3 text-theme-main hover:bg-ash-gray/20 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-zomp">
-                <i
-                  class="fa-solid fa-right-left text-lg"
-                  aria-hidden="true"></i>
+                title="Sposta"
+                class="btn-pagination w-10 h-10">
+                <i class="fa-solid fa-right-left text-lg"></i>
               </button>
 
               <button
                 @click="openDeleteModal"
-                aria-label="elimina libro definitivamente"
                 title="Elimina"
-                class="p-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition border border-transparent hover:border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <i class="fa-solid fa-trash text-lg" aria-hidden="true"></i>
+                class="btn-pagination w-10 h-10 hover:bg-red-500 !text-red-500 hover:!text-white">
+                <i class="fa-solid fa-trash text-lg"></i>
               </button>
             </div>
 
@@ -213,17 +191,14 @@
               <button
                 v-if="book.status === 'available'"
                 @click="openLoanConfirmModal"
-                class="bg-zomp text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-opacity-90 transition transform hover:-translate-y-0.5 flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zomp">
-                <i
-                  class="fa-solid fa-hand-holding-heart mr-2"
-                  aria-hidden="true"></i>
+                class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest">
+                <i class="fa-solid fa-hand-holding-heart mr-2"></i>
                 Chiedi in Prestito
               </button>
               <button
                 v-else
                 disabled
-                aria-disabled="true"
-                class="bg-ash-gray text-white px-6 py-3 rounded-xl font-bold cursor-not-allowed opacity-70">
+                class="px-8 py-3 bg-theme-secondary text-theme-main border border-border-color rounded-xl font-bold cursor-not-allowed opacity-40 uppercase text-xs tracking-widest">
                 Non Disponibile
               </button>
             </div>
@@ -232,171 +207,62 @@
       </div>
     </article>
 
-    <AppModal
-      :isOpen="showMoveModal"
-      title="Sposta Copia"
-      @close="showMoveModal = false">
+    <AppModal :isOpen="showMoveModal" title="Sposta Copia" @close="showMoveModal = false">
       <div class="space-y-4 max-w-full text-theme-main">
-        <p class="text-xs font-bold tracking-widest opacity-60">
+        <p class="text-[10px] font-bold tracking-widest opacity-60 uppercase">
           Seleziona destinazione:
         </p>
         <div v-if="isFetchingLibraries" class="text-center py-6">
           <i class="fa-solid fa-circle-notch fa-spin text-zomp text-xl"></i>
         </div>
-        <div
-          v-else
-          class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+        <div v-else class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
           <button
             v-for="lib in userLibraries"
             :key="lib.id"
             @click="confirmMove(lib.id)"
             :disabled="lib.id === book.libraryId"
             class="w-full text-left p-3 rounded-xl border-2 transition-all duration-200 flex justify-between items-center group"
-            :class="
-              lib.id === book.libraryId
-                ? 'border-gray-100 dark:border-gray-800 bg-[var(--bg-secondary)] opacity-60 cursor-not-allowed'
-                : 'border-thistle hover:border-zomp hover:bg-zomp/5 active:scale-[0.98] bg-theme-primary'
-            ">
-            <span
-              class="font-bold text-sm truncate pr-2"
-              :class="
-                lib.id === book.libraryId
-                  ? 'opacity-50'
-                  : 'group-hover:text-zomp'
-              ">
-              {{ lib.name }}
-            </span>
-            <div
-              v-if="lib.id === book.libraryId"
-              class="shrink-0 flex items-center gap-1.5 text-[9px] font-black text-zomp bg-zomp/10 px-2 py-1 rounded-md">
-              <i class="fa-solid fa-location-dot"></i> Qui
-            </div>
-            <div
-              v-else
-              class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <i class="fa-solid fa-chevron-right text-zomp text-xs"></i>
-            </div>
-          </button>
-        </div>
-        <div class="pt-2">
-          <button
-            @click="showMoveModal = false"
-            class="w-full py-2 text-xs font-bold opacity-60 hover:text-red-500 transition-colors tracking-widest">
-            Annulla
+            :class="lib.id === book.libraryId ? 'opacity-40 cursor-not-allowed border-border-color' : 'border-border-color hover:border-accent-color bg-theme-primary'">
+            <span class="font-bold text-xs uppercase tracking-tight truncate pr-2">{{ lib.name }}</span>
+            <div v-if="lib.id === book.libraryId" class="shrink-0 text-[9px] font-black text-zomp bg-zomp/10 px-2 py-1 rounded-md uppercase">Qui</div>
           </button>
         </div>
       </div>
     </AppModal>
 
-    <AppModal
-      :isOpen="showDeleteModal"
-      :title="deleteModalTitle"
-      @close="handleModalClose">
-      <div
-        v-if="deleteStep === 'confirm'"
-        class="flex flex-col items-center text-center space-y-4 text-theme-main">
-        <div
-          class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mb-2">
+    <AppModal :isOpen="showDeleteModal" :title="deleteModalTitle" @close="handleModalClose">
+       <div v-if="deleteStep === 'confirm'" class="flex flex-col items-center text-center space-y-4 text-theme-main">
+        <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mb-2">
           <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
-        <p class="text-lg font-medium">{{ deleteUI.message }}</p>
-        <p
-          class="text-sm opacity-70 bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border-color)]">
-          <i class="fa-solid fa-circle-info mr-1"></i>
-          Questa azione è <strong>irreversibile</strong>.
-        </p>
+        <p class="text-sm font-bold uppercase tracking-tight">{{ deleteUI.message }}</p>
         <div class="flex gap-3 w-full mt-4">
-          <button
-            @click="showDeleteModal = false"
-            class="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] font-bold transition">
-            Annulla
-          </button>
-          <button
-            @click="confirmDelete"
-            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition flex justify-center items-center gap-2">
-            <i class="fa-solid fa-trash"></i> {{ deleteUI.confirmBtn }}
-          </button>
+          <button @click="showDeleteModal = false" class="btn-modal-cancel flex-1 uppercase text-xs">Annulla</button>
+          <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold uppercase text-xs">Elimina</button>
         </div>
       </div>
-
-      <div
-        v-else-if="deleteStep === 'loading'"
-        class="flex flex-col items-center justify-center py-8 space-y-4">
-        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
-        <p class="text-theme-main font-medium">Eliminazione in corso...</p>
+      <div v-else-if="deleteStep === 'loading'" class="text-center py-8">
+         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
       </div>
-
-      <div
-        v-else-if="deleteStep === 'success'"
-        class="flex flex-col items-center text-center space-y-4">
-        <div
-          class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mb-2 animate-bounce">
-          <i class="fa-solid fa-check text-3xl"></i>
-        </div>
-        <h3 class="text-xl font-bold text-theme-main">
-          Operazione completata!
-        </h3>
-        <p class="text-sm text-theme-main opacity-70">
-          {{ deleteUI.successMsg }}
-        </p>
-        <button
-          @click="handleModalClose"
-          class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
-          Chiudi e vai alla Home
-        </button>
+      <div v-else-if="deleteStep === 'success'" class="text-center space-y-4">
+          <i class="fa-solid fa-check text-4xl text-accent-color"></i>
+          <p class="uppercase font-bold text-xs tracking-widest">Eliminato!</p>
+          <button @click="handleModalClose" class="btn-modal-confirm w-full justify-center text-xs uppercase">Chiudi</button>
       </div>
     </AppModal>
 
-    <AppModal
-      :isOpen="isLoanConfirmModalOpen"
-      title="Richiesta di Prestito"
-      @close="isLoanConfirmModalOpen = false">
+    <AppModal :isOpen="isLoanConfirmModalOpen" title="Richiesta di Prestito" @close="isLoanConfirmModalOpen = false">
       <div v-if="book" class="space-y-4 text-theme-main">
-        <div
-          class="p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg">
-          <p class="font-bold text-base">{{ book.title }}</p>
-          <p class="text-xs italic opacity-80">di {{ book.author }}</p>
-          <p class="text-xs mt-2">
-            Proprietario:
-            <span class="font-semibold">{{ book.ownerName }}</span>
-          </p>
+        <div class="p-4 bg-theme-secondary border border-border-color rounded-xl">
+          <p class="font-bold text-sm uppercase tracking-tight">{{ book.title }}</p>
+          <p class="text-[10px] italic opacity-70">di {{ book.author }}</p>
+          <p class="text-[10px] mt-2 uppercase font-bold">Proprietario: {{ book.ownerName }}</p>
         </div>
-        <p class="text-xs font-semibold text-red-500">
-          Il proprietario riceverà una notifica e dovrà approvare lo scambio.
-        </p>
-        <div class="flex justify-end gap-3 pt-2">
-          <button
-            @click="isLoanConfirmModalOpen = false"
-            class="px-4 py-2 rounded-lg transition text-sm font-bold border border-[var(--border-color)] hover:bg-[var(--bg-secondary)]">
-            Annulla
-          </button>
-          <button
-            @click="confirmLoanRequest"
-            :disabled="isSendingLoan"
-            class="bg-zomp text-white px-4 py-2 rounded-lg hover:bg-[var(--paynes-gray)] transition text-sm font-bold disabled:opacity-50 flex items-center gap-2">
-            <i
-              v-if="isSendingLoan"
-              class="fa-solid fa-circle-notch fa-spin"></i>
-            {{ isSendingLoan ? "Invio..." : "Conferma Richiesta" }}
-          </button>
-        </div>
-      </div>
-    </AppModal>
-
-    <AppModal
-      :isOpen="isLoanResultModalOpen"
-      :title="loanResultTitle"
-      @close="isLoanResultModalOpen = false">
-      <div class="space-y-4 text-theme-main">
-        <div v-if="loanResultIcon" class="flex justify-center text-4xl">
-          <i class="fa-solid" :class="loanResultIcon"></i>
-        </div>
-        <p class="text-sm text-center">{{ loanResultMessage }}</p>
-        <div class="flex justify-center pt-2">
-          <button
-            @click="isLoanResultModalOpen = false"
-            class="bg-[var(--paynes-gray)] text-white px-4 py-2 rounded-lg hover:bg-zomp transition text-sm font-bold">
-            OK
+        <p class="text-[10px] font-bold text-red-500 uppercase italic">Il proprietario riceverà una notifica per approvare.</p>
+        <div class="flex gap-3 pt-2">
+          <button @click="isLoanConfirmModalOpen = false" class="btn-modal-cancel flex-1 uppercase text-xs font-bold">Annulla</button>
+          <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="btn-modal-confirm flex-1 justify-center text-xs uppercase tracking-widest font-bold">
+            <i v-if="isSendingLoan" class="fa-solid fa-circle-notch fa-spin"></i> {{ isSendingLoan ? 'Invio...' : 'Conferma' }}
           </button>
         </div>
       </div>
@@ -411,32 +277,34 @@ import { useAuthStore } from "@/stores/authStore";
 import { apiClient } from "@/services/apiClient";
 import AppModal from "@/components/AppModal.vue";
 import { deleteConfig, executeDeletion } from "@/utils/helpers";
+import { CONDITIONS } from "@/utils/constants.js";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
-// states
 const book = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
 
-// delete states
-const showDeleteModal = ref(false);
-const deleteStep = ref("confirm");
-const deleteUI = reactive({
-  title: "",
-  message: "",
-  confirmBtn: "",
-  successMsg: "",
+// MAPPING CONDIZIONE
+const mappedCondition = computed(() => {
+  if (!book.value || !book.value.condition) return "N/D";
+  
+  // Cerchiamo il match ignorando maiuscole/minuscole
+  const found = CONDITIONS.find(
+    (c) => c.value.toLowerCase() === book.value.condition.toLowerCase()
+  );
+  
+  return found ? found.label : book.value.condition;
 });
 
-// move states
+const showDeleteModal = ref(false);
+const deleteStep = ref("confirm");
+const deleteUI = reactive({ title: "", message: "", confirmBtn: "", successMsg: "" });
 const showMoveModal = ref(false);
 const userLibraries = ref([]);
 const isFetchingLibraries = ref(false);
-
-// loan states
 const isLoanConfirmModalOpen = ref(false);
 const isLoanResultModalOpen = ref(false);
 const isSendingLoan = ref(false);
@@ -445,15 +313,22 @@ const loanResultMessage = ref("");
 const loanResultIcon = ref(null);
 
 const isOwner = computed(() => book.value?.ownerId === authStore.userId);
-const displayCover = computed(
-  () => book.value?.customCover || book.value?.coverUrl
-);
+
+const displayCover = computed(() => {
+  if (!book.value) return null;
+  if (book.value.customCover) {
+     return book.value.customCover.startsWith("data:") 
+      ? book.value.customCover 
+      : `data:image/jpeg;base64,${book.value.customCover}`;
+  }
+  return book.value.coverUrl;
+});
 
 const statusBadgeClass = computed(() => {
   if (!book.value) return "";
   return book.value.status === "available"
     ? "bg-zomp text-white border-zomp"
-    : "bg-tea-rose-red/20 text-paynes-gray border-thistle";
+    : "bg-theme-secondary text-theme-main border-border-color opacity-70";
 });
 
 const statusLabel = computed(() =>
@@ -462,22 +337,15 @@ const statusLabel = computed(() =>
 
 const deleteModalTitle = computed(() => {
   switch (deleteStep.value) {
-    case "confirm":
-      return deleteUI.title;
-    case "loading":
-      return "Attendere...";
-    case "success":
-      return "Operazione Completata";
-    case "error":
-      return "Errore";
-    default:
-      return "";
+    case "confirm": return deleteUI.title;
+    case "loading": return "Attendere...";
+    case "success": return "Operazione Completata";
+    case "error": return "Errore";
+    default: return "";
   }
 });
 
-function goBack() {
-  router.back();
-}
+function goBack() { router.back(); }
 
 async function fetchBookDetails() {
   isLoading.value = true;
@@ -505,9 +373,7 @@ async function openMoveModal() {
 
 async function confirmMove(newLibraryId) {
   try {
-    await apiClient.patch(`/copies/${book.value.id}/move`, {
-      libraryId: newLibraryId,
-    });
+    await apiClient.patch(`/books/copies/${book.value.id}/move`, { libraryId: newLibraryId });
     showMoveModal.value = false;
     await fetchBookDetails();
   } catch (e) {
@@ -553,9 +419,7 @@ async function confirmDelete() {
   deleteStep.value = "loading";
   const res = await executeDeletion("book", book.value.id);
   if (res.success) {
-    setTimeout(() => {
-      deleteStep.value = "success";
-    }, 800);
+    setTimeout(() => { deleteStep.value = "success"; }, 800);
   } else {
     deleteStep.value = "error";
   }
@@ -568,4 +432,3 @@ function handleModalClose() {
 
 onMounted(fetchBookDetails);
 </script>
-
