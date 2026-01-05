@@ -469,8 +469,9 @@
 import { ref, onMounted, computed, reactive } from "vue";
 import { apiClient } from "@/services/apiClient";
 import AppModal from "@/components/appModal.vue";
-import { deleteConfig, executeDeletion } from "@/utils/helpers";
 import { useRouter } from "vue-router";
+import { CONDITIONS } from "@/utils/constants.js";
+
 
 const router = useRouter();
 const userData = ref(null);
@@ -503,13 +504,7 @@ const timeSlots = [
   "pomeriggio 14-18",
   "sera 18-20",
 ];
-const conditionOptions = [
-  { it: "Nuovo", en: "NEW" },
-  { it: "Ottimo", en: "GREAT" },
-  { it: "Buono", en: "GOOD" },
-  { it: "Usurato", en: "WORN" },
-  { it: "Rovinato", en: "DAMAGED" },
-];
+const conditionOptions = CONDITIONS;
 
 const borrowedBooks = computed(() =>
   activeLoans.value.filter(
