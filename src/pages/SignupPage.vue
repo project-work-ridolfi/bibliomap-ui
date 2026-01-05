@@ -96,8 +96,14 @@
     </form>
 
     <div v-else class="text-center p-4 bg-theme-primary rounded-2xl border-2 border-thistle">
-      <h2 class="text-2xl font-display mb-4 text-theme-main uppercase">verifica email</h2>
+      <h2 class="text-2xl font-display mb-4 text-theme-main uppercase">Verifica email</h2>
       
+      <div
+        v-if="mockOtp"
+        class="text-xs font-bold text-red-600 mb-4 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+        MOCK OTP: {{ mockOtp }}
+      </div>
+
       <div class="flex justify-center space-x-2 mb-6">
         <input
           v-for="(digit, index) in otpDigits"
@@ -110,7 +116,7 @@
       </div>
 
       <button @click="handleOtpSubmit" :disabled="!isOtpComplete || isBlocked" class="btn-modal-confirm w-full justify-center py-3">
-        verifica e continua
+        Verifica e continua
       </button>
       
       <div class="mt-4 flex justify-center space-x-4">
@@ -118,7 +124,7 @@
           {{ isResending ? "invio..." : "invia di nuovo" }}
         </button>
         <button @click="resetToInitialForm" class="text-sm text-theme-main hover:text-zomp underline">
-          indietro
+          Indietro
         </button>
       </div>
     </div>
