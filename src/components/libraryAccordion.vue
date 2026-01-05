@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-theme-primary rounded-xl shadow-sm border border-[var(--thistle)] overflow-hidden mb-4 transition-colors duration-300">
+    class="bg-theme-primary rounded-xl shadow-sm border border-[var(--thistle)] overflow-hidden mb-4 transition">
     <div
       @click="$emit('toggle')"
       class="p-4 flex justify-between items-center cursor-pointer hover:bg-[var(--bg-secondary)]/50 transition">
@@ -26,7 +26,7 @@
         <router-link
           :to="`/libraries/${library.id}`"
           @click.stop
-          class="p-2 text-theme-main hover:text-[var(--zomp)] transition"
+          class="btn-book-footer view"
           title="Vedi dettagli libreria">
           <i class="fa-solid fa-eye"></i>
         </router-link>
@@ -65,7 +65,7 @@
 
     <div
       v-if="library.isOpen"
-      class="bg-[var(--bg-secondary)]/30 border-t border-[var(--thistle)] p-4 transition-colors duration-300">
+      class="bg-[var(--bg-secondary)]/30 border-t border-[var(--thistle)] p-4 transition">
       <div v-if="library.isLoadingBooks" class="text-center py-6">
         <i
           class="fa-solid fa-circle-notch fa-spin text-[var(--zomp)] text-xl"></i>
@@ -80,10 +80,10 @@
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 min-h-[50px]">
         <template #item="{ element: book }">
           <div
-            class="flex gap-3 bg-theme-primary p-3 rounded-lg border border-[var(--thistle)] group relative hover:shadow-md transition duration-200"
+            class="book-card-content book-card group relative book-card-hover"
             :class="isOwner ? 'cursor-move' : 'cursor-default'">
             <div
-              class="w-12 h-16 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 overflow-hidden relative border border-[var(--thistle)]/30">
+              class="book-cover flex-shrink-0 overflow-hidden relative border border-[var(--thistle)]/30">
               <img
                 v-if="book.coverUrl"
                 :src="book.coverUrl"
@@ -102,19 +102,19 @@
             </div>
 
             <div
-              class="flex-grow min-w-0 text-sm flex flex-col justify-between py-0.5">
+              class="book-info justify-between py-0.5">
               <div>
-                <h4 class="font-bold text-theme-main truncate leading-tight">
+                <h4 class="book-title">
                   {{ book.title }}
                 </h4>
                 <p
-                  class="text-[10px] text-theme-main opacity-60 truncate italic">
+                  class="book-author truncate italic">
                   {{ book.author }}
                 </p>
               </div>
               <div>
                 <span
-                  class="text-[9px] font-black px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-theme-main border border-[var(--thistle)]/20">
+                  class="text-[9px] font-black px-1.5 py-0.5 rounded bg-[var(--bg-secondary)]text-theme-main border border-[var(--thistle)]/20">
                   {{ book.status }}
                 </span>
               </div>
@@ -142,7 +142,7 @@
           !library.isLoadingBooks &&
           (!library.books || library.books.length === 0)
         "
-        class="text-center py-4 opacity-50 italic text-xs">
+        class="text-center py-4 welcome-subtitle">
         Nessun libro presente in questa libreria.
       </div>
     </div>
