@@ -36,13 +36,13 @@
               <transition name="fade-slide">
                 <div v-if="isUserMenuOpen" class="user-dropdown">
                   <div class="user-info-header">
-                    <span class="username-display">
-                      CIAO,
+                    <span class="username-display uppercase">
+                      CIAO
                       {{
                         authStore.user?.username ||
                         authStore.username ||
-                        "utente"
-                      }}
+                        ""
+                      }}!
                     </span>
                   </div>
 
