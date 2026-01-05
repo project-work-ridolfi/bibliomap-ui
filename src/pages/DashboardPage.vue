@@ -142,7 +142,7 @@
                   >Conferma la consegna di
                   <router-link
                     :to="`/books/${loan.copyId}`"
-                    class="font-bold hover:text-zomp"
+                    class="font-bold hover:text-zomp whitespace-normal"
                     >{{ loan.title }}</router-link
                   >
                   a
@@ -156,7 +156,7 @@
                   >Hai ricevuto
                   <router-link
                     :to="`/books/${loan.copyId}`"
-                    class="font-bold hover:text-zomp"
+                    class="font-bold hover:text-zomp whitespace-normal"
                     >{{ loan.title }}</router-link
                   >
                   da
@@ -242,8 +242,8 @@
                   </div>
                   <button
                     @click="openContactModal(loan)"
-                    class="text-[9px] font-bold border border-thistle px-2 py-1.5 rounded-lg hover:bg-ash-gray/20">
-                    CONTATTA
+                    class="text-[9px] font-bold border border-thistle px-2 py-1.5 rounded-lg hover:bg-ash-gray/20 uppercase">
+                    Contatta
                   </button>
                 </div>
               </div>
@@ -319,12 +319,12 @@
                   class="mt-4 flex flex-col gap-2 pt-3 border-t border-thistle/50">
                   <button
                     @click="openReturnModal(loan)"
-                    class="w-full bg-zomp text-white py-2 rounded-lg font-bold text-[9px] tracking-wider shadow-sm">
+                    class="w-full bg-zomp text-white py-2 rounded-lg font-bold text-[9px] tracking-wider shadow-sm uppercase">
                     segnala rientro
                   </button>
                   <button
                     @click="openExtendModal(loan)"
-                    class="w-full border border-thistle text-theme-main py-2 rounded-lg font-bold text-[9px] opacity-70">
+                    class="w-full border border-thistle text-theme-main py-2 rounded-lg font-bold text-[9px] opacity-70 uppercase">
                     allunga scadenza
                   </button>
                 </div>
@@ -339,82 +339,103 @@
               class="text-xl font-display text-theme-main opacity-50 uppercase tracking-widest">
               Attività passate
             </h3>
+            <div v-if="loanHistory.length > 6" class="flex gap-2">
+              <button
+                @click="prevHistory"
+                :disabled="historyIndex === 0"
+                class="p-1 disabled:opacity-20 hover:text-zomp transition">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button
+                @click="nextHistory"
+                :disabled="historyIndex >= loanHistory.length - 6"
+                class="p-1 disabled:opacity-20 hover:text-zomp transition">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
           </div>
-
           <div
             v-if="loanHistory.length === 0"
             class="text-xs opacity-40 italic py-4">
             Nessuna operazione archiviata nello storico.
           </div>
-
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-else class="relative overflow-hidden">
             <div
-              v-for="h in loanHistory"
-              :key="h.id"
-              class="p-4 bg-theme-secondary/40 rounded-2xl border border-thistle/30 flex flex-col justify-between gap-4 transition hover:border-zomp/30">
-              <div class="flex justify-between items-start gap-4">
-                <div class="flex flex-col min-w-0">
-                  <router-link :to="`/books/${h.copyId}`" class="group">
-                    <span
-                      class="font-bold uppercase text-xs tracking-tight text-theme-main group-hover:text-zomp whitespace-normal block">
-                      {{ h.title }}
-                    </span>
-                  </router-link>
-
-                  <span class="text-[10px] opacity-60 italic mt-1">
-                    {{ h.status === "REJECTED" ? "Rifiutata" : "Conclusa" }} il
-                    {{ formatDate(h.updatedAt) }}
-                  </span>
-                </div>
-
-                <div class="shrink-0 text-right">
-                  <template v-if="h.ownerId === userData?.id">
-                    <span
-                      v-if="h.status === 'REJECTED'"
-                      class="text-[9px] font-black uppercase text-red-500 bg-red-500/10 px-2 py-1 rounded-md"
-                      >Hai rifiutato</span
-                    >
-                    <span
-                      v-else
-                      class="text-[9px] font-black uppercase text-zomp bg-zomp/10 px-2 py-1 rounded-md"
-                      >Hai prestato</span
-                    >
-                  </template>
-                  <span
-                    v-else
-                    class="text-[9px] font-black uppercase text-paynes-gray bg-paynes-gray/10 px-2 py-1 rounded-md"
-                    >Hai letto</span
-                  >
-                </div>
-              </div>
-
+              class="flex transition-transform duration-500 ease-in-out gap-4"
+              :style="{
+                transform: `translateX(-${(historyIndex / 6) * 100}%)`,
+              }">
               <div
-                class="flex justify-between items-center pt-3 border-t border-thistle/20">
-                <p class="text-[10px] opacity-60">
-                  <template v-if="h.ownerId === userData?.id">
-                    A:
-                    <router-link
-                      :to="`/profile/${h.requesterId}`"
-                      class="underline hover:text-zomp"
-                      >{{ h.requesterUsername }}</router-link
-                    >
-                  </template>
-                  <template v-else>
-                    Da:
-                    <router-link
-                      :to="`/profile/${h.ownerId}`"
-                      class="underline hover:text-zomp"
-                      >{{ h.ownerUsername }}</router-link
-                    >
-                  </template>
-                </p>
-
-                <button
-                  v-if="h.requesterId === userData?.id"
-                  @click="router.push(`/books/${h.copyId}`)"
-                  class="text-[9px] font-bold text-zomp hover:underline flex items-center gap-1 uppercase">
-                  <i class="fa-solid fa-rotate-right"></i> Chiedi di nuovo
-                </button>
+                v-for="(chunk, idx) in historyChunks"
+                :key="idx"
+                class="w-full shrink-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  v-for="h in chunk"
+                  :key="h.id"
+                  class="p-4 bg-theme-secondary/40 rounded-2xl border border-thistle/30 flex flex-col justify-between gap-4 transition hover:border-zomp/30">
+                  <div class="flex justify-between items-start gap-4">
+                    <div class="flex flex-col min-w-0">
+                      <router-link :to="`/books/${h.copyId}`" class="group">
+                        <span
+                          class="font-bold uppercase text-xs tracking-tight text-theme-main group-hover:text-zomp whitespace-normal block"
+                          >{{ h.title }}</span
+                        >
+                      </router-link>
+                      <span class="text-[10px] opacity-60 italic mt-1"
+                        >{{
+                          h.status === "REJECTED" ? "Rifiutata" : "Conclusa"
+                        }}
+                        il {{ formatDate(h.updatedAt) }}</span
+                      >
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <template v-if="h.ownerId === userData?.id">
+                        <span
+                          v-if="h.status === 'REJECTED'"
+                          class="text-[9px] font-black uppercase text-red-500 bg-red-500/10 px-2 py-1 rounded-md"
+                          >Hai rifiutato</span
+                        >
+                        <span
+                          v-else
+                          class="text-[9px] font-black uppercase text-zomp bg-zomp/10 px-2 py-1 rounded-md"
+                          >Hai prestato</span
+                        >
+                      </template>
+                      <span
+                        v-else
+                        class="text-[9px] font-black uppercase text-paynes-gray bg-paynes-gray/10 px-2 py-1 rounded-md"
+                        >Hai letto</span
+                      >
+                    </div>
+                  </div>
+                  <div
+                    class="flex justify-between items-center pt-3 border-t border-thistle/20">
+                    <p class="text-[10px] opacity-60">
+                      <template v-if="h.ownerId === userData?.id"
+                        >A:
+                        <router-link
+                          :to="`/profile/${h.requesterId}`"
+                          class="underline hover:text-zomp"
+                          >{{ h.requesterUsername }}</router-link
+                        ></template
+                      >
+                      <template v-else
+                        >Da:
+                        <router-link
+                          :to="`/profile/${h.ownerId}`"
+                          class="underline hover:text-zomp"
+                          >{{ h.ownerUsername }}</router-link
+                        ></template
+                      >
+                    </p>
+                    <button
+                      v-if="h.requesterId === userData?.id"
+                      @click="router.push(`/books/${h.copyId}`)"
+                      class="text-[9px] font-bold text-zomp hover:underline flex items-center gap-1 uppercase">
+                      <i class="fa-solid fa-rotate-right"></i> Chiedi di nuovo
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -491,7 +512,6 @@
             rifiuta
           </button>
         </div>
-
         <div class="space-y-2">
           <label
             class="text-[10px] font-black opacity-40 tracking-widest uppercase"
@@ -503,12 +523,11 @@
             rows="3"
             placeholder="Scrivi qui..."></textarea>
           <p class="text-[9px] text-gray-500 italic leading-tight">
-            <i class="fa-solid fa-shield-halved mr-1"></i>
-            Attenzione: i messaggi e le note verranno inviati via email. Evita
-            di condividere dati sensibili per la tua privacy.
+            <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
+            messaggi verranno inviati via email. Evita di condividere dati
+            sensibili per la tua privacy.
           </p>
         </div>
-
         <div
           v-if="modalForm.action === 'ACCEPT' || isContactMode"
           class="space-y-4">
@@ -545,7 +564,6 @@
             </button>
           </div>
         </div>
-
         <button
           @click="handleModalSubmit"
           :disabled="!isContactMode && !modalForm.action"
@@ -604,7 +622,7 @@
           >
           <select
             v-model.number="extendForm.days"
-            class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm">
+            class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm text-theme-main">
             <option :value="3">3 giorni</option>
             <option :value="7">1 settimana</option>
             <option :value="14">2 settimane</option>
@@ -636,6 +654,7 @@ const acceptedLoans = ref([]);
 const loanHistory = ref([]);
 const borrowedIndex = ref(0);
 const lentIndex = ref(0);
+const historyIndex = ref(0); // Nuovo indice per lo storico
 
 const isManageModalOpen = ref(false);
 const isContactMode = ref(false);
@@ -678,6 +697,15 @@ const overdueLoans = computed(() =>
 const overdueLentBooks = computed(() =>
   lentBooks.value.filter((l) => isOverdue(l.expectedReturnDate))
 );
+
+// Divide lo storico in blocchi di 6
+const historyChunks = computed(() => {
+  const chunks = [];
+  for (let i = 0; i < loanHistory.value.length; i += 6) {
+    chunks.push(loanHistory.value.slice(i, i + 6));
+  }
+  return chunks;
+});
 
 const modalTitle = computed(() =>
   isContactMode.value ? "Contatta utente" : "Gestione richiesta"
@@ -746,18 +774,10 @@ async function fetchAcceptedLoans() {
 async function fetchLoanHistory() {
   try {
     const allLoans = await apiClient.get("/loan/all");
-    // Filtriamo i conclusi o quelli mai iniziati/rifiutati
     loanHistory.value = allLoans
-      .filter(
-        (l) =>
-          l.status === "RETURNED" ||
-          l.status === "REJECTED" ||
-          l.status === "CANCELLED"
-      )
+      .filter((l) => ["RETURNED", "REJECTED", "CANCELLED"].includes(l.status))
       .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-  } catch (e) {
-    console.error("Errore fetch storico:", e);
-  }
+  } catch (e) {}
 }
 
 async function confirmExchange(id) {
@@ -848,4 +868,40 @@ function nextLent() {
 function prevLent() {
   if (lentIndex.value > 0) lentIndex.value--;
 }
+
+// Metodi per lo scorrimento dello storico (per blocchi di 6)
+function nextHistory() {
+  if (historyIndex.value < loanHistory.value.length - 6)
+    historyIndex.value += 6;
+}
+function prevHistory() {
+  if (historyIndex.value > 0) historyIndex.value -= 6;
+}
 </script>
+
+<style scoped>
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--theme-main);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+.nav-link:hover {
+  background: var(--zomp);
+  color: white;
+  transform: translateX(5px);
+}
+.nav-link i {
+  opacity: 0.5;
+  width: 16px;
+}
+.nav-link:hover i {
+  opacity: 1;
+}
+</style>
