@@ -1,5 +1,5 @@
 <template>
-  <main class="max-w-4xl mx-auto p-6 space-y-8 relative">
+  <main class="max-w-4xl mx-auto p-6 space-y-8 relative text-theme-main">
     <button
       @click="goBack"
       aria-label="torna alla pagina precedente"
@@ -11,10 +11,8 @@
     <div
       v-if="isLoading"
       role="status"
-      class="text-center py-10 text-theme-main opacity-70">
-      <i
-        class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-zomp"
-        aria-hidden="true"></i>
+      class="text-center py-10 opacity-70">
+      <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-zomp" aria-hidden="true"></i>
       <p class="uppercase font-bold text-xs tracking-widest">recupero dettagli libro...</p>
     </div>
 
@@ -65,8 +63,7 @@
           </div>
         </section>
 
-        <section
-          class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
+        <section class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
           <header>
             <h1 class="text-3xl font-display text-theme-main mb-1 uppercase tracking-tight">
               {{ book.title }}
@@ -127,7 +124,6 @@
           </div>
 
           <div class="pt-4 border-t border-thistle flex flex-wrap gap-3 justify-end items-center">
-            
             <div v-if="isOwner" class="flex space-x-3">
               <button @click="router.push(`/books/${book.id}/edit`)" class="btn-pagination w-10 h-10"><i class="fa-solid fa-pen-to-square"></i></button>
               <button @click="openMoveModal" class="btn-pagination w-10 h-10"><i class="fa-solid fa-right-left"></i></button>
@@ -150,14 +146,12 @@
                   class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest">
                   Chiedi in Prestito
                 </button>
-                <button v-else disabled class="px-8 py-3 bg-theme-secondary text-theme-main border border-border-color rounded-xl font-bold cursor-not-allowed opacity-40 uppercase text-xs tracking-widest">
+                <button v-else disabled class="px-8 py-3 bg-theme-secondary border border-border-color rounded-xl font-bold cursor-not-allowed opacity-40 uppercase text-xs tracking-widest">
                   In Prestito
                 </button>
               </template>
               <template v-else>
-                 <router-link
-                  to="/login"
-                  class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest text-center">
+                 <router-link to="/login" class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest text-center">
                   Accedi per richiedere
                 </router-link>
               </template>
@@ -168,11 +162,14 @@
     </article>
 
     <section v-if="suggestedBook" class="custom-fade-in bg-zomp/5 border-2 border-dashed border-zomp/30 rounded-2xl p-6 text-center">
-        <h3 class="text-xs font-bold uppercase text-zomp tracking-widest mb-4">Potrebbe interessarti anche questo volume:</h3>
+        <h3 class="text-xs font-black uppercase text-zomp tracking-widest mb-4">
+          <i class="fa-solid fa-lightbulb mr-2"></i>
+          {{ suggestionLabel }}
+        </h3>
         <div class="flex flex-col items-center gap-2">
-            <p class="font-display text-lg text-theme-main">{{ suggestedBook.title }}</p>
+            <p class="font-display text-2xl text-theme-main">{{ suggestedBook.title }}</p>
             <p class="text-xs italic opacity-70 mb-4">di {{ suggestedBook.author }}</p>
-            <button @click="goToSuggested" class="btn-modal-confirm px-6 py-2 uppercase text-[10px]">Vedi suggerimento</button>
+            <button @click="goToSuggested" class="btn-modal-confirm px-6 py-2 uppercase text-[10px] tracking-widest">Vedi suggerimento</button>
         </div>
     </section>
 
@@ -180,10 +177,10 @@
         <div class="space-y-4 text-theme-main">
             <p class="text-[10px] font-bold tracking-widest opacity-60 uppercase">Seleziona destinazione:</p>
             <div v-if="isFetchingLibraries" class="text-center py-6"><i class="fa-solid fa-circle-notch fa-spin text-zomp"></i></div>
-            <div v-else class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+            <div v-else class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1">
                 <button v-for="lib in userLibraries" :key="lib.id" @click="confirmMove(lib.id)" :disabled="lib.id === book.libraryId"
                     class="w-full text-left p-3 rounded-xl border-2 transition-all"
-                    :class="lib.id === book.libraryId ? 'opacity-40 cursor-not-allowed' : 'border-border-color bg-theme-primary hover:border-accent-color'">
+                    :class="lib.id === book.libraryId ? 'opacity-40 cursor-not-allowed border-border-color' : 'border-border-color bg-theme-primary hover:border-accent-color'">
                     <span class="font-bold text-xs uppercase">{{ lib.name }}</span>
                 </button>
             </div>
@@ -236,17 +233,25 @@ const book = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
 
-// Suggerimenti
+// Stato Suggerimenti
 const isSearchingSimilar = ref(false);
 const suggestedBook = ref(null);
 
-// MAPPING CONDIZIONE
+// Label dinamica basata sulla distanza restituita dal BE
+const suggestionLabel = computed(() => {
+  if (!suggestedBook.value) return "";
+  const d = suggestedBook.value.distance;
+  if (suggestedBook.value.libraryId === book.value.libraryId || d === 0) return "Potrebbe interessarti (nella stessa libreria!)";
+  return `Potrebbe interessarti (entro ${d} km di distanza)`;
+});
+
 const mappedCondition = computed(() => {
   if (!book.value || !book.value.condition) return "N/D";
   const found = CONDITIONS.find(c => c.value.toLowerCase() === book.value.condition.toLowerCase());
   return found ? found.label : book.value.condition;
 });
 
+// Stati Modali e UI
 const showDeleteModal = ref(false);
 const deleteStep = ref("confirm");
 const deleteUI = reactive({ title: "", message: "", confirmBtn: "", successMsg: "" });
@@ -299,16 +304,14 @@ async function fetchBookDetails() {
   }
 }
 
-// LOGICA SUGGERIMENTI
 async function getSimilarBook() {
   isSearchingSimilar.value = true;
   try {
-    // Chiamata all'endpoint del BE
     const response = await apiClient.get(`/books/${book.value.id}/similar`);
     if (response && response.id) {
         suggestedBook.value = response;
     } else {
-        alert("Non abbiamo trovato libri simili nelle vicinanze al momento.");
+        alert("Non abbiamo trovato libri simili nelle vicinanze.");
     }
   } catch (e) {
     console.error("Errore ricerca simile:", e);
@@ -323,7 +326,6 @@ function goToSuggested() {
     }
 }
 
-// Watcher per ricaricare i dati se cambiamo libro tramite suggerimento
 watch(() => route.params.id, () => {
     fetchBookDetails();
 });
@@ -344,7 +346,7 @@ async function confirmMove(newLibraryId) {
     await apiClient.patch(`/books/copies/${book.value.id}/move`, { libraryId: newLibraryId });
     showMoveModal.value = false;
     await fetchBookDetails();
-  } catch (e) { alert("Errore durante lo spostamento"); }
+  } catch (e) { alert("Errore spostamento"); }
 }
 
 function openLoanConfirmModal() {
@@ -359,7 +361,7 @@ async function confirmLoanRequest() {
   try {
     await apiClient.post(`/loan/${book.value.id}`, {});
     alert("Richiesta inviata con successo!");
-  } catch (e) { alert("Errore durante l'invio della richiesta."); }
+  } catch (e) { alert("Errore invio richiesta"); }
   finally { isSendingLoan.value = false; }
 }
 
