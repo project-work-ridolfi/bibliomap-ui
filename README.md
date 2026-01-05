@@ -66,7 +66,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
     - [x] versione dark da aggiustare i bottoni (forse css global)
     - [x] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
-    - [ ] se clicchi sul libro dalla lista, ci si avvicina alla libreria di cui fa parte sulla mappa finchè non scompare
+    - [x] se clicchi sul libro dalla lista, ci si avvicina alla libreria di cui fa parte sulla mappa finchè non scompare
 - [x] stats
     - [x] dark
     - [x] metriche utilizzo
@@ -82,7 +82,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] mappa nella pagina libreria
 - [ ] modifica libreria
     - [ ] modalità notte da aggiustare
-- [ ] accordion libreira
+- [ ] accordion libreria
     - [x] bottone per aprire la pagina anche dall'accordion
     - [ ] bottone per modificare la libreria
 - [ ] profilo

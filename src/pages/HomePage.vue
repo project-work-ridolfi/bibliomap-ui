@@ -323,10 +323,16 @@ const isConfirmModalOpen = ref(false);
 const bookToRequest = ref(null);
 const isSending = ref(false);
 
+const isZoomingToBook = ref(false);
+
 const DEFAULT_COVERS = [
   "/images/cover_default_1.png",
   "/images/cover_default_2.png",
   "/images/cover_default_3.png",
+  "/images/cover_default_4.png",
+  "/images/cover_default_5.png",
+  "/images/cover_default_6.png",
+  "/images/cover_default_7.png"
 ];
 
 // assegna una copertina di default basata sull id del libro
@@ -369,7 +375,7 @@ const availableTags = computed(() => {
   return [...new Set(allTags)].sort();
 });
 
-// gestisce l ordinamento della lista libri
+// gestisce l'ordinamento della lista libri
 const handleSort = (field) => {
   if (sortField.value !== field) {
     sortField.value = field;
@@ -383,13 +389,12 @@ const handleSort = (field) => {
   }
 };
 
-// filtra e ordina i libri in base alle preferenze dell utente
+// filtra e ordina i libri in base alle preferenze dell'utente
 const filteredBooks = computed(() => {
   let result = [...books.value];
   if (selectedTag.value)
     result = result.filter((b) => b.tags && b.tags.includes(selectedTag.value));
 
-  // FIX: logica filtro disponibili migliorata
   if (filters.onlyAvailable)
     result = result.filter((b) => b.status === "available");
 
@@ -424,7 +429,6 @@ const paginatedBooks = computed(() =>
 // mostra o nasconde la sezione filtri
 const toggleFilters = () => (showFilters.value = !showFilters.value);
 
-// attiva o disattiva un tag di filtraggio
 const toggleTag = (tag) => {
   selectedTag.value = selectedTag.value === tag ? null : tag;
   currentPage.value = 1;
@@ -448,6 +452,7 @@ watch(
 watch(filteredBooks, () => {
   if (mapLoaded.value) updateMapMarkers();
 });
+
 
 // avvia il flusso per ottenere la posizione dell utente
 async function handleGeolocationFlow() {
@@ -478,6 +483,7 @@ function finalizeLocation(lat, lng, zoomLevel) {
   isLocationLoading.value = false;
   initMap(lat, lng, zoomLevel);
 }
+
 
 // recupera i libri vicini dal backend
 async function fetchBooks(lat, lng, radius) {
@@ -517,9 +523,9 @@ async function fetchBooks(lat, lng, radius) {
   }
 }
 
-// esegue una ricerca libri nell area attualmente visualizzata sulla mappa
+// esegue una ricerca libri nell'area attualmente visualizzata sulla mappa
 function searchInCurrentArea() {
-  if (!map.value) return;
+  if (!map.value || isZoomingToBook.value) return;
   const pos = userMarker.value
     ? userMarker.value.getLngLat()
     : map.value.getCenter();
@@ -571,7 +577,7 @@ const searchInAreaOnLoad = (lat, lng) => {
   fetchBooks(lat, lng, 1);
 };
 
-// crea il marker trascinabile per la posizione dell utente
+// crea il marker trascinabile per la posizione dell'utente
 const createUserMarker = (lat, lng) => {
   userMarker.value = new maplibregl.Marker({
     color: "#fac8cd",
@@ -643,7 +649,6 @@ const updateMapMarkers = () => {
         .getElementById(`btn-lib-${lib.id || "temp"}`)
         ?.addEventListener("click", () => {
           if (lib.id) router.push(`/libraries/${lib.id}`);
-          else console.warn("id libreria non disponibile per questo marker");
         });
     });
 
@@ -652,6 +657,7 @@ const updateMapMarkers = () => {
       .setPopup(popup)
       .addTo(map.value);
 
+    marker._libraryId = lib.id;
     currentMarkers.value.push(marker);
   });
 };
@@ -663,14 +669,34 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++;
 };
 const goToBookDetails = (id) => router.push(`/books/${id}`);
-const zoomToBook = (book) =>
-  map.value?.flyTo({ center: [book.lng, book.lat], zoom: 16 });
+
+const zoomToBook = (book) => {
+  if (!map.value) return;
+
+  isZoomingToBook.value = true;
+  
+  map.value.flyTo({ 
+    center: [book.lng, book.lat], 
+    zoom: 15.5, 
+    speed: 1.2 
+  });
+
+  map.value.once('idle', () => {
+    const targetMarker = currentMarkers.value.find(m => m._libraryId === book.libraryId);
+    if (targetMarker) {
+      if (!targetMarker.getPopup().isOpen()) {
+        targetMarker.togglePopup();
+      }
+    }
+    isZoomingToBook.value = false;
+  });
+};
+
 const openConfirmModal = (book) => {
   bookToRequest.value = book;
   isConfirmModalOpen.value = true;
 };
 
-// conferma la richiesta di prestito al backend
 const confirmLoanRequest = async () => {
   if (!bookToRequest.value) return;
   isSending.value = true;
@@ -685,4 +711,3 @@ const confirmLoanRequest = async () => {
   }
 };
 </script>
-
