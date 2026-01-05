@@ -283,7 +283,7 @@ async function saveChanges() {
     formData.append("useDefaultCover", useDefault.value)
     if (selectedFile.value) formData.append("coverFile", selectedFile.value)
 
-    await apiClient.put(`/books/copies/${form.id}`, formData)
+    await apiClient.put(`/copies/${form.id}`, formData)
     router.push(`/books/${form.id}`)
   } catch (e) {
     console.error("errore salvataggio")

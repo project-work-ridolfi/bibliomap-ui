@@ -136,7 +136,7 @@
                 :disabled="isSearchingSimilar"
                 class="btn-sort px-6 py-3 uppercase text-xs tracking-widest flex items-center gap-2">
                 <i :class="isSearchingSimilar ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'" class="fa-solid"></i>
-                Suggerisci simile
+                Trova simile
               </button>
 
               <template v-if="authStore.isAuthenticated">
