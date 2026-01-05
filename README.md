@@ -47,11 +47,14 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 
 - [x] /signup
 - [x] /login
-    - [ ] password dimenticata
+    - [x] password dimenticata
+    - [x] nuova password rossa anche quando giusto
 - [x] /setlocation
   - [x] set location non nella registrazione
-  - [ ] se vai nella mappa esci e ci torni la mappa e' vuota
+  - [x] se vai nella mappa esci e ci torni la mappa e' vuota
 - [x] create library
+    - [ ] torna indietro da set location dovrebbe tornare su set location
+    - [ ] manca un bottone salta se ci si arriva da set location
 - [x] add book
     - [x] fix css, migliora distanze e togli righe brutte
     - [x] modalita' dark aggiungi libro, tag, note e riquadro per copertina sono bianchi
@@ -91,7 +94,13 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] sulla restituzione accettata si deve aprire una modale per far aggiungere note se necessario e/o cambiare la condizione del libro
     - [ ] i bottoni della componente library accordion non fungono dalla dashboard
     - [x] aggiunta mappetta
+    - [ ] dashboard owner quando libro scaduto anche vede in maniera diversa e può allungare o contattare
+    - [ ] aggiungi storico dei prestiti su dashboard
+    - [ ] manda stringa giorni come giorni completi separati da virgola
+    - [ ] messaggio per l’utente con testo grigio che dice attento a non condividere stocazzo
+    - [ ] modale ha bottoni a notte anche quando giorno
 - [x] header
+    - [ ] nome utente non sempre carica da capi
 - [ ] css - fonts - notte
 - [ ] footer
 - [x] modale richiesta libro

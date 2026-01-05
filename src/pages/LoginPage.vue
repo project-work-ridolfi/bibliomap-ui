@@ -147,7 +147,10 @@
 
       <div
         v-if="passwordForm.new"
-        class="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+        class="p-2 rounded-lg border transition-colors duration-300"
+        :class="allRequirementsMet 
+          ? 'bg-zomp/10 border-zomp' 
+          : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'">
         <ul class="text-[10px] space-y-1 font-bold uppercase">
           <li
             :class="passRequirements.minLength ? 'text-zomp' : 'text-red-500'">
@@ -206,8 +209,6 @@
   </div>
 </template>
 
-
-
 <script setup>
 import { ref, computed, nextTick, reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -224,7 +225,7 @@ const mode = ref("login"); // login, forgot, reset
 const isProcessing = ref(false);
 const loginError = ref(false);
 
-// STATO MODALE (MODIFICA 1)
+// STATO MODALE
 const modal = reactive({
   isOpen: false,
   title: "",
@@ -242,7 +243,7 @@ const form = ref({ email: "", password: "" });
 const otpSent = ref(false);
 const otpDigits = ref(["", "", "", "", "", ""]);
 const mockOtp = ref(null);
-const validatedOtp = ref(""); // Salviamo l'otp validato per inviarlo al reset
+const validatedOtp = ref(""); 
 
 // RESET Password Dati
 const passwordForm = reactive({ new: "", confirm: "" });
@@ -267,9 +268,13 @@ function validatePassword() {
   passRequirements.hasSpecial = /[@$!%*?&]/.test(p);
 }
 
+const allRequirementsMet = computed(() => 
+  Object.values(passRequirements).every(v => v)
+);
+
 const isPasswordValid = computed(
   () =>
-    Object.values(passRequirements).every((v) => v) &&
+    allRequirementsMet.value &&
     passwordForm.new === passwordForm.confirm &&
     passwordForm.new !== ""
 );
@@ -284,7 +289,6 @@ async function handleSubmit() {
     });
     router.push("/");
   } catch (error) {
-    // MODIFICA 2: Gestione visiva errore credenziali (INVALID_CREDENTIALS)
     if (
       error.status === 401 ||
       (error.message && error.message.includes("INVALID_CREDENTIALS"))
@@ -299,7 +303,7 @@ async function handleSubmit() {
   }
 }
 
-// AZIONI RECUPERO (Richiesta 2)
+// AZIONI RECUPERO
 async function sendOtp() {
   isProcessing.value = true;
   try {
@@ -323,8 +327,8 @@ async function verifyOtp() {
       email: form.value.email,
       otp: otpCode,
     });
-    validatedOtp.value = otpCode; // Conserviamo il codice
-    mode.value = "reset"; // Passiamo alla fase di cambio pass
+    validatedOtp.value = otpCode; 
+    mode.value = "reset"; 
   } catch (e) {
     showMessage("Errore", "Codice errato o scaduto.");
   } finally {
@@ -335,7 +339,6 @@ async function verifyOtp() {
 async function handleFinalReset() {
   isProcessing.value = true;
   try {
-    // Richiesta 2b: Invio OTP invece della vecchia password + flag fromOtp
     await apiClient.put(`/auth/password-reset-complete`, {
       email: form.value.email,
       otp: validatedOtp.value,
@@ -343,7 +346,6 @@ async function handleFinalReset() {
       fromOtp: true,
     });
 
-    // MODIFICA 3: Login automatico post-reset e reindirizzamento
     await authStore.login({
       email: form.value.email,
       password: passwordForm.new,
@@ -360,7 +362,6 @@ async function handleFinalReset() {
   }
 }
 
-// GESTIONE INPUT OTP (Stessa logica della registrazione)
 async function handleOtpInput(index) {
   otpDigits.value[index] = otpDigits.value[index].slice(0, 1);
   if (otpDigits.value[index] && index < otpDigits.value.length - 1) {
@@ -368,6 +369,7 @@ async function handleOtpInput(index) {
     document.getElementById(`otp-input-${index + 1}`)?.focus();
   }
 }
+
 function handleBackspace(index, event) {
   if (!otpDigits.value[index] && index > 0) {
     event.preventDefault();
@@ -387,7 +389,6 @@ function handleBackspace(index, event) {
   text-align: center;
   font-size: 1.25rem;
   font-weight: bold;
-  /* usa variabili tema */
   border: 2px solid var(--border-color);
   background-color: var(--bg-primary);
   color: var(--text-main);
