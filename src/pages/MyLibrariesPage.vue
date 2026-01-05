@@ -3,8 +3,8 @@
     class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-3xl font-display text-theme-main tracking-tight">
-          le tue <span class="text-[var(--zomp)]">librerie</span>
+        <h1 class="text-4xl font-display text-theme-main tracking-tight">
+          Le tue <span class="text-[var(--zomp)]">librerie</span>
         </h1>
         <p class="opacity-70 text-sm mt-1">gestisci i tuoi spazi di lettura</p>
       </div>
