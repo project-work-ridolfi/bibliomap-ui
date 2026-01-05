@@ -1,7 +1,7 @@
 <template>
   <main class="max-w-4xl mx-auto p-6 space-y-10 relative">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="font-display text-2xl text-theme-main">Modifica Copia</h1>
+      <h1 class="font-display text-3xl text-theme-main">Modifica</h1>
       <div class="flex gap-4">
         <button
           @click="goBack"
@@ -181,6 +181,8 @@
 import { ref, onMounted, reactive, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { apiClient } from "@/services/apiClient";
+import { TAGS, CONDITIONS } from "@/utils/constants.js";
+
 
 const route = useRoute();
 const router = useRouter();
@@ -196,21 +198,10 @@ const form = reactive({
   customCover: "",
 });
 
-const conditionOptions = [
-  { it: "Nuovo", en: "New" },
-  { it: "Ottimo", en: "Great" },
-  { it: "Buono", en: "Good" },
-  { it: "Usurato", en: "Worn" },
-  { it: "Rovinato", en: "Damaged" },
-];
+const conditionOptions = CONDITIONS;
 
-const commonTags = [
-  "fantascienza",
-  "romanzo",
-  "classico",
-  "riferimento",
-  "thriller",
-];
+const commonTags = TAGS;
+
 const previewCover = ref(null);
 const selectedFile = ref(null);
 const useDefault = ref(false);
