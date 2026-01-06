@@ -77,7 +77,7 @@
             </div>
             <div class="flex justify-between">
               <dt class="opacity-70">visibilità:</dt>
-              <dd class="font-bold text-[10px] tracking-widest">
+              <dd class="font-bold text-[12px] tracking-widest uppercase">
                 {{ visibilityLabel }}
               </dd>
             </div>
