@@ -149,4 +149,4 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] torna indietro dal dettaglio libro non dovrebbe portare indietro su modifica (returnTo in book edit e gestito)
 - [ ] responsive???
 - [x] book edit una volta aggiunti i tag non si dovrebbero vedere sotto
-- [ ] libreria visibilita'
+- [X] libreria visibilita'

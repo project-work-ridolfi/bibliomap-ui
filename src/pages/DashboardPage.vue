@@ -52,7 +52,6 @@
             ha ancora <span class="italic">"{{ loan.title }}"</span> (doveva
             rientrare il {{ formatDate(loan.expectedReturnDate) }})
           </p>
-
           <div class="flex gap-2 mt-3 md:mt-0">
             <button
               @click="openContactModal(loan)"
@@ -79,13 +78,11 @@
           Gestisci i tuoi scambi e le tue letture in corso
         </p>
       </div>
-      <div class="flex gap-3">
-        <router-link
-          to="/add-book"
-          class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] shadow-md hover:opacity-90 transition flex items-center gap-2">
-          <i class="fa-solid fa-plus"></i> nuovo libro
-        </router-link>
-      </div>
+      <router-link
+        to="/add-book"
+        class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] shadow-md hover:opacity-90 transition flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> nuovo libro
+      </router-link>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -102,29 +99,31 @@
             <div
               v-for="req in pendingRequests"
               :key="req.id"
-              class="flex justify-between items-center bg-theme-primary p-4 rounded-xl shadow-sm border border-thistle">
-              <p class="text-sm">
-                <router-link
-                  :to="`/profile/${req.requesterId}`"
-                  class="font-bold hover:text-zomp"
-                  >{{ req.requesterUsername }}</router-link
-                >
-                vorrebbe leggere
-                <router-link
-                  :to="`/books/${req.copyId}`"
-                  class="italic text-zomp hover:underline"
-                  >{{ req.title }}</router-link
-                >
-              </p>
-              <span
-                v-if="duplicateRequests[req.copyId] > 1"
-                class="text-[8px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse uppercase">
-                Attenzione richiesta concorrente
-              </span>
-
+              class="flex justify-between items-center bg-theme-primary p-4 rounded-xl shadow-sm border border-thistle gap-4">
+              <div
+                class="flex flex-1 justify-between items-center min-w-0 mr-2">
+                <p class="text-sm truncate">
+                  <router-link
+                    :to="`/profile/${req.requesterId}`"
+                    class="font-bold hover:text-zomp"
+                    >{{ req.requesterUsername }}</router-link
+                  >
+                  vorrebbe leggere
+                  <router-link
+                    :to="`/books/${req.copyId}`"
+                    class="italic text-zomp hover:underline"
+                    >{{ req.title }}</router-link
+                  >
+                </p>
+                <span
+                  v-if="duplicateRequests[req.copyId] > 1"
+                  class="shrink-0 text-[8px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse uppercase ml-4">
+                  Richiesta concorrente
+                </span>
+              </div>
               <button
                 @click="openManageModal(req)"
-                class="bg-zomp text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">
+                class="shrink-0 bg-zomp text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">
                 gestisci
               </button>
             </div>
@@ -145,11 +144,11 @@
               :key="loan.id"
               class="flex justify-between items-center bg-theme-primary p-4 rounded-xl shadow-sm border border-thistle">
               <p class="text-sm">
-                <template v-if="loan.ownerId === userData?.id"
-                  >Conferma la consegna di
+                <template v-if="loan.ownerId === userData?.id">
+                  Conferma la consegna di
                   <router-link
                     :to="`/books/${loan.copyId}`"
-                    class="font-bold hover:text-zomp whitespace-normal"
+                    class="font-bold hover:text-zomp"
                     >{{ loan.title }}</router-link
                   >
                   a
@@ -157,13 +156,13 @@
                     :to="`/profile/${loan.requesterId}`"
                     class="text-zomp hover:underline"
                     >{{ loan.requesterUsername }}</router-link
-                  ></template
-                >
-                <template v-else
-                  >Hai ricevuto
+                  >
+                </template>
+                <template v-else>
+                  Hai ricevuto
                   <router-link
                     :to="`/books/${loan.copyId}`"
-                    class="font-bold hover:text-zomp whitespace-normal"
+                    class="font-bold hover:text-zomp"
                     >{{ loan.title }}</router-link
                   >
                   da
@@ -171,11 +170,11 @@
                     :to="`/profile/${loan.ownerId}`"
                     class="text-zomp hover:underline"
                     >{{ loan.ownerUsername }}</router-link
-                  ></template
-                >
+                  >
+                </template>
               </p>
               <button
-                @click="confirmExchange(loan.id)"
+                @click="openExchangeModal(loan)"
                 class="bg-zomp text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">
                 conferma
               </button>
@@ -218,9 +217,11 @@
                 :key="loan.id"
                 class="w-full md:w-[calc(33.333%-11px)] shrink-0 bg-theme-primary p-5 rounded-xl shadow-sm border border-thistle flex flex-col justify-between min-h-[160px]">
                 <div>
-                  <router-link :to="`/books/${loan.copyId}`" class="block">
+                  <router-link
+                    :to="`/books/${loan.copyId}`"
+                    class="block truncate">
                     <h4
-                      class="font-bold text-zomp text-lg leading-tight hover:underline whitespace-normal">
+                      class="font-bold text-zomp text-lg leading-tight hover:underline">
                       {{ loan.title }}
                     </h4>
                   </router-link>
@@ -236,7 +237,9 @@
                 <div
                   class="mt-4 flex justify-between items-end pt-3 border-t border-thistle/50">
                   <div class="min-w-0">
-                    <p class="text-[8px] font-black opacity-40">scadenza</p>
+                    <p class="text-[8px] font-black opacity-40 uppercase">
+                      scadenza
+                    </p>
                     <p
                       class="text-xs font-mono"
                       :class="
@@ -301,9 +304,9 @@
                   <div class="flex justify-between items-start">
                     <router-link
                       :to="`/books/${loan.copyId}`"
-                      class="block flex-1">
+                      class="block flex-1 truncate">
                       <h4
-                        class="font-bold text-theme-main text-lg leading-tight hover:text-zomp hover:underline whitespace-normal">
+                        class="font-bold text-theme-main text-lg leading-tight hover:text-zomp">
                         {{ loan.title }}
                       </h4>
                     </router-link>
@@ -326,12 +329,12 @@
                   class="mt-4 flex flex-col gap-2 pt-3 border-t border-thistle/50">
                   <button
                     @click="openReturnModal(loan)"
-                    class="w-full bg-zomp text-white py-2 rounded-lg font-bold text-[9px] tracking-wider shadow-sm uppercase">
+                    class="w-full bg-zomp text-white py-2 rounded-lg font-bold text-[9px] uppercase shadow-sm">
                     segnala rientro
                   </button>
                   <button
                     @click="openExtendModal(loan)"
-                    class="w-full border border-thistle text-theme-main py-2 rounded-lg font-bold text-[9px] opacity-70 uppercase">
+                    class="w-full border border-thistle text-theme-main py-2 rounded-lg font-bold text-[9px] uppercase opacity-70">
                     allunga scadenza
                   </button>
                 </div>
@@ -364,7 +367,7 @@
           <div
             v-if="loanHistory.length === 0"
             class="text-xs opacity-40 italic py-4">
-            Nessuna operazione archiviata nello storico.
+            Nessuna operazione archiviata.
           </div>
           <div v-else class="relative overflow-hidden">
             <div
@@ -379,12 +382,14 @@
                 <div
                   v-for="h in chunk"
                   :key="h.id"
-                  class="p-4 bg-theme-secondary/40 rounded-2xl border border-thistle/30 flex flex-col justify-between gap-4 transition hover:border-zomp/30">
+                  class="p-4 bg-theme-secondary/40 rounded-2xl border border-thistle/30 flex flex-col justify-between gap-4">
                   <div class="flex justify-between items-start gap-4">
                     <div class="flex flex-col min-w-0">
-                      <router-link :to="`/books/${h.copyId}`" class="group">
+                      <router-link
+                        :to="`/books/${h.copyId}`"
+                        class="group truncate block">
                         <span
-                          class="font-bold uppercase text-xs tracking-tight text-theme-main group-hover:text-zomp whitespace-normal block"
+                          class="font-bold uppercase text-xs text-theme-main group-hover:text-zomp"
                           >{{ h.title }}</span
                         >
                       </router-link>
@@ -395,45 +400,37 @@
                         il {{ formatDate(h.updatedAt) }}</span
                       >
                     </div>
-                    <div class="shrink-0 text-right">
-                      <template v-if="h.ownerId === userData?.id">
-                        <span
-                          v-if="h.status === 'REJECTED'"
-                          class="text-[9px] font-black uppercase text-red-500 bg-red-500/10 px-2 py-1 rounded-md"
-                          >Hai rifiutato</span
-                        >
-                        <span
-                          v-else
-                          class="text-[9px] font-black uppercase text-zomp bg-zomp/10 px-2 py-1 rounded-md"
-                          >Hai prestato</span
-                        >
-                      </template>
-                      <span
-                        v-else
-                        class="text-[9px] font-black uppercase text-paynes-gray bg-paynes-gray/10 px-2 py-1 rounded-md"
-                        >Hai letto</span
-                      >
-                    </div>
+                    <span
+                      class="text-[9px] font-black uppercase px-2 py-1 rounded-md"
+                      :class="
+                        h.status === 'REJECTED'
+                          ? 'text-red-500 bg-red-500/10'
+                          : 'text-zomp bg-zomp/10'
+                      ">
+                      {{
+                        h.ownerId === userData?.id
+                          ? h.status === "REJECTED"
+                            ? "Hai rifiutato"
+                            : "Hai prestato"
+                          : "Hai letto"
+                      }}
+                    </span>
                   </div>
                   <div
                     class="flex justify-between items-center pt-3 border-t border-thistle/20">
                     <p class="text-[10px] opacity-60">
-                      <template v-if="h.ownerId === userData?.id"
-                        >A:
-                        <router-link
-                          :to="`/profile/${h.requesterId}`"
-                          class="underline hover:text-zomp"
-                          >{{ h.requesterUsername }}</router-link
-                        ></template
-                      >
-                      <template v-else
-                        >Da:
-                        <router-link
-                          :to="`/profile/${h.ownerId}`"
-                          class="underline hover:text-zomp"
-                          >{{ h.ownerUsername }}</router-link
-                        ></template
-                      >
+                      {{ h.ownerId === userData?.id ? "A: " : "Da: " }}
+                      <router-link
+                        :to="`/profile/${
+                          h.ownerId === userData?.id ? h.requesterId : h.ownerId
+                        }`"
+                        class="underline hover:text-zomp">
+                        {{
+                          h.ownerId === userData?.id
+                            ? h.requesterUsername
+                            : h.ownerUsername
+                        }}
+                      </router-link>
                     </p>
                     <button
                       v-if="h.requesterId === userData?.id"
@@ -474,7 +471,8 @@
             >
           </nav>
         </section>
-        <section
+
+                <section
           v-if="userData"
           class="p-5 bg-ash-gray/10 rounded-2xl border border-dashed border-thistle text-[10px]">
           <p class="font-black opacity-40 mb-2 uppercase">Privacy Corrente</p>
@@ -493,170 +491,215 @@
     </div>
 
     <AppModal
-  :is-open="isManageModalOpen"
-  :title="modalTitle"
-  @close="isManageModalOpen = false">
-  <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
-    
-    <div 
-      v-if="modalForm.action === 'ACCEPT' && duplicateRequests[selectedRequest?.copyId] > 1" 
-      class="bg-amber-100 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 p-4 rounded-xl space-y-2 animate-fade-in"
-    >
-      <div class="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-[10px] uppercase tracking-wider">
-        <i class="fa-solid fa-triangle-exclamation text-sm"></i>
-        Attenzione: Richieste multiple
-      </div>
-      <p class="text-[11px] text-amber-900 dark:text-amber-200 leading-tight">
-        Accettando questa richiesta, le altre <strong>{{ duplicateRequests[selectedRequest.copyId] - 1 }}</strong> 
-        richieste in sospeso per questo specifico libro verranno <strong>rifiutate automaticamente</strong> dal sistema.
-      </p>
-    </div>
+      :is-open="isManageModalOpen"
+      :title="modalTitle"
+      @close="isManageModalOpen = false">
+      <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
+        <div
+          v-if="
+            modalForm.action === 'ACCEPT' &&
+            duplicateRequests[selectedRequest?.copyId] > 1
+          "
+          class="px-2 animate-fade-in">
+          <p
+            class="text-[11px] text-amber-600 dark:text-amber-400 font-bold leading-tight">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+            ATTENZIONE: Accettando questa richiesta, le altre
+            {{ duplicateRequests[selectedRequest.copyId] - 1 }} richieste
+            pendenti verranno rifiutate automaticamente.
+          </p>
+        </div>
 
-    <div v-if="!isContactMode" class="flex gap-4">
-      <button
-        @click="modalForm.action = 'ACCEPT'"
-        :class="
-          modalForm.action === 'ACCEPT'
-            ? 'bg-zomp text-white shadow-md border-zomp'
-            : 'bg-theme-primary border-border-color text-theme-main'
-        "
-        class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
-        accetta
-      </button>
-      <button
-        @click="modalForm.action = 'REJECT'"
-        :class="
-          modalForm.action === 'REJECT'
-            ? 'bg-red-500 text-white shadow-md border-red-500'
-            : 'bg-theme-primary border-border-color text-theme-main'
-        "
-        class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
-        rifiuta
-      </button>
-    </div>
+        <div v-if="!isContactMode" class="flex gap-4">
+          <button
+            @click="modalForm.action = 'ACCEPT'"
+            :class="
+              modalForm.action === 'ACCEPT'
+                ? 'bg-zomp text-white border-zomp'
+                : 'bg-theme-primary border-border-color text-theme-main'
+            "
+            class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
+            accetta
+          </button>
+          <button
+            @click="modalForm.action = 'REJECT'"
+            :class="
+              modalForm.action === 'REJECT'
+                ? 'bg-red-500 text-white border-red-500'
+                : 'bg-theme-primary border-border-color text-theme-main'
+            "
+            class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
+            rifiuta
+          </button>
+        </div>
 
-    <div class="space-y-2">
-      <label class="text-[10px] font-black opacity-40 tracking-widest uppercase">
-        messaggio per l'utente
-      </label>
-      <textarea
-        v-model="modalForm.notes"
-        class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm"
-        rows="3"
-        placeholder="Scrivi qui..."></textarea>
-      <p class="text-[9px] text-gray-500 italic leading-tight">
+        <div class="space-y-2">
+          <label
+            class="text-[10px] font-black opacity-40 tracking-widest uppercase"
+            >messaggio per l'utente</label
+          >
+          <textarea
+            v-model="modalForm.notes"
+            class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm text-theme-main"
+            rows="3"
+            placeholder="Scrivi qui..."></textarea>
+             <p class="text-[9px] text-gray-500 italic leading-tight">
         <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
         messaggi verranno inviati via email. Evita di condividere dati
         sensibili per la tua privacy.
       </p>
-    </div>
+        </div>
 
-    <div
-      v-if="modalForm.action === 'ACCEPT' || isContactMode"
-      class="space-y-4">
-      <label class="text-[10px] font-black opacity-40 tracking-widest uppercase">
-        proponi disponibilità per lo scambio
-      </label>
-      <div class="flex flex-wrap gap-2">
-        <button
-          v-for="day in days"
-          :key="day"
-          @click="toggleDay(day)"
-          :class="
-            modalForm.selectedDays.includes(formatDayFull(day))
-              ? 'bg-tea-rose text-paynes-gray border-tea-rose'
-              : 'bg-theme-secondary border-thistle'
-          "
-          class="px-3 py-1 border rounded-full text-[10px] font-bold transition uppercase">
-          {{ day }}
-        </button>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button
-          v-for="slot in timeSlots"
-          :key="slot"
-          @click="toggleSlot(slot)"
-          :class="
-            modalForm.selectedSlots.includes(slot)
-              ? 'bg-tea-rose text-paynes-gray border-tea-rose'
-              : 'bg-theme-secondary border-thistle'
-          "
-          class="p-2 border rounded-lg text-[10px] font-bold text-left transition uppercase">
-          {{ slot }}
-        </button>
-      </div>
-    </div>
+        <div
+          v-if="modalForm.action === 'ACCEPT' || isContactMode"
+          class="space-y-4">
+          <label
+            class="text-[10px] font-black opacity-40 tracking-widest uppercase"
+            >proponi disponibilità per lo scambio</label
+          >
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="day in days"
+              :key="day"
+              @click="toggleDay(day)"
+              :class="
+                modalForm.selectedDays.includes(formatDayFull(day))
+                  ? 'bg-zomp text-white border-zomp'
+                  : 'bg-theme-secondary border-thistle text-theme-main'
+              "
+              class="px-3 py-1 border rounded-full text-[10px] font-bold transition uppercase">
+              {{ day }}
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="slot in timeSlots"
+              :key="slot"
+              @click="toggleSlot(slot)"
+              :class="
+                modalForm.selectedSlots.includes(slot)
+                  ? 'bg-zomp text-white border-zomp'
+                  : 'bg-theme-secondary border-thistle text-theme-main'
+              "
+              class="p-2 border rounded-lg text-[10px] font-bold text-left transition uppercase">
+              {{ slot }}
+            </button>
+          </div>
+        </div>
 
-    <button
-      @click="handleModalSubmit"
-      :disabled="!isContactMode && !modalForm.action"
-      class="w-full bg-paynes-gray text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-30 uppercase tracking-widest text-xs">
-      {{ isContactMode ? "invia messaggio" : "invia risposta" }}
-    </button>
-  </div>
-</AppModal>
+        <div class="flex gap-3 pt-2">
+          <button
+            @click="isManageModalOpen = false"
+            class="flex-1 py-4 border border-border-color rounded-xl font-bold uppercase text-xs">
+            Annulla
+          </button>
+          <button
+            @click="handleModalSubmit"
+            :disabled="isProcessing || (!isContactMode && !modalForm.action)"
+            class="flex-1 bg-zomp text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50 uppercase tracking-widest text-xs">
+            {{
+              isProcessing
+                ? "Invio..."
+                : isContactMode
+                ? "Invia Messaggio"
+                : "Invia Risposta"
+            }}
+          </button>
+        </div>
+      </div>
+    </AppModal>
+
+    <AppModal
+      :is-open="isExchangeModalOpen"
+      title="Conferma Consegna"
+      @close="isExchangeModalOpen = false">
+      <div
+        class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl text-center">
+        <div
+          class="w-16 h-16 bg-zomp/10 rounded-full flex items-center justify-center mx-auto text-zomp">
+          <i class="fa-solid fa-handshake text-3xl"></i>
+        </div>
+        <p class="text-sm">
+          Stai confermando che lo scambio di
+          <strong>"{{ selectedLoan?.title }}"</strong> è avvenuto con successo.
+        </p>
+        <div class="flex gap-3">
+          <button
+            @click="isExchangeModalOpen = false"
+            class="flex-1 py-3 border border-border-color rounded-xl font-bold uppercase text-xs">
+            Annulla
+          </button>
+          <button
+            @click="executeExchange"
+            :disabled="isProcessing"
+            class="flex-1 py-3 bg-zomp text-white rounded-xl font-bold shadow-lg uppercase text-xs tracking-widest disabled:opacity-50">
+            {{ isProcessing ? "Attendere..." : "Conferma Scambio" }}
+          </button>
+        </div>
+      </div>
+    </AppModal>
 
     <AppModal
       :is-open="isReturnModalOpen"
-      title="conferma restituzione"
+      title="Conferma Restituzione"
       @close="isReturnModalOpen = false">
       <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
         <p class="text-sm">
           Il libro è tornato? Aggiorna la condizione attuale della copia.
         </p>
-        <div class="space-y-2">
-          <label
-            class="text-[10px] font-black opacity-40 tracking-widest uppercase"
-            >condizione attuale</label
-          >
-          <select
-            v-model="returnForm.condition"
-            class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm text-theme-main">
-            <option
-              v-for="opt in conditionOptions"
-              :key="opt.value"
-              :value="opt.value">
-              {{ opt.label }}
-            </option>
-          </select>
-          <p class="text-[9px] text-gray-500 italic mt-2">
-            <i class="fa-solid fa-circle-info"></i> L'utente riceverà una
-            notifica mail di fine prestito.
-          </p>
+        <select
+          v-model="returnForm.condition"
+          class="w-full p-3 bg-theme-primary border border-thistle rounded-xl text-sm text-theme-main outline-none">
+          <option
+            v-for="opt in conditionOptions"
+            :key="opt.value"
+            :value="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+        <div class="flex gap-3">
+          <button
+            @click="isReturnModalOpen = false"
+            class="flex-1 py-4 border border-border-color rounded-xl font-bold uppercase text-xs">
+            Annulla
+          </button>
+          <button
+            @click="confirmReturn"
+            :disabled="isProcessing"
+            class="flex-1 bg-zomp text-white py-4 rounded-xl font-bold shadow-lg uppercase text-xs tracking-widest disabled:opacity-50">
+            {{ isProcessing ? "Invio..." : "Conferma Rientro" }}
+          </button>
         </div>
-        <button
-          @click="confirmReturn"
-          class="w-full bg-zomp text-white py-4 rounded-xl font-bold shadow-lg uppercase text-xs tracking-widest">
-          conferma rientro
-        </button>
       </div>
     </AppModal>
 
     <AppModal
       :is-open="isExtendModalOpen"
-      title="Allunga prestito"
+      title="Allunga Prestito"
       @close="isExtendModalOpen = false">
       <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
         <p class="text-sm">Di quanti giorni vuoi estendere il prestito?</p>
-        <div class="space-y-2">
-          <label
-            class="text-[10px] font-black opacity-40 tracking-widest uppercase"
-            >giorni da aggiungere</label
-          >
-          <select
-            v-model.number="extendForm.days"
-            class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm text-theme-main">
-            <option :value="3">3 giorni</option>
-            <option :value="7">1 settimana</option>
-            <option :value="14">2 settimane</option>
-            <option :value="30">1 mese</option>
-          </select>
+        <select
+          v-model.number="extendForm.days"
+          class="w-full p-3 bg-theme-primary border border-thistle rounded-xl text-sm text-theme-main outline-none">
+          <option :value="3">3 giorni</option>
+          <option :value="7">1 settimana</option>
+          <option :value="14">2 settimane</option>
+          <option :value="30">1 mese</option>
+        </select>
+        <div class="flex gap-3">
+          <button
+            @click="isExtendModalOpen = false"
+            class="flex-1 py-4 border border-border-color rounded-xl font-bold uppercase text-xs">
+            Annulla
+          </button>
+          <button
+            @click="confirmExtension"
+            :disabled="isProcessing"
+            class="flex-1 bg-paynes-gray text-white py-4 rounded-xl font-bold shadow-lg uppercase text-xs tracking-widest disabled:opacity-50">
+            {{ isProcessing ? "Invio..." : "Conferma Estensione" }}
+          </button>
         </div>
-        <button
-          @click="confirmExtension"
-          class="w-full bg-paynes-gray text-white py-4 rounded-xl font-bold shadow-lg uppercase text-xs tracking-widest">
-          conferma estensione
-        </button>
       </div>
     </AppModal>
   </div>
@@ -677,12 +720,16 @@ const acceptedLoans = ref([]);
 const loanHistory = ref([]);
 const borrowedIndex = ref(0);
 const lentIndex = ref(0);
-const historyIndex = ref(0); // Nuovo indice per lo storico
+const historyIndex = ref(0);
 
+// Stati Modali
 const isManageModalOpen = ref(false);
 const isContactMode = ref(false);
+const isExchangeModalOpen = ref(false);
 const isReturnModalOpen = ref(false);
 const isExtendModalOpen = ref(false);
+const isProcessing = ref(false); // Blocca click doppi
+
 const selectedRequest = ref(null);
 const selectedLoan = ref(null);
 
@@ -729,7 +776,6 @@ const overdueLentBooks = computed(() =>
   lentBooks.value.filter((l) => isOverdue(l.expectedReturnDate))
 );
 
-// Divide lo storico in blocchi di 6
 const historyChunks = computed(() => {
   const chunks = [];
   for (let i = 0; i < loanHistory.value.length; i += 6) {
@@ -742,17 +788,18 @@ const modalTitle = computed(() =>
   isContactMode.value ? "Contatta utente" : "Gestione richiesta"
 );
 
-function formatDayFull(shortDay) {
-  const map = {
-    lun: "lunedì",
-    mar: "martedì",
-    mer: "mercoledì",
-    gio: "giovedì",
-    ven: "venerdì",
-    sab: "sabato",
-    dom: "domenica",
-  };
-  return map[shortDay] || shortDay;
+function formatDayFull(s) {
+  return (
+    {
+      lun: "lunedì",
+      mar: "martedì",
+      mer: "mercoledì",
+      gio: "giovedì",
+      ven: "venerdì",
+      sab: "sabato",
+      dom: "domenica",
+    }[s] || s
+  );
 }
 
 function toggleDay(d) {
@@ -772,13 +819,17 @@ function toggleSlot(s) {
 
 onMounted(async () => {
   await fetchUserMe();
+  await refreshAll();
+});
+
+async function refreshAll() {
   await Promise.all([
     fetchIncomingRequests(),
     fetchActiveLoans(),
     fetchAcceptedLoans(),
     fetchLoanHistory(),
   ]);
-});
+}
 
 async function fetchUserMe() {
   try {
@@ -806,46 +857,92 @@ async function fetchLoanHistory() {
   try {
     const allLoans = await apiClient.get("/loan/all");
     loanHistory.value = allLoans
-      .filter((l) => ["RETURNED", "REJECTED", "CANCELLED"].includes(l.status))
+      .filter((l) => ["RETURNED", "REJECTED"].includes(l.status))
       .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
   } catch (e) {}
 }
 
-async function confirmExchange(id) {
-  await apiClient.post(`/loan/${id}/start`);
-  await Promise.all([fetchAcceptedLoans(), fetchActiveLoans()]);
+// GESTIONE SCAMBIO
+function openExchangeModal(loan) {
+  selectedLoan.value = loan;
+  isExchangeModalOpen.value = true;
 }
+
+async function executeExchange() {
+  if (!selectedLoan.value || isProcessing.value) return;
+  isProcessing.value = true;
+  try {
+    await apiClient.post(`/loan/${selectedLoan.value.id}/start`);
+    isExchangeModalOpen.value = false;
+    await refreshAll();
+  } catch (e) {
+    alert("Errore durante l'avvio del prestito");
+  } finally {
+    isProcessing.value = false;
+  }
+}
+
 async function confirmReturn() {
-  await apiClient.post(`/loan/${selectedLoan.value.id}/return`, {
-    condition: returnForm.condition,
-  });
-  isReturnModalOpen.value = false;
-  await Promise.all([fetchActiveLoans(), fetchLoanHistory()]);
+  if (isProcessing.value) return;
+  isProcessing.value = true;
+  try {
+    await apiClient.post(`/loan/${selectedLoan.value.id}/return`, {
+      condition: returnForm.condition,
+    });
+    isReturnModalOpen.value = false;
+    await refreshAll();
+  } catch (e) {
+  } finally {
+    isProcessing.value = false;
+  }
 }
+
 async function confirmExtension() {
-  await apiClient.patch(`/loan/${selectedLoan.value.id}/extend`, {
-    days: extendForm.days,
-  });
-  isExtendModalOpen.value = false;
-  fetchActiveLoans();
+  if (isProcessing.value) return;
+  isProcessing.value = true;
+  try {
+    await apiClient.patch(`/loan/${selectedLoan.value.id}/extend`, {
+      days: extendForm.days,
+    });
+    isExtendModalOpen.value = false;
+    await fetchActiveLoans();
+  } catch (e) {
+  } finally {
+    isProcessing.value = false;
+  }
 }
 
 async function handleModalSubmit() {
+  if (isProcessing.value) return;
+
   const payload = {
     notes: modalForm.notes,
     days: modalForm.selectedDays.join(", "),
     slots: modalForm.selectedSlots.join(", "),
   };
-  if (isContactMode.value) {
-    await apiClient.post(`/loan/${selectedRequest.value.id}/contact`, payload);
-  } else {
-    await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, {
-      ...payload,
-      action: modalForm.action,
-    });
-    await Promise.all([fetchIncomingRequests(), fetchAcceptedLoans()]);
+
+  isProcessing.value = true;
+
+  try {
+    if (isContactMode.value) {
+      await apiClient.post(
+        `/loan/${selectedRequest.value.id}/contact`,
+        payload
+      );
+    } else {
+      await apiClient.patch(`/loan/${selectedRequest.value.id}/status`, {
+        ...payload,
+        action: modalForm.action,
+      });
+    }
+    // Chiudiamo subito lato client per evitare click doppi
+    isManageModalOpen.value = false;
+    await refreshAll();
+  } catch (e) {
+    alert(e.message || "Errore durante l'operazione");
+  } finally {
+    isProcessing.value = false;
   }
-  isManageModalOpen.value = false;
 }
 
 function openManageModal(req) {
@@ -859,6 +956,7 @@ function openManageModal(req) {
   });
   isManageModalOpen.value = true;
 }
+
 function openContactModal(loan) {
   selectedRequest.value = loan;
   isContactMode.value = true;
@@ -870,6 +968,7 @@ function openContactModal(loan) {
   });
   isManageModalOpen.value = true;
 }
+
 function openReturnModal(loan) {
   selectedLoan.value = loan;
   isReturnModalOpen.value = true;
@@ -882,10 +981,12 @@ function openExtendModal(loan) {
 
 const isOverdue = (d) => (d ? new Date(d) < new Date() : false);
 const formatDate = (d) => (d ? new Date(d).toLocaleDateString("it-IT") : "-");
+
+
 const formatVisibility = (v) =>
   ({ all: "Tutti", logged_in: "Registrati", private: "Privato" }[v] ||
   "Privato");
-
+  
 function nextBorrowed() {
   if (borrowedIndex.value < borrowedBooks.value.length - 3)
     borrowedIndex.value++;
@@ -899,8 +1000,6 @@ function nextLent() {
 function prevLent() {
   if (lentIndex.value > 0) lentIndex.value--;
 }
-
-// Metodi per lo scorrimento dello storico (per blocchi di 6)
 function nextHistory() {
   if (historyIndex.value < loanHistory.value.length - 6)
     historyIndex.value += 6;
