@@ -146,6 +146,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] mappetta
 - [x] stats titoli più richiesti lista non bar graph
 - [x] gestione utente se è privato non vede bene
-- [ ] torna indietro dal dettaglio libro non dovrebbe portare indietro su modifica (returnTo in book edit e gestito)
+- [x] torna indietro dal dettaglio libro non dovrebbe portare indietro su modifica (returnTo in book edit e gestito)
 - [ ] responsive???
-- [ ] book edit una volta aggiunti i tag non si dovrebbero vedere sotto
+- [x] book edit una volta aggiunti i tag non si dovrebbero vedere sotto
+- [ ] libreria visibilita'

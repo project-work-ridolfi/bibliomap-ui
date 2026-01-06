@@ -5,7 +5,7 @@
       aria-label="torna alla pagina precedente"
       class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium mb-4 focus:outline-none focus:ring-2 focus:ring-zomp rounded-lg p-1 uppercase text-xs">
       <i class="fa-solid fa-arrow-left mr-2" aria-hidden="true"></i>
-      Torna indietro
+      torna indietro
     </button>
 
     <div
@@ -20,7 +20,7 @@
       v-else-if="error"
       role="alert"
       class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center">
-      <p class="text-red-700 dark:text-red-400 font-medium font-bold uppercase text-xs">
+      <p class="text-red-700 dark:text-red-400 uppercase text-xs">
         Errore: {{ error }}
       </p>
       <button
@@ -236,6 +236,7 @@ const error = ref(null);
 // Stato Suggerimenti
 const isSearchingSimilar = ref(false);
 const suggestedBook = ref(null);
+
 
 // Label dinamica basata sulla distanza restituita dal BE
 const suggestionLabel = computed(() => {

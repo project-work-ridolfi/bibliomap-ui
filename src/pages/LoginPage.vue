@@ -91,7 +91,7 @@
         <button
           @click="mode = 'login'"
           class="w-full text-sm text-theme-main mt-2 underline">
-          Torna al login
+          torna al login
         </button>
       </div>
 

@@ -4,7 +4,7 @@
     <button
       @click="router.back()"
       class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium rounded-lg p-1">
-      <i class="fa-solid fa-arrow-left mr-2"></i> Torna indietro
+      <i class="fa-solid fa-arrow-left mr-2"></i> torna indietro
     </button>
 
     <div v-if="isLoading" role="status" class="text-center py-20 opacity-70">

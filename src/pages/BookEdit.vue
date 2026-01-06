@@ -107,7 +107,7 @@
             </div>
             <div class="mt-2 flex flex-wrap gap-2">
               <button
-                v-for="tag in commonTags"
+                v-for="tag in filteredSuggestedTags"
                 :key="tag"
                 @click="addSuggestedTag(tag)"
                 class="btn-tag text-[9px] font-bold uppercase border border-border-color px-2 py-1 rounded transition">
@@ -156,7 +156,7 @@ const form = reactive({
   id: "",
   title: "",
   status: "available",
-  condition: "", // inizializzato vuoto per attendere be
+  condition: "", 
   ownerNotes: "",
   tags: [],
   coverUrl: "",
@@ -178,6 +178,11 @@ const video = ref(null)
 const canvas = ref(null)
 const stream = ref(null)
 
+// 1. LOGICA TAG: Mostra solo i tag suggeriti che non sono già presenti sopra
+const filteredSuggestedTags = computed(() => {
+  return commonTags.filter(tag => !form.tags.includes(tag.toLowerCase()));
+});
+
 const currentImage = computed(() => {
   if (useDefault.value) return "/images/cover_placeholder.png"
   if (form.customCover) {
@@ -186,8 +191,9 @@ const currentImage = computed(() => {
   return form.coverUrl || "/images/cover_placeholder.png"
 })
 
+// 2. NAVIGAZIONE: Torna direttamente al dettaglio libro usando replace per pulire la history
 function goBack() {
-  router.back()
+  router.replace(`/books/${form.id}`);
 }
 
 async function loadData() {
@@ -202,7 +208,6 @@ async function loadData() {
     form.coverUrl = data.coverUrl
     form.customCover = data.customCover
     
-    // mapping condizione dal be: se non trova match usa 'good'
     const foundCondition = conditionOptions.find(c => c.value === data.condition)
     form.condition = foundCondition ? foundCondition.value : "good"
     
@@ -220,7 +225,8 @@ function addTag() {
 }
 
 function addSuggestedTag(tag) {
-  if (!form.tags.includes(tag)) form.tags.push(tag)
+  const val = tag.toLowerCase();
+  if (!form.tags.includes(val)) form.tags.push(val)
 }
 
 function removeTag(idx) {
@@ -284,7 +290,9 @@ async function saveChanges() {
     if (selectedFile.value) formData.append("coverFile", selectedFile.value)
 
     await apiClient.put(`/copies/${form.id}`, formData)
-    router.push(`/books/${form.id}`)
+    
+    // 2. NAVIGAZIONE: replace sostituisce lo stato "modifica" con "dettaglio" nella cronologia
+    router.replace(`/books/${form.id}`)
   } catch (e) {
     console.error("errore salvataggio")
   } finally {
