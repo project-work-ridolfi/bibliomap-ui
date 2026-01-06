@@ -61,11 +61,40 @@
           </button>
 
           <div v-else-if="isAuthenticated" class="pt-4 border-t border-thistle">
-            <p class="text-[10px] font-black opacity-60 mb-1">Affinità Gusti</p>
-            <p class="text-2xl font-display text-zomp">{{ affinityScore }}%</p>
-            <p class="text-[10px] italic opacity-60 leading-tight">
+            <div class="flex justify-between items-end mb-1">
+              <p
+                class="text-[10px] font-black opacity-60 uppercase tracking-widest">
+                Affinità Gusti
+              </p>
+              <p class="text-2xl font-display text-zomp">
+                {{ affinityScore }}%
+              </p>
+            </div>
+
+            <div
+              class="w-full h-1.5 bg-ash-gray/20 rounded-full overflow-hidden mb-3">
+              <div
+                class="h-full bg-zomp transition-all duration-1000"
+                :style="{ width: affinityScore + '%' }"></div>
+            </div>
+
+            <p class="text-[10px] italic opacity-60 leading-tight mb-4">
               {{ affinityMessage }}
             </p>
+
+            <div v-if="commonTags.length > 0" class="space-y-2">
+              <p class="text-[9px] font-bold opacity-40 uppercase">
+                Generi in comune:
+              </p>
+              <div class="flex flex-wrap gap-1">
+                <span
+                  v-for="tag in commonTags"
+                  :key="tag"
+                  class="text-[9px] px-2 py-0.5 bg-zomp/10 text-zomp border border-zomp/20 rounded-md font-bold">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
           </div>
         </section>
       </aside>
@@ -199,8 +228,7 @@
               </div>
 
               <div class="pt-6 border-t border-thistle space-y-4">
-                <h3
-                  class="font-display text-s text-zomp tracking-widest">
+                <h3 class="font-display text-s text-zomp tracking-widest">
                   Documenti e dati
                 </h3>
                 <div
@@ -233,18 +261,18 @@
                 <h3 class="font-display text-s text-zomp tracking-widest">
                   Impostazioni privacy
                 </h3>
-                <div  class="block text-[12px] font-bold mb-1 opacity-60"> <span> visibilità profilo: </span>
-                <select
-                  v-model="profileForm.visibility"
-                  class="input-field font-bold text-[11px]">
-                  <option value="all">pubblico</option>
-                  <option value="logged_in">utenti registrati</option>
-                  <option value="private">privato</option>
-                </select>
+                <div class="block text-[12px] font-bold mb-1 opacity-60">
+                  <span> visibilità profilo: </span>
+                  <select
+                    v-model="profileForm.visibility"
+                    class="input-field font-bold text-[11px]">
+                    <option value="all">pubblico</option>
+                    <option value="logged_in">utenti registrati</option>
+                    <option value="private">privato</option>
+                  </select>
                 </div>
                 <div>
-                  <div
-                    class="block text-[12px] font-bold mb-1 opacity-60">
+                  <div class="block text-[12px] font-bold mb-1 opacity-60">
                     <span>raggio sfocatura: &nbsp; &nbsp;</span
                     ><span>{{ profileForm.blurRadius }} metri</span>
                   </div>
@@ -425,7 +453,7 @@ const isMapVisible = computed(
 const visibilityIta = computed(() => {
   const v = profile.value?.visibility;
   return (
-    { all: "pubblico", "logged_in": "utenti registrati", private: "privato" }[
+    { all: "pubblico", logged_in: "utenti registrati", private: "privato" }[
       v
     ] || "privato"
   );
@@ -617,20 +645,68 @@ async function initEditMap() {
 
 const affinityScore = ref(0);
 const affinityMessage = ref("");
+const commonTags = ref([]);
+
 async function calculateAffinity() {
   try {
     const myStats = await apiClient.get(`/stats/user/${authStore.userId}/full`);
-    const targetTags = Object.keys(profile.value.topTags || {});
-    const myTags = myStats.weeklyRequests?.labels || [];
-    const common = targetTags.filter((t) => myTags.includes(t));
-    affinityScore.value = Math.round(
-      (common.length / Math.max(targetTags.length, 1)) * 100
-    );
-    affinityMessage.value =
-      affinityScore.value > 50
-        ? "Anime gemelle letterarie!"
-        : "Scoprite nuovi generi insieme.";
+
+    // Target Tags (Profilo visualizzato)
+    const targetTagMap = profile.value.tags || {};
+
+    // My Tags (Profilo utente loggato)
+    const myTagMap = {};
+    if (myStats.tags?.labels && myStats.tags?.data) {
+      myStats.tags.labels.forEach((label, index) => {
+        myTagMap[label] = myStats.tags.data[index];
+      });
+    }
+
+    const targetLabels = Object.keys(targetTagMap);
+    const myLabels = Object.keys(myTagMap);
+
+    // identifichiamo i generi letterari in comune (solo i nomi)
+    commonTags.value = targetLabels.filter((t) => myLabels.includes(t));
+
+    // Calcolo Similitudine del Coseno (Analisi dei pesi)
+    let dotProduct = 0;
+    let magnitudeTarget = 0;
+    let magnitudeMe = 0;
+
+    // Set di tutti i tag unici presenti in entrambi i profili
+    const allUniqueTags = new Set([...targetLabels, ...myLabels]);
+
+    allUniqueTags.forEach((tag) => {
+      const valTarget = targetTagMap[tag] || 0;
+      const valMe = myTagMap[tag] || 0;
+
+      dotProduct += valTarget * valMe;
+      magnitudeTarget += valTarget * valTarget;
+      magnitudeMe += valMe * valMe;
+    });
+
+    const magnitude = Math.sqrt(magnitudeTarget) * Math.sqrt(magnitudeMe);
+
+    // Calcolo finale in percentuale
+    affinityScore.value =
+      magnitude > 0 ? Math.round((dotProduct / magnitude) * 100) : 0;
+
+    // messaggi dinamici
+    if (affinityScore.value > 85) {
+      affinityMessage.value =
+        "Anime gemelle letterarie! Leggete quasi le stesse cose.";
+    } else if (affinityScore.value > 50) {
+      affinityMessage.value =
+        "Avete una forte affinità nei vostri generi preferiti.";
+    } else if (affinityScore.value > 0) {
+      affinityMessage.value =
+        "Gusti diversi, ma con alcuni punti di contatto interessanti.";
+    } else {
+      affinityMessage.value =
+        "Gusti opposti: un'ottima occasione per scambiarsi consigli nuovi!";
+    }
   } catch (e) {
+    console.error("Errore nel calcolo dell'affinità:", e);
     affinityScore.value = 0;
   }
 }
@@ -660,7 +736,6 @@ watch(() => route.params.id, fetchProfileData);
 </script>
 
 <style scoped>
-
 .input-field {
   width: 100%;
   padding: 0.75rem;

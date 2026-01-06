@@ -3,76 +3,87 @@ import { ref, computed } from "vue";
 import apiClient from "@/services/apiClient";
 
 export const useAuthStore = defineStore("auth", () => {
-  // state
+  // recupera userId da localStorage per mantenere lo stato
   const userId = ref(localStorage.getItem("userId") || null);
   const user = ref(null);
 
+  // l'utente è autenticato se abbiamo userId
   const isAuthenticated = computed(() => !!userId.value);
+
+  // helper per ottenere username
   const username = computed(() => user.value?.username || null);
 
+  // Imposta ID utente nello store e nel localStorage.
   function setAuth(id) {
     userId.value = id;
     localStorage.setItem("userId", id);
   }
 
+  // Registrazione nuovo utente
   async function register(userData) {
-    //  imposta il cookie
     const response = await apiClient.post("/auth/register", userData);
 
-    // solo userId nel corpo
     if (response && response.userId) {
       setAuth(response.userId);
-      await fetchCurrentUser();
+      await fetchCurrentUser(); // carica dati completi (username, ecc)
     } else {
       throw new Error("Dati di autenticazione (userId) non ricevuti.");
     }
   }
 
-  /**
-   * Effettua il login e salva l'ID utente.
-   */
+  // Login utente
   async function login(credentials) {
-    // invia le credenziali, il be imposta il cookie di sessione
+    // Il backend imposta il cookie di sessione HTTP-only
     const response = await apiClient.post("/auth/login", credentials);
 
     if (response && response.userId) {
       setAuth(response.userId);
       await fetchCurrentUser();
     } else {
-      // se il BE restituisce 204 o una risposta senza userId ma di successo,
-      // tentiamo comunque di caricare l'utente (fetchCurrentUser fallirà con 401 se il cookie non è valido)
+      // Fallback: se il BE non manda il corpo ma il cookie è settato
       await fetchCurrentUser();
     }
   }
 
-  function logout() {
+  //Logout
+  async function logout() {
     try {
-      // req per cancellare il cookie SESSION_ID su redis e dal browser
-      apiClient.post("/auth/logout");
+      // Chiamata al BE per invalidare la sessione
+      await apiClient.post("/auth/logout");
     } catch (e) {
-      console.warn(
-        "logout parziale: impossibile raggiungere l'endpoint di logout del be."
-      );
+      console.warn("Logout lato server fallito, procedo con pulizia locale.");
     }
 
-    // cancella lo stato locale
+    // Pulisce lo stato locale e il localStorage
     userId.value = null;
     user.value = null;
     localStorage.removeItem("userId");
   }
 
+  // Recupera i dati dell'utente loggato tramite il cookie di sessione
   async function fetchCurrentUser() {
     if (!userId.value) return;
+
     try {
+      // Chiamata all'endpoint protetto
       const response = await apiClient.get("/users/me");
       user.value = response;
-      // Sincronizziamo il userId se diverso
-      if (response.id) setAuth(response.id);
+
+      // Sincronizza userId
+      if (response.id) {
+        setAuth(response.id);
+      }
     } catch (error) {
-      console.warn("Sessione scaduta o non valida.");
-      logout(); // Pulisce tutto se il server dice che non siamo loggati
+      console.warn("Sessione non valida o scaduta. Eseguo logout.");
+      // se il server risponde 401/403, resettiamo lo store locale
+      userId.value = null;
+      user.value = null;
+      localStorage.removeItem("userId");
     }
   }
+
+  // Se al caricamento dell'app Pinia trova un userId ma non i dati dell'utente,
+  // prova a caricarli immediatamente.
   if (userId.value && !user.value) {
     fetchCurrentUser();
   }
