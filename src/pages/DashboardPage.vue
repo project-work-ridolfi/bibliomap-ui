@@ -116,6 +116,12 @@
                   >{{ req.title }}</router-link
                 >
               </p>
+              <span
+                v-if="duplicateRequests[req.copyId] > 1"
+                class="text-[8px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse uppercase">
+                Attenzione richiesta concorrente
+              </span>
+
               <button
                 @click="openManageModal(req)"
                 class="bg-zomp text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">
@@ -487,92 +493,108 @@
     </div>
 
     <AppModal
-      :is-open="isManageModalOpen"
-      :title="modalTitle"
-      @close="isManageModalOpen = false">
-      <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
-        <div v-if="!isContactMode" class="flex gap-4">
-          <button
-            @click="modalForm.action = 'ACCEPT'"
-            :class="
-              modalForm.action === 'ACCEPT'
-                ? 'bg-zomp text-white shadow-md border-zomp'
-                : 'bg-theme-primary border-border-color text-theme-main'
-            "
-            class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
-            accetta
-          </button>
-          <button
-            @click="modalForm.action = 'REJECT'"
-            :class="
-              modalForm.action === 'REJECT'
-                ? 'bg-red-500 text-white shadow-md border-red-500'
-                : 'bg-theme-primary border-border-color text-theme-main'
-            "
-            class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
-            rifiuta
-          </button>
-        </div>
-        <div class="space-y-2">
-          <label
-            class="text-[10px] font-black opacity-40 tracking-widest uppercase"
-            >messaggio per l'utente</label
-          >
-          <textarea
-            v-model="modalForm.notes"
-            class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm"
-            rows="3"
-            placeholder="Scrivi qui..."></textarea>
-          <p class="text-[9px] text-gray-500 italic leading-tight">
-            <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
-            messaggi verranno inviati via email. Evita di condividere dati
-            sensibili per la tua privacy.
-          </p>
-        </div>
-        <div
-          v-if="modalForm.action === 'ACCEPT' || isContactMode"
-          class="space-y-4">
-          <label
-            class="text-[10px] font-black opacity-40 tracking-widest uppercase"
-            >proponi disponibilità per lo scambio</label
-          >
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="day in days"
-              :key="day"
-              @click="toggleDay(day)"
-              :class="
-                modalForm.selectedDays.includes(formatDayFull(day))
-                  ? 'bg-tea-rose text-paynes-gray border-tea-rose'
-                  : 'bg-theme-secondary border-thistle'
-              "
-              class="px-3 py-1 border rounded-full text-[10px] font-bold transition uppercase">
-              {{ day }}
-            </button>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              v-for="slot in timeSlots"
-              :key="slot"
-              @click="toggleSlot(slot)"
-              :class="
-                modalForm.selectedSlots.includes(slot)
-                  ? 'bg-tea-rose text-paynes-gray border-tea-rose'
-                  : 'bg-theme-secondary border-thistle'
-              "
-              class="p-2 border rounded-lg text-[10px] font-bold text-left transition uppercase">
-              {{ slot }}
-            </button>
-          </div>
-        </div>
+  :is-open="isManageModalOpen"
+  :title="modalTitle"
+  @close="isManageModalOpen = false">
+  <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
+    
+    <div 
+      v-if="modalForm.action === 'ACCEPT' && duplicateRequests[selectedRequest?.copyId] > 1" 
+      class="bg-amber-100 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 p-4 rounded-xl space-y-2 animate-fade-in"
+    >
+      <div class="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-[10px] uppercase tracking-wider">
+        <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+        Attenzione: Richieste multiple
+      </div>
+      <p class="text-[11px] text-amber-900 dark:text-amber-200 leading-tight">
+        Accettando questa richiesta, le altre <strong>{{ duplicateRequests[selectedRequest.copyId] - 1 }}</strong> 
+        richieste in sospeso per questo specifico libro verranno <strong>rifiutate automaticamente</strong> dal sistema.
+      </p>
+    </div>
+
+    <div v-if="!isContactMode" class="flex gap-4">
+      <button
+        @click="modalForm.action = 'ACCEPT'"
+        :class="
+          modalForm.action === 'ACCEPT'
+            ? 'bg-zomp text-white shadow-md border-zomp'
+            : 'bg-theme-primary border-border-color text-theme-main'
+        "
+        class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
+        accetta
+      </button>
+      <button
+        @click="modalForm.action = 'REJECT'"
+        :class="
+          modalForm.action === 'REJECT'
+            ? 'bg-red-500 text-white shadow-md border-red-500'
+            : 'bg-theme-primary border-border-color text-theme-main'
+        "
+        class="flex-1 py-3 rounded-xl font-bold transition border-2 uppercase text-xs tracking-widest">
+        rifiuta
+      </button>
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-[10px] font-black opacity-40 tracking-widest uppercase">
+        messaggio per l'utente
+      </label>
+      <textarea
+        v-model="modalForm.notes"
+        class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm"
+        rows="3"
+        placeholder="Scrivi qui..."></textarea>
+      <p class="text-[9px] text-gray-500 italic leading-tight">
+        <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
+        messaggi verranno inviati via email. Evita di condividere dati
+        sensibili per la tua privacy.
+      </p>
+    </div>
+
+    <div
+      v-if="modalForm.action === 'ACCEPT' || isContactMode"
+      class="space-y-4">
+      <label class="text-[10px] font-black opacity-40 tracking-widest uppercase">
+        proponi disponibilità per lo scambio
+      </label>
+      <div class="flex flex-wrap gap-2">
         <button
-          @click="handleModalSubmit"
-          :disabled="!isContactMode && !modalForm.action"
-          class="w-full bg-paynes-gray text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-30 uppercase tracking-widest text-xs">
-          {{ isContactMode ? "invia messaggio" : "invia risposta" }}
+          v-for="day in days"
+          :key="day"
+          @click="toggleDay(day)"
+          :class="
+            modalForm.selectedDays.includes(formatDayFull(day))
+              ? 'bg-tea-rose text-paynes-gray border-tea-rose'
+              : 'bg-theme-secondary border-thistle'
+          "
+          class="px-3 py-1 border rounded-full text-[10px] font-bold transition uppercase">
+          {{ day }}
         </button>
       </div>
-    </AppModal>
+      <div class="grid grid-cols-2 gap-2">
+        <button
+          v-for="slot in timeSlots"
+          :key="slot"
+          @click="toggleSlot(slot)"
+          :class="
+            modalForm.selectedSlots.includes(slot)
+              ? 'bg-tea-rose text-paynes-gray border-tea-rose'
+              : 'bg-theme-secondary border-thistle'
+          "
+          class="p-2 border rounded-lg text-[10px] font-bold text-left transition uppercase">
+          {{ slot }}
+        </button>
+      </div>
+    </div>
+
+    <button
+      @click="handleModalSubmit"
+      :disabled="!isContactMode && !modalForm.action"
+      class="w-full bg-paynes-gray text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-30 uppercase tracking-widest text-xs">
+      {{ isContactMode ? "invia messaggio" : "invia risposta" }}
+    </button>
+  </div>
+</AppModal>
 
     <AppModal
       :is-open="isReturnModalOpen"
@@ -681,6 +703,14 @@ const timeSlots = [
   "sera 18-20",
 ];
 const conditionOptions = CONDITIONS;
+
+const duplicateRequests = computed(() => {
+  const counts = {};
+  pendingRequests.value.forEach((r) => {
+    counts[r.copyId] = (counts[r.copyId] || 0) + 1;
+  });
+  return counts;
+});
 
 const borrowedBooks = computed(() =>
   activeLoans.value.filter(
