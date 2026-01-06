@@ -1,8 +1,8 @@
 <template>
   <header class="bg-theme-primary sticky top-0 z-40 border-b border-thistle">
     <div class="max-w-7xl mx-auto px-4 py-3">
-      <div class="flex items-center justify-between h-auto">
-        <div class="flex items-center space-x-3">
+      <div class="relative flex items-center justify-between h-10">
+        <div class="flex items-center w-1/3 justify-start">
           <button
             @click="emit('toggle-sidebar')"
             class="header-icon"
@@ -11,13 +11,16 @@
           </button>
         </div>
 
-        <router-link to="/" class="header-center-title">
-          <h1 class="header-title-main text-paynes-gray uppercase">
+        <router-link
+          to="/"
+          class="header-center-title absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
+          <h1
+            class="header-title-main text-paynes-gray dark:!text-zomp uppercase tracking-tighter">
             BIBLIOMAP
           </h1>
         </router-link>
 
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center w-1/3 justify-end space-x-3">
           <button @click="toggleTheme" class="header-icon" title="Cambia Tema">
             <VueFeather
               :type="isDarkTheme ? 'sun' : 'moon'"
@@ -37,7 +40,12 @@
                 <div v-if="isUserMenuOpen" class="user-dropdown">
                   <div class="user-info-header">
                     <span class="username-display uppercase">
-                      CIAO {{ authStore.username || "utente" }}
+                      CIAO
+                      {{
+                        authStore.user?.username ||
+                        authStore.username ||
+                        "utente"
+                      }}
                     </span>
                   </div>
 
@@ -116,7 +124,7 @@ onMounted(async () => {
   if (authStore.isAuthenticated && !authStore.user) {
     await authStore.fetchCurrentUser();
   }
-  
+
   const savedTheme = localStorage.getItem("theme");
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark));
@@ -165,22 +173,11 @@ const vClickOutside = {
   z-index: 100;
 }
 
-.user-info-header {
-  padding: 0.8rem 1rem 0.6rem 1rem;
-}
-
 .username-display {
   color: var(--zomp);
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.05em;
-}
-
-.dropdown-divider {
-  height: 2px;
-  background-color: var(--thistle);
-  margin: 0.25rem 0.75rem 0.75rem 0.75rem;
-  opacity: 0.5;
 }
 
 .dropdown-item {
@@ -195,7 +192,6 @@ const vClickOutside = {
   border-radius: 0.6rem;
   transition: background-color 0.2s;
   text-decoration: none;
-  border: none;
   background: transparent;
   cursor: pointer;
 }
@@ -204,41 +200,22 @@ const vClickOutside = {
   background-color: rgba(152, 182, 177, 0.1);
 }
 
-.icon-margin {
-  margin-right: 0.85rem;
-}
-
 .login-btn-header {
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 700;
+  text-transform: uppercase;
   color: var(--paynes-gray);
-  padding: 0.4rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 0.8rem;
   border: 2px solid var(--ash-gray);
   text-decoration: none;
 }
 
-.header-center-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  flex-grow: 1;
-}
-
 .header-title-main {
   font-family: "Shadows Into Light Two", cursive;
-  /* dimezzato */
   font-size: min(1.75em, 5vw);
   margin: 0;
   line-height: 1;
-}
-
-.header-subtitle-main {
-  font-family: "Quicksand", sans-serif;
-  /* ridotto */
-  font-size: min(0.65em, 3vw);
-  margin-top: 2px;
 }
 
 .fade-slide-enter-active,
