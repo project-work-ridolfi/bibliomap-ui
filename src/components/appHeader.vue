@@ -37,11 +37,7 @@
                 <div v-if="isUserMenuOpen" class="user-dropdown">
                   <div class="user-info-header">
                     <span class="username-display uppercase">
-                      CIAO {{
-                        authStore.user?.username ||
-                        authStore.username ||
-                        ""
-                      }}
+                      CIAO {{ authStore.username || "utente" }}
                     </span>
                   </div>
 
@@ -116,7 +112,11 @@ const applyTheme = (isDark) => {
 
 const toggleTheme = () => applyTheme(!isDarkTheme.value);
 
-onMounted(() => {
+onMounted(async () => {
+  if (authStore.isAuthenticated && !authStore.user) {
+    await authStore.fetchCurrentUser();
+  }
+  
   const savedTheme = localStorage.getItem("theme");
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark));

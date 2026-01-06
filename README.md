@@ -98,7 +98,7 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] messaggio per l’utente con testo grigio che dice attento a non condividere stocazzo
     - [x] modale ha bottoni a notte anche quando giorno
 - [x] header
-    - [ ] nome utente non sempre carica da capi
+    - [x] nome utente non sempre carica da capi
 - [ ] css - fonts - notte
 - [ ] footer
 - [x] modale richiesta libro
