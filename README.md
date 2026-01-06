@@ -89,12 +89,12 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] cambia visibilità
     - [x] da fare completamente pagina profilo che riporta poi a quella che c'e' ora di gestione
     - [x] gestione richieste rivedere non si vedeno bene
-- [ ] dashboard
+- [x] dashboard
     - [x] sui libri prestati devono funzionare i bottoni (api per allungare il tempo da fare)
     - [x] sulla restituzione accettata si deve aprire una modale per far aggiungere note se necessario e/o cambiare la condizione del libro
-    - [ ] dashboard owner quando libro scaduto anche vede in maniera diversa e può allungare o contattare
+    - [x] dashboard owner quando libro scaduto anche vede in maniera diversa e può allungare o contattare
     - [x] aggiungi storico dei prestiti su dashboard
-    - [ ] manda stringa giorni come giorni completi separati da virgola
+    - [x] manda stringa giorni come giorni completi separati da virgola
     - [x] messaggio per l’utente con testo grigio che dice attento a non condividere stocazzo
     - [x] modale ha bottoni a notte anche quando giorno
 - [x] header

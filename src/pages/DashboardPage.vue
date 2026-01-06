@@ -3,7 +3,7 @@
     class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
     <div
       v-if="overdueLoans.length > 0 || overdueLentBooks.length > 0"
-      class="bg-red-100 dark:bg-red-900/20 border-2 border-red-500 p-6 rounded-2xl animate-pulse space-y-4">
+      class="bg-red-100 dark:bg-red-900/20 border-2 border-red-500 p-6 rounded-2xl space-y-4">
       <h3
         class="text-red-700 dark:text-red-400 font-black flex items-center gap-2 tracking-tighter uppercase text-sm">
         <i class="fa-solid fa-triangle-exclamation"></i> azioni urgenti
@@ -42,16 +42,17 @@
         <div
           v-for="loan in overdueLentBooks"
           :key="loan.id"
-          class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-red-200 dark:border-red-800">
-          <p class="text-sm font-bold text-red-800 dark:text-red-300">
+          class="flex flex-col md:flex-row justify-between items-start md:items-center bg-theme-primary p-4 rounded-xl border border-red-300 dark:border-red-800 shadow-sm">
+          <p class="text-sm font-bold text-gray-900 dark:text-red-300">
             <router-link
               :to="`/profile/${loan.requesterId}`"
-              class="underline"
+              class="underline text-gray-900 dark:text-red-300"
               >{{ loan.requesterUsername }}</router-link
             >
             ha ancora <span class="italic">"{{ loan.title }}"</span> (doveva
             rientrare il {{ formatDate(loan.expectedReturnDate) }})
           </p>
+
           <div class="flex gap-2 mt-3 md:mt-0">
             <button
               @click="openContactModal(loan)"
