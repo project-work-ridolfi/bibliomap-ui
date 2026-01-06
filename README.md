@@ -99,8 +99,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
     - [x] modale ha bottoni a notte anche quando giorno
 - [x] header
     - [x] nome utente non sempre carica da capi
-- [ ] css - fonts - notte
-- [ ] footer
+- [x] font
+- [x] footer
 - [x] modale richiesta libro
 - [x] Aggiornare `apiClient` per includere gli endpoint `/loans` definiti nel BE
 - [x] Aggiornare `DashboardPage.vue` per caricare le liste prestiti (requests e active)

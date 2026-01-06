@@ -1,6 +1,6 @@
 export const TERMS_AND_CONDITIONS = `
 <h1>Termini e Condizioni</h1>
-<p><strong>Ultimo aggiornamento:</strong> 17 novembre 2025</p>
+<p><strong>Ultimo aggiornamento:</strong> 6 gennaio 2026</p>
 
 <hr />
 
@@ -123,11 +123,8 @@ export const TERMS_AND_CONDITIONS = `
 <hr />
 
 <h2>9. Contatti</h2>
-<p><strong>[TODO NOME AZIENDA]</strong><br>
-Bibliomap<br>
-[TODO Indirizzo]<br>
-[TODO Email di supporto]<br>
-[TODO Numero di telefono]</p>`;
+<p><strong>BIBLIOMAP</strong><br>
+adriana.ridolfi@studenti.unipegaso.it<br>`;
 
 
 /**
@@ -135,7 +132,7 @@ Bibliomap<br>
  */
 export const PRIVACY_POLICY = `
 <h1>Informativa Privacy (ai sensi del Regolamento UE 2016/679 “GDPR”)</h1>
-<p><strong>Ultimo aggiornamento:</strong> 17 novembre 2025</p>
+<p><strong>Ultimo aggiornamento:</strong> 6 gennaio 2026</p>
 
 <p>
 La presente informativa descrive le modalità con cui raccogliamo e trattiamo i dati personali degli utenti che accedono al sito <strong>Bibliomap</strong> 
@@ -336,7 +333,7 @@ La presente informativa può essere aggiornata in qualsiasi momento. Le modifich
 <h2>14. Contatti</h2>
 <p>
 Per informazioni o per esercitare i propri diritti:<br>
-<strong>Email:</strong> [TODO email]<br>
+<strong>Email:</strong> adriana.ridolfi@studenti.unipegaso.it<br>
 <strong>Pagina web:</strong> <a href="https://dadefinire.it/policy">https://dadefinire.it/policy</a>
 </p>
 `;
