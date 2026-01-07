@@ -9,6 +9,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api"
 async function apiFetch(endpoint, options = {}) {
   const authStore = useAuthStore();
 
+  endpoint = endpoint.startsWith("/")? endpoint.slice(1) : endpoint;
+
   // gestione url e query params
   let url = `${API_BASE_URL}/${endpoint}`;
 
