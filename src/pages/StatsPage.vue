@@ -19,7 +19,7 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import UserStats from '@/components/userStats.vue';
-import GlobalStats from '@/components/globalStats.vue';
+import UserStats from '@/components/UserStats.vue';
+import GlobalStats from '@/components/GlobalStats.vue';
 const authStore = useAuthStore();
 </script>
