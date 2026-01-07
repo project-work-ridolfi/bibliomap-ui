@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/authStore";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 /**
  * funzione generica per richieste http.
@@ -10,7 +10,7 @@ async function apiFetch(endpoint, options = {}) {
   const authStore = useAuthStore();
 
   // gestione url e query params
-  let url = `${API_BASE_URL}/api${endpoint}`;
+  let url = `${API_BASE_URL}/${endpoint}`;
 
   const { params, ...fetchOptions } = options;
 
