@@ -33,17 +33,13 @@ export const useAuthStore = defineStore("auth", () => {
 
   // Login utente
   async function login(credentials) {
-    // Il backend imposta il cookie di sessione HTTP-only
-    const response = await apiClient.post("/auth/login", credentials);
+    const response = await apiClient.post("/auth/login", credentials)
 
     if (response && response.userId) {
-      setAuth(response.userId);
-      setTimeout(async () => {
-        await fetchCurrentUser()
-      }, 100)
-    } else {
-      // Fallback: se il BE non manda il corpo ma il cookie è settato
-      await fetchCurrentUser();
+      setAuth(response.userId)
+    
+      await new Promise(resolve => setTimeout(resolve, 200))
+      await fetchCurrentUser()
     }
   }
 
@@ -64,23 +60,17 @@ export const useAuthStore = defineStore("auth", () => {
 
   // Recupera i dati dell'utente loggato tramite il cookie di sessione
   async function fetchCurrentUser() {
-    if (!userId.value) return;
-
+    if (!userId.value) return
     try {
-      // Chiamata all'endpoint protetto
-      const response = await apiClient.get("/users/me");
-      user.value = response;
-
-      // Sincronizza userId
-      if (response.id) {
-        setAuth(response.id);
-      }
+      const response = await apiClient.get("/users/me")
+      user.value = response
+      if (response.id) setAuth(response.id)
     } catch (error) {
-      console.warn("Sessione non valida o scaduta. Eseguo logout.");
-      // se il server risponde 401/403, resettiamo lo store locale
-      userId.value = null;
-      user.value = null;
-      localStorage.removeItem("userId");
+    // se il server dà 401 durante il caricamento iniziale, puliamo senza chiamare l'API di logout
+      console.warn("Sessione non valida.")
+      userId.value = null
+      user.value = null
+      localStorage.removeItem("userId")
     }
   }
 
