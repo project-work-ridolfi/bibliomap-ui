@@ -56,14 +56,18 @@ async function apiFetch(endpoint, options = {}) {
     });
 
     if (response.status === 401) {
-      // NON facciamo il logout se siamo nell'endpoint di login
-      if (!response.url.includes("/auth/login")) {
-        authStore.logout();
-        router.push("/login");
+     if (!url.includes("/auth/login")) {
+        // resettiamo lo store senza chiamare authStore.logout() (che farebbe una POST)
+        authStore.userId = null
+        authStore.user = null
+        localStorage.removeItem("userId")
+        
+        if (!window.location.pathname.includes("/login")) {
+            window.location.href = "/login"
+        }
       }
-      // Lancia l'errore così il catch della LoginPage può gestirlo
-      const errorData = await response.json();
-      throw { status: 401, message: errorData.error || "Unauthorized" };
+      const errorData = await response.json()
+      throw { status: 401, message: errorData.error || "Unauthorized" }
     }
 
     // gestione errori
