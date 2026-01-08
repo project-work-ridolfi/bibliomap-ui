@@ -38,7 +38,9 @@ export const useAuthStore = defineStore("auth", () => {
 
     if (response && response.userId) {
       setAuth(response.userId);
-      await fetchCurrentUser();
+      setTimeout(async () => {
+        await fetchCurrentUser()
+      }, 100)
     } else {
       // Fallback: se il BE non manda il corpo ma il cookie è settato
       await fetchCurrentUser();
