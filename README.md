@@ -147,6 +147,9 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] stats titoli più richiesti lista non bar graph
 - [x] gestione utente se è privato non vede bene
 - [x] torna indietro dal dettaglio libro non dovrebbe portare indietro su modifica (returnTo in book edit e gestito)
-- [ ] responsive???
+- [x] responsive
 - [x] book edit una volta aggiunti i tag non si dovrebbero vedere sotto
 - [X] libreria visibilita'
+- [ ] ritaglio immagini caricate con dimensioni cover (rettangolo)
+- [ ] caricamento libri nella pagina di ricerca (rotella e paginazione)
+- [ ] caricamento img nell'acordion se cover copia e non libro
