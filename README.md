@@ -153,3 +153,4 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] ritaglio immagini caricate con dimensioni cover (rettangolo)
 - [ ] caricamento libri nella pagina di ricerca (rotella e paginazione)
 - [ ] caricamento img nell'acordion se cover copia e non libro
+- [ ] richiedi copia dati, passandoci sopra deve scrivere che arriva pdf via email
