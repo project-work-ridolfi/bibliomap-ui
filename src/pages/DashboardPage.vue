@@ -1,6 +1,7 @@
 <template>
   <div
     class="max-w-6xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
+    <!-- Alert rosso con i prestiti scaduti in entrata e uscita -->
     <div
       v-if="overdueLoans.length > 0 || overdueLentBooks.length > 0"
       class="bg-red-100 dark:bg-red-900/20 border-2 border-red-500 p-6 rounded-2xl space-y-4">
@@ -10,6 +11,7 @@
         richieste
       </h3>
 
+      <!-- Libri che l'utente deve restituire ai proprietari -->
       <div v-if="overdueLoans.length > 0" class="space-y-2">
         <p class="text-[10px] font-bold text-red-600 uppercase tracking-widest">
           Libri che devi restituire:
@@ -35,6 +37,7 @@
         </div>
       </div>
 
+      <!-- Libri che l'utente ha prestato e sono scaduti -->
       <div v-if="overdueLentBooks.length > 0" class="space-y-2">
         <p class="text-[10px] font-bold text-red-600 uppercase tracking-widest">
           Libri che hai prestato e sono scaduti:
@@ -68,6 +71,7 @@
       </div>
     </div>
 
+    <!-- Header della dashboard con titolo e pulsante aggiungi libro -->
     <div
       class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-thistle pb-6">
       <div>
@@ -87,6 +91,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <div class="lg:col-span-3 space-y-10">
+        <!-- Sezione richieste di prestito in sospeso -->
         <section
           v-if="pendingRequests.length > 0"
           class="bg-tea-rose/10 border-l-4 border-tea-rose p-6 rounded-r-2xl space-y-4">
@@ -115,6 +120,7 @@
                     >{{ req.title }}</router-link
                   >
                 </p>
+                <!-- Badge quando ci sono richieste concorrenti per lo stesso libro -->
                 <span
                   v-if="duplicateRequests[req.copyId] > 1"
                   class="shrink-0 text-[8px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse uppercase ml-4">
@@ -130,6 +136,7 @@
           </div>
         </section>
 
+        <!-- Sezione scambi già accettati in attesa di conferma -->
         <section
           v-if="acceptedLoans.length > 0"
           class="bg-zomp/10 border-l-4 border-zomp p-6 rounded-r-2xl space-y-4">
@@ -144,6 +151,7 @@
               :key="loan.id"
               class="flex justify-between items-center bg-theme-primary p-4 rounded-xl shadow-sm border border-thistle">
               <p class="text-sm">
+                <!-- Mostra testo diverso se sono il proprietario o il richiedente -->
                 <template v-if="loan.ownerId === userData?.id">
                   Conferma la consegna di
                   <router-link
@@ -182,6 +190,7 @@
           </div>
         </section>
 
+        <!-- Carousel scorrevole dei libri che l'utente sta attualmente leggendo -->
         <section class="space-y-4">
           <div
             class="flex justify-between items-center border-b border-thistle pb-2">
@@ -240,6 +249,7 @@
                     <p class="text-[8px] font-black opacity-40 uppercase">
                       scadenza
                     </p>
+                    <!-- Data di scadenza evidenziata in rosso se scaduta -->
                     <p
                       class="text-xs font-mono"
                       :class="
@@ -261,6 +271,7 @@
           </div>
         </section>
 
+        <!-- Carousel scorrevole dei libri che l'utente ha prestato ad altri -->
         <section class="space-y-4">
           <div
             class="flex justify-between items-center border-b border-thistle pb-2">
@@ -310,6 +321,7 @@
                         {{ loan.title }}
                       </h4>
                     </router-link>
+                    <!-- Badge rosso evidenzia prestiti scaduti -->
                     <span
                       v-if="isOverdue(loan.expectedReturnDate)"
                       class="text-[8px] bg-red-600 text-white px-1.5 py-0.5 rounded uppercase font-black"
@@ -343,6 +355,7 @@
           </div>
         </section>
 
+        <!-- Sezione storico prestiti conclusi o rifiutati -->
         <section class="space-y-6 pt-10 border-t border-thistle/30">
           <div class="flex justify-between items-center pb-2">
             <h3
@@ -432,6 +445,7 @@
                         }}
                       </router-link>
                     </p>
+                    <!-- Pulsante per richiedere di nuovo lo stesso libro -->
                     <button
                       v-if="h.requesterId === userData?.id"
                       @click="router.push(`/books/${h.copyId}`)"
@@ -446,6 +460,7 @@
         </section>
       </div>
 
+      <!-- Sidebar con navigazione veloce e info privacy -->
       <aside class="lg:col-span-1 space-y-6">
         <section
           class="bg-theme-primary p-6 rounded-2xl shadow-md border border-thistle space-y-6">
@@ -472,7 +487,8 @@
           </nav>
         </section>
 
-                <section
+        <!-- Card info visibilità profilo corrente -->
+        <section
           v-if="userData"
           class="p-5 bg-ash-gray/10 rounded-2xl border border-dashed border-thistle text-[10px]">
           <p class="font-black opacity-40 mb-2 uppercase">Privacy Corrente</p>
@@ -490,11 +506,13 @@
       </aside>
     </div>
 
+    <!-- Modale per gestire richieste di prestito o contattare utenti -->
     <AppModal
       :is-open="isManageModalOpen"
       :title="modalTitle"
       @close="isManageModalOpen = false">
       <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
+        <!-- Avviso quando ci sono richieste concorrenti -->
         <div
           v-if="
             modalForm.action === 'ACCEPT' &&
@@ -510,6 +528,7 @@
           </p>
         </div>
 
+        <!-- Pulsanti accetta/rifiuta visibili solo se non in modalità contatto -->
         <div v-if="!isContactMode" class="flex gap-4">
           <button
             @click="modalForm.action = 'ACCEPT'"
@@ -533,6 +552,7 @@
           </button>
         </div>
 
+        <!-- Field messaggio con warning privacy -->
         <div class="space-y-2">
           <label
             class="text-[10px] font-black opacity-40 tracking-widest uppercase"
@@ -543,13 +563,14 @@
             class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm text-theme-main"
             rows="3"
             placeholder="Scrivi qui..."></textarea>
-             <p class="text-[9px] text-gray-500 italic leading-tight">
-        <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
-        messaggi verranno inviati via email. Evita di condividere dati
-        sensibili per la tua privacy.
-      </p>
+          <p class="text-[9px] text-gray-500 italic leading-tight">
+            <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
+            messaggi verranno inviati via email. Evita di condividere dati
+            sensibili per la tua privacy.
+          </p>
         </div>
 
+        <!-- Selezione giorni e orari disponibili per lo scambio -->
         <div
           v-if="modalForm.action === 'ACCEPT' || isContactMode"
           class="space-y-4">
@@ -587,6 +608,7 @@
           </div>
         </div>
 
+        <!-- Pulsanti submit e annulla -->
         <div class="flex gap-3 pt-2">
           <button
             @click="isManageModalOpen = false"
@@ -609,6 +631,7 @@
       </div>
     </AppModal>
 
+    <!-- Modale per confermare l'avvio dello scambio -->
     <AppModal
       :is-open="isExchangeModalOpen"
       title="Conferma Consegna"
@@ -639,6 +662,7 @@
       </div>
     </AppModal>
 
+    <!-- Modale per registrare la restituzione di un libro e aggiornarne la condizione -->
     <AppModal
       :is-open="isReturnModalOpen"
       title="Conferma Restituzione"
@@ -673,6 +697,7 @@
       </div>
     </AppModal>
 
+    <!-- Modale per estendere la scadenza di un prestito -->
     <AppModal
       :is-open="isExtendModalOpen"
       title="Allunga Prestito"
@@ -722,26 +747,32 @@ const borrowedIndex = ref(0);
 const lentIndex = ref(0);
 const historyIndex = ref(0);
 
-// Stati Modali
+// Stato di apertura/chiusura delle modali
 const isManageModalOpen = ref(false);
 const isContactMode = ref(false);
 const isExchangeModalOpen = ref(false);
 const isReturnModalOpen = ref(false);
 const isExtendModalOpen = ref(false);
-const isProcessing = ref(false); // Blocca click doppi
+const isProcessing = ref(false);
 
 const selectedRequest = ref(null);
 const selectedLoan = ref(null);
 
+// Dati della modale gestione richieste
 const modalForm = reactive({
   action: "",
   notes: "",
   selectedDays: [],
   selectedSlots: [],
 });
+
+// Dati della modale restituzione
 const returnForm = reactive({ condition: "great" });
+
+// Dati della modale estensione prestito
 const extendForm = reactive({ days: 7 });
 
+// Opzioni giorni e orari per lo scambio
 const days = ["lun", "mar", "mer", "gio", "ven", "sab", "dom"];
 const timeSlots = [
   "mattina 08-12",
@@ -751,6 +782,7 @@ const timeSlots = [
 ];
 const conditionOptions = CONDITIONS;
 
+// Calcola il numero di richieste concorrenti per ogni copia
 const duplicateRequests = computed(() => {
   const counts = {};
   pendingRequests.value.forEach((r) => {
@@ -759,23 +791,31 @@ const duplicateRequests = computed(() => {
   return counts;
 });
 
+// Libri che l'utente sta attualmente leggendo (prestiti in entrata)
 const borrowedBooks = computed(() =>
   activeLoans.value.filter(
     (l) => l.requesterId === userData.value?.id && l.status === "ON_LOAN"
   )
 );
+
+// Libri che l'utente ha prestato ad altri (prestiti in uscita)
 const lentBooks = computed(() =>
   activeLoans.value.filter(
     (l) => l.ownerId === userData.value?.id && l.status === "ON_LOAN"
   )
 );
+
+// Prestiti in entrata scaduti
 const overdueLoans = computed(() =>
   borrowedBooks.value.filter((l) => isOverdue(l.expectedReturnDate))
 );
+
+// Prestiti in uscita scaduti
 const overdueLentBooks = computed(() =>
   lentBooks.value.filter((l) => isOverdue(l.expectedReturnDate))
 );
 
+// Dividi lo storico in chunk di 6 per la paginazione
 const historyChunks = computed(() => {
   const chunks = [];
   for (let i = 0; i < loanHistory.value.length; i += 6) {
@@ -784,10 +824,12 @@ const historyChunks = computed(() => {
   return chunks;
 });
 
+// Titolo modale dinamico basato su modalità (gestione o contatto)
 const modalTitle = computed(() =>
   isContactMode.value ? "Contatta utente" : "Gestione richiesta"
 );
 
+// Converte abbreviazione giorno in nome completo
 function formatDayFull(s) {
   return (
     {
@@ -802,6 +844,7 @@ function formatDayFull(s) {
   );
 }
 
+// Aggiunge o rimuove un giorno dalla selezione
 function toggleDay(d) {
   const full = formatDayFull(d);
   const i = modalForm.selectedDays.indexOf(full);
@@ -810,6 +853,7 @@ function toggleDay(d) {
     : modalForm.selectedDays.splice(i, 1);
 }
 
+// Aggiunge o rimuove uno slot orario dalla selezione
 function toggleSlot(s) {
   const i = modalForm.selectedSlots.indexOf(s);
   i === -1
@@ -822,6 +866,7 @@ onMounted(async () => {
   await refreshAll();
 });
 
+// Carica tutti i dati della dashboard
 async function refreshAll() {
   await Promise.all([
     fetchIncomingRequests(),
@@ -831,28 +876,37 @@ async function refreshAll() {
   ]);
 }
 
+// Carica dati dell'utente loggato
 async function fetchUserMe() {
   try {
     userData.value = await apiClient.get("/users/me");
   } catch (e) {}
 }
+
+// Carica richieste di prestito in sospeso ricevute
 async function fetchIncomingRequests() {
   try {
     pendingRequests.value =
       (await apiClient.get("/loan/requests/incoming")) || [];
   } catch (e) {}
 }
+
+// Carica prestiti attivi (ON_LOAN) in entrata e uscita
 async function fetchActiveLoans() {
   try {
     activeLoans.value = (await apiClient.get("/loan/active")) || [];
   } catch (e) {}
 }
+
+// Carica prestiti accettati in attesa di conferma dello scambio
 async function fetchAcceptedLoans() {
   try {
     const all = await apiClient.get("/loan/all");
     acceptedLoans.value = all.filter((l) => l.status === "ACCEPTED");
   } catch (e) {}
 }
+
+// Carica storico prestiti conclusi o rifiutati ordinati per data
 async function fetchLoanHistory() {
   try {
     const allLoans = await apiClient.get("/loan/all");
@@ -862,12 +916,13 @@ async function fetchLoanHistory() {
   } catch (e) {}
 }
 
-// GESTIONE SCAMBIO
+// Apre modale per confermare scambio avvenuto
 function openExchangeModal(loan) {
   selectedLoan.value = loan;
   isExchangeModalOpen.value = true;
 }
 
+// Invia conferma scambio al backend
 async function executeExchange() {
   if (!selectedLoan.value || isProcessing.value) return;
   isProcessing.value = true;
@@ -882,6 +937,7 @@ async function executeExchange() {
   }
 }
 
+// Invia conferma restituzione libro con condizione aggiornata
 async function confirmReturn() {
   if (isProcessing.value) return;
   isProcessing.value = true;
@@ -897,6 +953,7 @@ async function confirmReturn() {
   }
 }
 
+// Invia richiesta estensione prestito
 async function confirmExtension() {
   if (isProcessing.value) return;
   isProcessing.value = true;
@@ -912,6 +969,7 @@ async function confirmExtension() {
   }
 }
 
+// Gestione submit modale: accettazione, rifiuto o contatto
 async function handleModalSubmit() {
   if (isProcessing.value) return;
 
@@ -935,7 +993,7 @@ async function handleModalSubmit() {
         action: modalForm.action,
       });
     }
-    // Chiudiamo subito lato client per evitare click doppi
+    // Chiusura immediata lato client per evitare doppi click
     isManageModalOpen.value = false;
     await refreshAll();
   } catch (e) {
@@ -945,6 +1003,7 @@ async function handleModalSubmit() {
   }
 }
 
+// Apre modale gestione richiesta di prestito ricevuta
 function openManageModal(req) {
   selectedRequest.value = req;
   isContactMode.value = false;
@@ -957,6 +1016,7 @@ function openManageModal(req) {
   isManageModalOpen.value = true;
 }
 
+// Apre modale per contattare un utente
 function openContactModal(loan) {
   selectedRequest.value = loan;
   isContactMode.value = true;
@@ -969,24 +1029,31 @@ function openContactModal(loan) {
   isManageModalOpen.value = true;
 }
 
+// Apre modale per registrare restituzione libro
 function openReturnModal(loan) {
   selectedLoan.value = loan;
   isReturnModalOpen.value = true;
 }
+
+// Apre modale per estendere scadenza prestito
 function openExtendModal(loan) {
   selectedLoan.value = loan;
   extendForm.days = 7;
   isExtendModalOpen.value = true;
 }
 
+// Controlla se una data è scaduta
 const isOverdue = (d) => (d ? new Date(d) < new Date() : false);
+
+// Formatta una data in locale italiano
 const formatDate = (d) => (d ? new Date(d).toLocaleDateString("it-IT") : "-");
 
-
+// Converte codice visibilità in etichetta leggibile
 const formatVisibility = (v) =>
   ({ all: "Tutti", logged_in: "Registrati", private: "Privato" }[v] ||
   "Privato");
-  
+
+// Paginazione carousel libri in lettura
 function nextBorrowed() {
   if (borrowedIndex.value < borrowedBooks.value.length - 3)
     borrowedIndex.value++;
@@ -994,12 +1061,16 @@ function nextBorrowed() {
 function prevBorrowed() {
   if (borrowedIndex.value > 0) borrowedIndex.value--;
 }
+
+// Paginazione carousel libri prestati
 function nextLent() {
   if (lentIndex.value < lentBooks.value.length - 3) lentIndex.value++;
 }
 function prevLent() {
   if (lentIndex.value > 0) lentIndex.value--;
 }
+
+// Paginazione storico prestiti
 function nextHistory() {
   if (historyIndex.value < loanHistory.value.length - 6)
     historyIndex.value += 6;
@@ -1010,6 +1081,7 @@ function prevHistory() {
 </script>
 
 <style scoped>
+/* Stile link navigazione sidebar con hover effect */
 .nav-link {
   display: flex;
   align-items: center;

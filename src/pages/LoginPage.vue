@@ -163,6 +163,7 @@
           MOCK OTP: {{ mockOtp }}
         </div>
 
+        <!-- Input OTP con 6 campi singoli e auto-focus -->
         <div class="flex justify-center space-x-2 mb-6">
           <input
             v-for="(digit, index) in otpDigits"

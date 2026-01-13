@@ -5,7 +5,10 @@
         <h2 class="welcome-title">Benvenuta/o su BIBLIOMAP!</h2>
         <p class="welcome-subtitle">Accedi per vedere tutte funzionalità.</p>
       </div>
-      <router-link to="/login" class="btn-login">
+      <router-link
+        to="/login"
+        class="btn-login"
+        aria-label="vai alla pagina di login">
         Accedi o Registrati
       </router-link>
     </div>
@@ -21,7 +24,8 @@
             class="btn-filters"
             :class="
               showFilters ? 'btn-filters--active' : 'btn-filters--inactive'
-            ">
+            "
+            aria-label="mostra o nascondi filtri ricerca">
             <i class="fa-solid fa-filter"></i>
             Filtri
           </button>
@@ -32,14 +36,16 @@
             v-model="filters.searchText"
             type="text"
             placeholder="cerca titolo o autore..."
-            class="filter-input" />
+            class="filter-input"
+            aria-label="campo ricerca per titolo o autore" />
 
           <div class="filter-checkbox-group">
             <input
               type="checkbox"
               id="avail-filter"
               v-model="filters.onlyAvailable"
-              class="filter-checkbox" />
+              class="filter-checkbox"
+              aria-label="filtra solo libri disponibili" />
             <label for="avail-filter" class="filter-label"
               >Mostra solo libri disponibili</label
             >
@@ -51,7 +57,8 @@
               <button
                 @click="handleSort('distance')"
                 class="btn-sort"
-                :class="{ 'btn-sort--active': sortField === 'distance' }">
+                :class="{ 'btn-sort--active': sortField === 'distance' }"
+                aria-label="ordina per distanza">
                 distanza
                 <i
                   v-if="sortField === 'distance'"
@@ -63,7 +70,8 @@
               <button
                 @click="handleSort('title')"
                 class="btn-sort"
-                :class="{ 'btn-sort--active': sortField === 'title' }">
+                :class="{ 'btn-sort--active': sortField === 'title' }"
+                aria-label="ordina per titolo">
                 titolo
                 <i
                   v-if="sortField === 'title'"
@@ -75,7 +83,8 @@
               <button
                 @click="handleSort('author')"
                 class="btn-sort"
-                :class="{ 'btn-sort--active': sortField === 'author' }">
+                :class="{ 'btn-sort--active': sortField === 'author' }"
+                aria-label="ordina per autore">
                 autore
                 <i
                   v-if="sortField === 'author'"
@@ -95,7 +104,8 @@
                 :key="tag"
                 @click="toggleTag(tag)"
                 class="btn-tag"
-                :class="{ 'btn-tag--active': selectedTag === tag }">
+                :class="{ 'btn-tag--active': selectedTag === tag }"
+                :aria-label="`filtra per tag ${tag}`">
                 {{ tag }}
               </button>
             </div>
@@ -105,23 +115,23 @@
         <div ref="listContainer" class="book-list-container">
           <div
             v-if="isFetchingBooks"
-            class="flex-center absolute inset-0 z-20 bg-theme-primary">
+            class="flex justify-center items-center absolute inset-0 z-20 bg-theme-primary">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
           </div>
-
           <div
             v-else-if="filteredBooks.length === 0"
-            class="flex-center flex-col mt-4 px-4 text-center">
-            <p class="opacity-70 text-sm mb-4">
+            class="flex-center flex-col mt-8 px-4 text-center w-full">
+            <p class="opacity-70 text-sm mb-6 font-medium">
               nessun libro trovato in quest area.
             </p>
-            <div
-              class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)]">
-              <div class="flex justify-between items-center">
-                <span class="text-[10px] uppercase font-bold opacity-80"
+
+            <div class="w-full max-w-[200px] flex flex-col items-center gap-3">
+              <div class="flex justify-between items-center w-full">
+                <span
+                  class="text-[10px] uppercase font-bold opacity-60 tracking-wider"
                   >espandi raggio</span
                 >
-                <span class="text-xs font-bold text-[var(--zomp)]">
+                <span class="text-xs font-black text-[var(--zomp)]">
                   {{
                     expansionRadius >= 1000
                       ? (expansionRadius / 1000).toFixed(1) + " km"
@@ -135,8 +145,9 @@
                 max="15000"
                 step="500"
                 v-model.number="expansionRadius"
-                @change="applyRadiusZoom"
-                class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]" />
+                @input="applyRadiusZoom"
+                class="w-full h-1 bg-[var(--paynes-gray)]/20 rounded-lg appearance-none cursor-pointer accent-[var(--zomp)] hover:accent-[var(--paynes-gray)] transition"
+                aria-label="slider per espandere raggio di ricerca" />
             </div>
           </div>
 
@@ -145,11 +156,13 @@
               v-for="book in paginatedBooks"
               :key="book.id"
               @click="zoomToBook(book)"
-              class="book-card">
+              class="book-card cursor-pointer"
+              :aria-label="`visualizza dettagli libro ${book.title}`">
               <div class="book-card-content">
                 <div class="book-cover">
                   <img
                     :src="book.coverUrl"
+                    alt="copertina libro"
                     @error="
                       (e) => (e.target.src = assignDefaultCover(book.id))
                     " />
@@ -175,13 +188,15 @@
                   <div class="book-footer-btns">
                     <button
                       @click.stop="goToBookDetails(book.id)"
-                      class="book-footer-btn view">
+                      class="book-footer-btn view"
+                      aria-label="vedi pagina dettaglio">
                       <i class="fa-solid fa-eye"></i> vedi
                     </button>
                     <button
                       v-if="authStore.isAuthenticated"
                       @click.stop="openConfirmModal(book)"
-                      class="book-footer-btn request">
+                      class="book-footer-btn request"
+                      aria-label="richiedi prestito libro">
                       <i class="fa-solid fa-hand-holding-hand"></i> richiedi
                     </button>
                   </div>
@@ -195,7 +210,8 @@
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="btn-pagination">
+            class="btn-pagination"
+            aria-label="pagina precedente">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
           <span class="text-xs font-semibold"
@@ -204,7 +220,8 @@
           <button
             @click="nextPage"
             :disabled="currentPage >= totalPages || totalPages === 0"
-            class="btn-pagination">
+            class="btn-pagination"
+            aria-label="pagina successiva">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
@@ -212,7 +229,10 @@
 
       <section class="map-layout-section">
         <div class="map-wrapper">
-          <div id="map" class="w-full h-full"></div>
+          <div
+            id="map"
+            class="w-full h-full"
+            aria-label="mappa interattiva librerie"></div>
           <div class="map-legend">
             <div class="flex items-center">
               <span class="legend-dot"></span>
@@ -232,7 +252,10 @@
                   gpsAccuracy ? "~" + Math.round(gpsAccuracy) + "m" : "n/a"
                 }})</span
               >
-              <button @click="handleGeolocationFlow" class="btn-retry-location">
+              <button
+                @click="handleGeolocationFlow"
+                class="btn-retry-location"
+                aria-label="riprova geolocalizzazione">
                 riprova
               </button>
             </div>
@@ -259,13 +282,17 @@
         <p class="text-xs italic opacity-80">{{ bookToRequest.author }}</p>
       </div>
       <div class="modal-actions">
-        <button @click="isConfirmModalOpen = false" class="btn-modal-cancel">
+        <button
+          @click="isConfirmModalOpen = false"
+          class="btn-modal-cancel"
+          aria-label="annulla richiesta">
           annulla
         </button>
         <button
           @click="confirmLoanRequest"
           :disabled="isSending"
-          class="btn-modal-confirm">
+          class="btn-modal-confirm"
+          aria-label="conferma richiesta prestito">
           <i v-if="isSending" class="fa-solid fa-circle-notch fa-spin"></i>
           {{ isSending ? "invio..." : "conferma" }}
         </button>
@@ -295,6 +322,11 @@ const authStore = useAuthStore();
 const router = useRouter();
 
 const ROME_CENTER = { lat: 41.9028, lng: 12.4964 };
+// definisce i confini geografici per bloccare la mappa su roma
+const ROME_BOUNDS = [
+  [12.2, 41.6], // sud-ovest
+  [12.8, 42.1], // nord-est
+];
 const CARD_HEIGHT = 180;
 const MAX_SEARCH_RADIUS = 20;
 const MAX_ZOOM_OUT = 10;
@@ -332,7 +364,7 @@ const DEFAULT_COVERS = [
   "/images/cover_default_4.png",
   "/images/cover_default_5.png",
   "/images/cover_default_6.png",
-  "/images/cover_default_7.png"
+  "/images/cover_default_7.png",
 ];
 
 // assegna una copertina di default basata sull id del libro
@@ -453,7 +485,6 @@ watch(filteredBooks, () => {
   if (mapLoaded.value) updateMapMarkers();
 });
 
-
 // avvia il flusso per ottenere la posizione dell utente
 async function handleGeolocationFlow() {
   isLocationLoading.value = true;
@@ -484,8 +515,7 @@ function finalizeLocation(lat, lng, zoomLevel) {
   initMap(lat, lng, zoomLevel);
 }
 
-
-// recupera i libri vicini dal backend
+// recupera i libri vicini dal backend con logica fallback copertine
 async function fetchBooks(lat, lng, radius) {
   isFetchingBooks.value = true;
   try {
@@ -499,15 +529,24 @@ async function fetchBooks(lat, lng, radius) {
       },
     });
     const rawBooks = Array.isArray(results) ? results : results.results || [];
+
     books.value = rawBooks.map((b) => {
-      let finalCover = b.cover;
-      if (
-        b.cover &&
-        !b.cover.startsWith("http") &&
-        !b.cover.startsWith("data:image")
-      ) {
-        finalCover = `data:image/jpeg;base64,${b.cover}`;
+      // logica priorità copertina: custom > url > default
+      let finalCover = null;
+
+      if (b.customCover) {
+        finalCover = b.customCover.startsWith("data:")
+          ? b.customCover
+          : `data:image/jpeg;base64,${b.customCover}`;
+      } else if (b.coverUrl || b.cover) {
+        const url = b.coverUrl || b.cover;
+        // gestisce url relativi o assoluti vs base64 grezzi
+        finalCover =
+          url.startsWith("http") || url.startsWith("/")
+            ? url
+            : `data:image/jpeg;base64,${url}`;
       }
+
       return {
         ...b,
         libraryId: b.libraryId,
@@ -546,7 +585,7 @@ function applyRadiusZoom() {
   });
 }
 
-// inizializza la mappa maplibre
+// inizializza la mappa maplibre con vincoli su roma
 const initMap = (lat, lng, zoomLevel) => {
   if (map.value) {
     map.value.flyTo({ center: [lng, lat], zoom: zoomLevel });
@@ -560,13 +599,35 @@ const initMap = (lat, lng, zoomLevel) => {
     center: [lng, lat],
     zoom: zoomLevel,
     minZoom: MAX_ZOOM_OUT,
+    // imposta limiti di navigazione sulla mappa
+    maxBounds: ROME_BOUNDS,
     attributionControl: false,
   });
+
+  // monitora lo zoom per aggiornare slider e bloccare pan al max out
+  map.value.on("zoom", () => {
+    const currentZoom = map.value.getZoom();
+
+    // blocca navigazione se siamo al massimo zoom out
+    if (currentZoom <= MAX_ZOOM_OUT) {
+      if (map.value.dragPan.isEnabled()) map.value.dragPan.disable();
+    } else {
+      if (!map.value.dragPan.isEnabled()) map.value.dragPan.enable();
+    }
+
+    // calcola raggio inverso dallo zoom per aggiornare lo slider
+    const newRadius = 500 * Math.pow(2, 15.5 - currentZoom);
+    if (newRadius >= 500 && newRadius <= 15000) {
+      expansionRadius.value = Math.round(newRadius);
+    }
+  });
+
   map.value.on("load", () => {
     mapLoaded.value = true;
     createUserMarker(lat, lng);
     searchInAreaOnLoad(lat, lng);
   });
+
   map.value.on("moveend", () => {
     if (filters.searchText === "") searchInCurrentArea();
   });
@@ -634,7 +695,7 @@ const updateMapMarkers = () => {
         </div>
         <button id="btn-lib-${
           lib.id || "temp"
-        }" class="bg-[var(--zomp)] text-white text-[10px] font-bold py-1.5 px-3 rounded-full hover:bg-[var(--paynes-gray)] transition uppercase w-full">
+        }" class="bg-[var(--zomp)] text-white text-[10px] font-bold py-1.5 px-3 rounded-full hover:bg-[var(--paynes-gray)] transition uppercase w-full" aria-label="vai a libreria">
             vedi libreria
         </button>
       </div>`;
@@ -674,15 +735,17 @@ const zoomToBook = (book) => {
   if (!map.value) return;
 
   isZoomingToBook.value = true;
-  
-  map.value.flyTo({ 
-    center: [book.lng, book.lat], 
-    zoom: 15.5, 
-    speed: 1.2 
+
+  map.value.flyTo({
+    center: [book.lng, book.lat],
+    zoom: 15.5,
+    speed: 1.2,
   });
 
-  map.value.once('idle', () => {
-    const targetMarker = currentMarkers.value.find(m => m._libraryId === book.libraryId);
+  map.value.once("idle", () => {
+    const targetMarker = currentMarkers.value.find(
+      (m) => m._libraryId === book.libraryId
+    );
     if (targetMarker) {
       if (!targetMarker.getPopup().isOpen()) {
         targetMarker.togglePopup();

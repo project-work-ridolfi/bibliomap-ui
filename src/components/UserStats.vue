@@ -1,9 +1,11 @@
 <template>
   <div
     class="rounded-2xl shadow-md border border-[var(--thistle)] overflow-hidden bg-theme-primary transition-all duration-300">
+    <!-- Header clickabile per aprire/chiudere dettagli -->
     <div
       @click="toggleOpen"
-      class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group">
+      class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group"
+      aria-label="Apri o chiudi dettagli statistiche">
       <div class="flex-grow grid grid-cols-3 gap-4 text-center mr-4">
         <div v-for="stat in simpleCards" :key="stat.label">
           <div class="text-2xl font-display" :class="stat.color">
@@ -17,62 +19,83 @@
       </div>
       <i
         class="fa-solid fa-chevron-down transition-transform duration-300 text-zomp"
-        :class="isOpen ? 'rotate-180' : ''"></i>
+        :class="isOpen ? 'rotate-180' : ''"
+        aria-label="Apri o chiudi dettagli grafici"></i>
     </div>
 
     <div v-if="isOpen" class="px-6 pb-8 border-t border-thistle pt-8 space-y-8">
-      <div v-if="isLoadingFull" class="text-center py-10">
-        <i class="fa-solid fa-circle-notch fa-spin text-zomp text-2xl"></i>
+      <!-- Loader caricamento dati -->
+      <div v-if="isLoadingFull" class="text-center py-10" aria-label="Caricamento dati in corso">
+        <i class="fa-solid fa-circle-notch fa-spin text-zomp text-2xl" aria-label="Icona caricamento"></i>
       </div>
 
       <template v-else-if="fullData">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
+          <!-- Statistiche dettagliate -->
           <div
             v-for="s in detailStats"
             :key="s.label"
             class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center">
             <p
-              class="text-[9px] font-black opacity-40 tracking-widest mb-1 uppercase">
+              class="text-[9px] font-black opacity-40 tracking-widest mb-1 uppercase"
+              :aria-label="s.label">
               {{ s.label }}
             </p>
             <p
               v-if="s.link"
               @click="router.push(s.link)"
-              class="font-bold text-lg text-zomp truncate px-2 cursor-pointer hover:underline">
+              class="font-bold text-lg text-zomp truncate px-2 cursor-pointer hover:underline"
+              :aria-label="`Vai a ${s.value}`">
               {{ s.value }}
             </p>
-            <p v-else class="font-bold text-lg text-zomp truncate px-2">
+            <p v-else class="font-bold text-lg text-zomp truncate px-2" :aria-label="s.value">
               {{ s.value }}
             </p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+          <!-- Grafico trend -->
           <div
-            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
+            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Grafico andamento scambi">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               andamento scambi (mensile)
             </p>
             <div class="h-[200px]">
-              <canvas ref="canvasTrend"></canvas>
+              <canvas ref="canvasTrend" aria-label="Grafico andamento scambi"></canvas>
+            </div>
+            <div v-if="!fullData.loansTrend || fullData.loansTrend.labels.length === 0"
+                 class="text-center text-gray-500 text-[10px] py-4 italic"
+                 aria-label="Nessun dato disponibile per andamento scambi">
+              Nessun dato disponibile
             </div>
           </div>
 
+          <!-- Grafico tags -->
           <div
-            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
+            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Grafico tutti i tag">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
-              i tag più usati
+              tutti i tag
             </p>
             <div class="h-[200px]">
-              <canvas ref="canvasTags"></canvas>
+              <canvas ref="canvasTags" aria-label="Grafico tutti i tag"></canvas>
+            </div>
+            <div v-if="!fullData.tags || fullData.tags.labels.length === 0"
+                 class="text-center text-gray-500 text-[10px] py-4 italic"
+                 aria-label="Nessun dato disponibile per tags">
+              Nessun dato disponibile
             </div>
           </div>
 
+          <!-- Libri più visti -->
           <div
             v-if="filteredMostViewedBooks.length > 0"
-            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
+            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Libri più visti">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               libri più visti
@@ -82,7 +105,8 @@
                 v-for="(item, index) in filteredMostViewedBooks.slice(0, 3)"
                 :key="index"
                 @click="router.push(`/books/${item.id}`)"
-                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group"
+                :aria-label="`Libro ${item.name}, viste ${item.views}`">
                 <span
                   class="font-bold text-sm text-theme-main group-hover:text-zomp truncate flex-1 mr-4">
                   {{ index + 1 }}. {{ item.name }}
@@ -94,9 +118,11 @@
             </div>
           </div>
 
+          <!-- Librerie più visitate -->
           <div
             v-if="filteredLibraries.length > 0"
-            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm text-theme-main">
+            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm text-theme-main"
+            aria-label="Librerie più visitate">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               {{
@@ -110,7 +136,8 @@
                 v-for="(item, index) in filteredLibraries"
                 :key="index"
                 @click="router.push(`/libraries/${item.id}`)"
-                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group"
+                :aria-label="`Libreria ${item.name}, visite ${item.views}`">
                 <span
                   class="font-bold text-sm group-hover:text-zomp truncate flex-1 mr-4">
                   {{ item.name }}
@@ -122,8 +149,10 @@
             </div>
           </div>
 
+          <!-- Titoli più richiesti -->
           <div
-            class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
+            class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Titoli più richiesti">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               i titoli più richiesti
@@ -133,7 +162,8 @@
                 v-for="(label, index) in fullData.titlesRanking.labels"
                 :key="index"
                 @click="router.push(`/books/${parseKey(label).id}`)"
-                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp hover:shadow-sm transition cursor-pointer group">
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp hover:shadow-sm transition cursor-pointer group"
+                :aria-label="`Libro ${parseKey(label).name}, richieste ${fullData.titlesRanking.data[index]}`">
                 <div class="flex items-center gap-4">
                   <span class="font-display text-zomp text-lg opacity-50"
                     >{{ index + 1 }}.</span
@@ -155,7 +185,8 @@
               </div>
               <div
                 v-if="fullData.titlesRanking.labels.length === 0"
-                class="text-center py-4 italic opacity-50 text-sm">
+                class="text-center py-4 italic opacity-50 text-sm"
+                aria-label="Nessun dato disponibile titoli richiesti">
                 Nessun dato disponibile
               </div>
             </div>
@@ -195,6 +226,7 @@ let chartInstances = [];
 const canvasTrend = ref(null);
 const canvasTags = ref(null);
 
+// Card sintetiche principali
 const simpleCards = computed(() => [
   {
     label: "libri totali",
@@ -213,6 +245,7 @@ const simpleCards = computed(() => [
   },
 ]);
 
+// Statistiche dettagliate
 const detailStats = computed(() => {
   if (!fullData.value) return [];
   const partnerRaw = fullData.value.topPartner || "nessuno";
@@ -233,7 +266,7 @@ const detailStats = computed(() => {
       value: partnerName,
       link: partnerId ? `/profile/${partnerId}` : null,
     },
-    { label: "tag più usato", value: fullData.value.topTag || "nessuno" },
+    { label: "tutti i tag", value: fullData.value.topTag || "nessuno" },
     {
       label: "viaggio più lungo",
       value: `${fullData.value.maxDistance || 0} km`,
@@ -241,6 +274,7 @@ const detailStats = computed(() => {
   ];
 });
 
+// Parse chiavi id_nome
 function parseKey(label) {
   if (!label) return { id: "", name: "" };
   const parts = label.split("_");
@@ -249,6 +283,7 @@ function parseKey(label) {
   return { id, name };
 }
 
+// Filtri libri più visti
 const filteredMostViewedBooks = computed(() => {
   if (!fullData.value?.mostViewedBooks?.labels) return [];
   return fullData.value.mostViewedBooks.labels
@@ -260,6 +295,7 @@ const filteredMostViewedBooks = computed(() => {
     .sort((a, b) => b.views - a.views);
 });
 
+// Filtri librerie più visitate
 const filteredLibraries = computed(() => {
   if (!fullData.value?.mostVisitedLibraries?.labels) return [];
   return fullData.value.mostVisitedLibraries.labels
@@ -271,6 +307,7 @@ const filteredLibraries = computed(() => {
     .sort((a, b) => b.views - a.views);
 });
 
+// Fetch contatori
 async function fetchCounters() {
   if (!props.userId) return;
   try {
@@ -281,6 +318,7 @@ async function fetchCounters() {
   }
 }
 
+// Toggle apertura dettagli
 async function toggleOpen() {
   isOpen.value = !isOpen.value;
 
@@ -302,6 +340,8 @@ async function toggleOpen() {
     setTimeout(renderCharts, 100);
   }
 }
+
+// Render grafici
 function renderCharts() {
   chartInstances.forEach((c) => c.destroy());
   chartInstances = [];
@@ -312,6 +352,7 @@ function renderCharts() {
     plugins: { legend: { display: false } },
   };
 
+  // Grafico trend line
   if (canvasTrend.value && fullData.value?.loansTrend?.labels) {
     chartInstances.push(
       new Chart(canvasTrend.value, {
@@ -338,6 +379,7 @@ function renderCharts() {
     );
   }
 
+  // Grafico tags
   if (canvasTags.value && fullData.value?.tags?.labels) {
     chartInstances.push(
       new Chart(canvasTags.value, {

@@ -3,17 +3,20 @@
     <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="relative flex items-center justify-between h-10">
         <div class="flex items-center w-1/3 justify-start">
+          <!-- Bottone per aprire/chiudere la sidebar -->
           <button
             @click="emit('toggle-sidebar')"
             class="header-icon"
-            title="Menu">
+            title="Menu"
+            aria-label="Apri menu">
             <VueFeather type="menu" size="24"></VueFeather>
           </button>
         </div>
 
         <router-link
           to="/"
-          class="header-center-title absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
+          class="header-center-title absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
+          aria-label="Home">
           <h1
             class="header-title-main text-paynes-gray dark:!text-zomp uppercase tracking-tighter">
             BIBLIOMAP
@@ -21,7 +24,12 @@
         </router-link>
 
         <div class="flex items-center w-1/3 justify-end space-x-3">
-          <button @click="toggleTheme" class="header-icon" title="Cambia Tema">
+          <!-- Bottone per cambiare tema -->
+          <button 
+            @click="toggleTheme" 
+            class="header-icon" 
+            title="Cambia Tema"
+            :aria-label="isDarkTheme ? 'Modalità chiara' : 'Modalità scura'">
             <VueFeather
               :type="isDarkTheme ? 'sun' : 'moon'"
               size="24"></VueFeather>
@@ -29,16 +37,19 @@
 
           <template v-if="authStore.isAuthenticated">
             <div class="relative" v-click-outside="closeUserMenu">
+              <!-- Bottone per aprire il menu utente -->
               <button
                 @click="toggleUserMenu"
                 class="header-icon"
-                title="Profilo">
+                title="Profilo"
+                aria-label="Menu utente">
                 <VueFeather type="user" size="24"></VueFeather>
               </button>
 
               <transition name="fade-slide">
                 <div v-if="isUserMenuOpen" class="user-dropdown">
                   <div class="user-info-header">
+                    <!-- Mostra il nome utente -->
                     <span class="username-display uppercase">
                       CIAO
                       {{
@@ -49,26 +60,29 @@
                     </span>
                   </div>
 
-                  <div class="dropdown-divider"></div>
+                  <!-- Linea di demarcazione extra per separare dal resto -->
+                  <div class="dropdown-divider my-3"></div>
 
                   <router-link
                     :to="`/profile/${authStore.userId}`"
                     @click="closeUserMenu"
-                    class="dropdown-item">
+                    class="dropdown-item"
+                    aria-label="Visualizza profilo">
                     <VueFeather
                       type="settings"
                       size="16"
-                      class="icon-margin"></VueFeather>
+                      class="icon-margin mr-2"></VueFeather>
                     visualizza profilo
                   </router-link>
 
                   <button
                     @click="handleLogout"
-                    class="dropdown-item text-red-500">
+                    class="dropdown-item text-red-500"
+                    aria-label="Logout">
                     <VueFeather
                       type="log-out"
                       size="16"
-                      class="icon-margin"></VueFeather>
+                      class="icon-margin mr-2"></VueFeather>
                     logout
                   </button>
                 </div>
@@ -77,7 +91,8 @@
           </template>
 
           <template v-else>
-            <router-link to="/login" class="login-btn-header">
+            <!-- Bottone login -->
+            <router-link to="/login" class="login-btn-header" aria-label="Accedi">
               Accedi
             </router-link>
           </template>
@@ -92,37 +107,43 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 
+// Store per autenticazione
 const authStore = useAuthStore();
 const router = useRouter();
 const emit = defineEmits(["toggle-sidebar"]);
 
-const isDarkTheme = ref(false);
-const isUserMenuOpen = ref(false);
+const isDarkTheme = ref(false); // Stato tema
+const isUserMenuOpen = ref(false); // Stato menu utente
 
+// Toggle menu utente
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
 };
+// Chiude menu utente
 const closeUserMenu = () => {
   isUserMenuOpen.value = false;
 };
 
+// Logout utente
 async function handleLogout() {
   closeUserMenu();
   await authStore.logout();
   router.push("/");
 }
 
+// Applica tema
 const applyTheme = (isDark) => {
   isDarkTheme.value = isDark;
   document.documentElement.classList.toggle("dark", isDark);
   localStorage.setItem("theme", isDark ? "dark" : "light");
 };
 
+// Toggle tema
 const toggleTheme = () => applyTheme(!isDarkTheme.value);
 
 onMounted(async () => {
   if (authStore.isAuthenticated && !authStore.user) {
-    await authStore.fetchCurrentUser();
+    await authStore.fetchCurrentUser(); // Recupera dati utente se mancanti
   }
 
   const savedTheme = localStorage.getItem("theme");
@@ -130,6 +151,7 @@ onMounted(async () => {
   applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark));
 });
 
+// Direttiva click fuori
 const vClickOutside = {
   mounted(el, binding) {
     el.clickOutsideEvent = (event) => {

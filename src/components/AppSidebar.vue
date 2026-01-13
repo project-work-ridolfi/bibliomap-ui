@@ -144,13 +144,15 @@ const menuItems = computed(() => {
       { path: "/stats", label: "Statistiche", icon: "bar-chart-2" },
       { label: "Librerie", icon: "book-open", children: true },
       { path: "/add-book", label: "Aggiungi libro", icon: "plus-circle" },
-      { path: "/profile/" + authStore.userId, label: "Profilo", icon: "user" }
+      { path: "/profile/" + authStore.userId, label: "Profilo", icon: "user" },
+      { path: "/about", label: "Info", icon: "info" }
     );
   } else {
     items.push(
       { path: "/stats", label: "Statistiche", icon: "bar-chart-2" },
       { path: "/signup", label: "Registrati", icon: "user-plus" },
-      { path: "/login", label: "Accedi", icon: "log-in" }
+      { path: "/login", label: "Accedi", icon: "log-in" },
+      { path: "/about", label: "Info", icon: "info" }
     );
   }
   return items;

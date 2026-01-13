@@ -151,8 +151,8 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [x] book edit una volta aggiunti i tag non si dovrebbero vedere sotto
 - [X] libreria visibilita'
 - [ ] ritaglio immagini caricate con dimensioni cover (rettangolo)
-- [ ] caricamento libri nella pagina di ricerca (rotella e paginazione)
-- [ ] caricamento img nell'acordion se cover copia e non libro
+- [x] caricamento libri nella pagina di ricerca (rotella e paginazione)
+- [x] caricamento img nell'acordion se cover copia e non libro
 - [ ] richiedi copia dati, passandoci sopra deve scrivere che arriva pdf via email
-- [ ] aggiungi /about a sidebar
+- [x] aggiungi /about a sidebar
 - [ ] check posizione fuori roma non indirizzo

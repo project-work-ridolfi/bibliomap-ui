@@ -8,7 +8,7 @@ export const TERMS_AND_CONDITIONS = `
 <p>
   I presenti Termini e Condizioni costituiscono un accordo giuridicamente vincolante tra l'utente e 
   <strong>Bibliomap</strong> ("noi" o "nostro") relativo all'accesso e all'utilizzo del sito web 
-  [TODO LINK] e dei servizi correlati (il "Sito").
+  <a href="https://bibliomap-ui.onrender.com">https://bibliomap-ui.onrender.com</a> e dei servizi correlati (il "Sito").
 </p>
 <p>
   Accedendo al Sito, l'utente dichiara di aver letto, compreso e accettato tali Termini.
@@ -43,10 +43,10 @@ export const TERMS_AND_CONDITIONS = `
 <h2>4. Dichiarazioni dell'Utente</h2>
 <p>Utilizzando il Sito, l'utente dichiara che:</p>
 <ul>
-  <li>le informazioni fornite sono accurate e aggiornate;</li>
-  <li>ha la capacità legale per accettare questi Termini;</li>
-  <li>non accederà tramite bot o mezzi automatizzati;</li>
-  <li>l'uso del Sito è conforme alle normative vigenti.</li>
+  <li>le informazioni fornite sono accurate e aggiornate</li>
+  <li>ha la capacità legale per accettare questi Termini</li>
+  <li>non accederà tramite bot o mezzi automatizzati</li>
+  <li>l'uso del Sito è conforme alle normative vigenti</li>
 </ul>
 <p>
   Informazioni false o incomplete possono comportare la sospensione dell'account.
@@ -58,18 +58,18 @@ export const TERMS_AND_CONDITIONS = `
 
 <h3>Rispetto della Comunità</h3>
 <ul>
-  <li>non utilizzare dati del Sito per molestare o danneggiare altri utenti;</li>
-  <li>non pubblicare contenuti violenti, diffamatori o discriminatori;</li>
-  <li>non impersonare altri utenti;</li>
-  <li>non effettuare segnalazioni fraudolente.</li>
+  <li>non utilizzare dati del Sito per molestare o danneggiare altri utenti</li>
+  <li>non pubblicare contenuti violenti, diffamatori o discriminatori</li>
+  <li>non impersonare altri utenti</li>
+  <li>non effettuare segnalazioni fraudolente</li>
 </ul>
 
 <h3>Integrità del Sistema</h3>
 <ul>
-  <li>non estrarre dati senza autorizzazione;</li>
-  <li>non aggirare funzioni di sicurezza;</li>
-  <li>non utilizzare sistemi automatizzati per raccolta dati;</li>
-  <li>non sovraccaricare o interferire con il funzionamento del Sito.</li>
+  <li>non estrarre dati senza autorizzazione</li>
+  <li>non aggirare funzioni di sicurezza</li>
+  <li>non utilizzare sistemi automatizzati per raccolta dati</li>
+  <li>non sovraccaricare o interferire con il funzionamento del Sito</li>
 </ul>
 
 <hr />
@@ -80,9 +80,9 @@ export const TERMS_AND_CONDITIONS = `
   L'utente garantisce che tali contenuti:
 </p>
 <ul>
-  <li>non violano diritti d'autore o marchi;</li>
-  <li>non sono falsi o fuorvianti;</li>
-  <li>non denigrano o minacciano altre persone.</li>
+  <li>non violano diritti d'autore o marchi</li>
+  <li>non sono falsi o fuorvianti</li>
+  <li>non denigrano o minacciano altre persone</li>
 </ul>
 
 <h3>Licenza sui Contributi</h3>
@@ -109,15 +109,12 @@ export const TERMS_AND_CONDITIONS = `
 </p>
 <p>Non siamo responsabili per:</p>
 <ul>
-  <li>errori o imprecisioni dei contenuti;</li>
-  <li>accessi non autorizzati ai server;</li>
-  <li>virus o elementi dannosi trasmessi da terzi.</li>
+  <li>errori o imprecisioni dei contenuti</li>
+  <li>accessi non autorizzati ai server</li>
+  <li>virus o elementi dannosi trasmessi da terzi</li>
 </ul>
 <p>
   Non saremo responsabili per danni diretti, indiretti o punitivi derivanti dall'uso del Sito.
-</p>
-<p>
- Se è arrivato a leggere fin qui, sappia che gradirei un 110 e lode :)
 </p>
 
 <hr />
@@ -126,10 +123,6 @@ export const TERMS_AND_CONDITIONS = `
 <p><strong>BIBLIOMAP</strong><br>
 adriana.ridolfi@studenti.unipegaso.it<br>`;
 
-
-/**
- * Testo simulato per l'Informativa sulla Privacy.
- */
 export const PRIVACY_POLICY = `
 <h1>Informativa Privacy (ai sensi del Regolamento UE 2016/679 “GDPR”)</h1>
 <p><strong>Ultimo aggiornamento:</strong> 6 gennaio 2026</p>
@@ -144,8 +137,8 @@ La presente informativa descrive le modalità con cui raccogliamo e trattiamo i 
 <h2>1. Titolare del trattamento</h2>
 <p>
 Il Titolare del trattamento è <strong>Bibliomap</strong><br>
-<strong>Email di contatto:</strong> [TODO email]<br>
-<strong>Sede legale:</strong> [TODO sede]<br>
+<strong>Email di contatto:</strong> adriana.ridolfi@studenti.unipegaso.it<br>
+<strong>Sede legale:</strong> Project work c/o Università Telematica Pegaso, Piazza Trieste e Trento 48, 80132 Napoli (NA)<br>
 </p>
 <p>Il Titolare non ha designato un DPO. Per qualsiasi richiesta relativa al trattamento dei dati personali, è possibile contattare il Titolare ai recapiti sopra indicati.</p>
 
@@ -165,15 +158,11 @@ Il Titolare del trattamento è <strong>Bibliomap</strong><br>
 </ul>
 
 <h3>2.3 Cookie</h3>
-<p>Il Sito utilizza:</p>
-<ul>
-    <li>Cookie tecnici necessari (sessione e persistenti)</li>
-    <li>Cookie di funzionalità</li>
-    <li>Cookie di accettazione della cookie policy</li>
-</ul>
 <p>
-Eventuali cookie di terze parti saranno elencati nella <a href="[link-cookie-policy]">Cookie Policy</a> con i link alle relative informative. 
-È possibile disabilitare i cookie dalle impostazioni del browser; ciò potrebbe limitare alcune funzionalità del Sito.
+Il Sito utilizza <strong>esclusivamente cookie tecnici</strong> (di sessione e funzionali) strettamente necessari per consentire la navigazione sicura ed efficiente del Sito e per garantire il mantenimento dell'autenticazione dell'utente.
+</p>
+<p>
+<strong>Non sono utilizzati cookie di profilazione</strong> né cookie di terze parti per finalità di marketing o tracciamento. Pertanto, ai sensi della normativa vigente, non è richiesta l'acquisizione del consenso preventivo tramite banner cookie, ma è sufficiente la presente informativa.
 </p>
 
 <hr>
@@ -237,7 +226,7 @@ Eventuali cookie di terze parti saranno elencati nella <a href="[link-cookie-pol
 <ul>
     <li>L'<strong>email</strong> è <strong>obbligatoria</strong> per la registrazione e l'uso del Servizio.</li>
     <li>I <strong>dati di posizione</strong> sono <strong>facoltativi</strong> e necessari solo per funzionalità basate sulla geolocalizzazione.</li>
-    <li>I cookie non necessari sono facoltativi.</li>
+    <li>I cookie tecnici sono necessari per il funzionamento del sito.</li>
 </ul>
 
 <hr>
@@ -246,12 +235,10 @@ Eventuali cookie di terze parti saranno elencati nella <a href="[link-cookie-pol
 <p>I dati possono essere comunicati a:</p>
 <ul>
     <li>Fornitori di servizi informatici (hosting, manutenzione server, email provider)</li>
-    <li>Fornitori di servizi di analisi e sicurezza</li>
+    <li>Fornitori di servizi di analisi e sicurezza (esclusivamente per log tecnici)</li>
     <li>Collaboratori autorizzati dal Titolare</li>
     <li>Autorità competenti, su richiesta di legge</li>
 </ul>
-
-<p>Una lista dei provider terzi è disponibile nella Cookie Policy.</p>
 
 <hr>
 
@@ -273,7 +260,7 @@ Eventuali trasferimenti avvengono solo in presenza di:
     <li><strong>Email/dati account:</strong> fino alla cancellazione dell'account o revoca del consenso.</li>
     <li><strong>Dati di posizione:</strong> tempo necessario all'erogazione della funzione.</li>
     <li><strong>Dati tecnici di log:</strong> fino a 24 mesi.</li>
-    <li><strong>Cookie:</strong> come indicato nella Cookie Policy (da sessione a 12 mesi).</li>
+    <li><strong>Cookie:</strong> durata limitata alla sessione di navigazione.</li>
 </ul>
 
 <hr>
@@ -291,7 +278,7 @@ Eventuali trasferimenti avvengono solo in presenza di:
     <li>Diritto di proporre reclamo al Garante Privacy</li>
 </ul>
 
-<p>Per esercitare i diritti: <strong>[TODO email]</strong></p>
+<p>Per esercitare i diritti: <strong>adriana.ridolfi@studenti.unipegaso.it</strong></p>
 
 <hr>
 
@@ -302,12 +289,8 @@ Eventuali trasferimenti avvengono solo in presenza di:
 
 <h2>10. Dati raccolti presso terze parti</h2>
 <p>
-In caso di acquisizione di dati tramite servizi esterni (es. social login), verrà indicata:
+Il Sito non acquisisce dati da terze parti né utilizza social login.
 </p>
-<ul>
-    <li>la categoria dei dati raccolti</li>
-    <li>la fonte di provenienza</li>
-</ul>
 
 <hr>
 
@@ -334,6 +317,6 @@ La presente informativa può essere aggiornata in qualsiasi momento. Le modifich
 <p>
 Per informazioni o per esercitare i propri diritti:<br>
 <strong>Email:</strong> adriana.ridolfi@studenti.unipegaso.it<br>
-<strong>Pagina web:</strong> <a href="https://dadefinire.it/policy">https://dadefinire.it/policy</a>
+<strong>Pagina web:</strong> <a href="https://bibliomap-ui.onrender.com/about#privacy">https://bibliomap-ui.onrender.com/about#privacy</a>
 </p>
 `;

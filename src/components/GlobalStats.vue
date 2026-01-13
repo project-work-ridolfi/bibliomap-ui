@@ -1,10 +1,14 @@
 <template>
+  <!-- Card container principale -->
   <div
     class="rounded-2xl shadow-md border border-[var(--thistle)] overflow-hidden bg-theme-primary transition-all duration-300">
+    <!-- Header cliccabile per aprire/chiudere i dettagli -->
     <div
       @click="toggleOpen"
-      class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group">
+      class="p-6 cursor-pointer hover:bg-[var(--bg-secondary)] transition flex justify-between items-center group"
+      aria-label="Apri/Chiudi dettagli statistiche">
       <div class="flex-grow grid grid-cols-3 gap-4 text-center mr-4">
+        <!-- Card statistiche sintetiche -->
         <div v-for="stat in simpleCards" :key="stat.label">
           <div class="text-2xl font-display text-theme-main">
             {{ stat.value }}
@@ -15,31 +19,40 @@
           </div>
         </div>
       </div>
+      <!-- Icona freccia che ruota quando aperto -->
       <i
         class="fa-solid fa-chevron-down transition-transform duration-300 text-zomp"
-        :class="isOpen ? 'rotate-180' : ''"></i>
+        :class="isOpen ? 'rotate-180' : ''"
+        aria-label="Indicatore apertura dettagli"></i>
     </div>
 
+    <!-- Contenuto dettagliato visibile solo se isOpen -->
     <div v-if="isOpen" class="px-6 pb-8 border-t border-thistle pt-8 space-y-8">
-      <div v-if="isLoading" class="text-center py-10">
+      <!-- Loader durante il caricamento -->
+      <div
+        v-if="isLoading"
+        class="text-center py-10"
+        aria-label="Caricamento in corso">
         <i class="fa-solid fa-circle-notch fa-spin text-zomp text-2xl"></i>
       </div>
 
+      <!-- Dati completi se presenti -->
       <template v-else-if="fullData">
         <div
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+          <!-- Statistiche dettagliate -->
           <div
             v-for="s in detailStats"
             :key="s.label"
             class="p-4 bg-[var(--bg-secondary)] rounded-xl border border-thistle text-center">
-            <p
-              class="text-[9px] font-black opacity-40 tracking-widest mb-1">
+            <p class="text-[9px] font-black opacity-40 tracking-widest mb-1">
               {{ s.label }}
             </p>
             <p
               v-if="s.link"
               @click="router.push(s.link)"
-              class="font-bold text-lg text-zomp truncate px-2 cursor-pointer hover:underline">
+              class="font-bold text-lg text-zomp truncate px-2 cursor-pointer hover:underline"
+              :aria-label="`Vai al profilo di ${s.value}`">
               {{ s.value }}
             </p>
             <p v-else class="font-bold text-lg text-zomp truncate px-2">
@@ -48,9 +61,11 @@
           </div>
         </div>
 
+        <!-- Grafici trend e richieste settimanali -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
           <div
-            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
+            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Grafico scambi conclusi ultimi 6 mesi">
             <p
               class="text-[10px] font-black opacity-50 mb-6 tracking-widest text-center">
               scambi conclusi (ultimi 6 mesi)
@@ -60,7 +75,8 @@
             </div>
           </div>
           <div
-            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm">
+            class="bg-theme-primary p-5 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Grafico richieste community per settimana">
             <p
               class="text-[10px] font-black opacity-50 mb-6 tracking-widest text-center">
               richieste community per settimana
@@ -70,9 +86,11 @@
             </div>
           </div>
 
+          <!-- Libri più visti -->
           <div
             v-if="filteredMostViewedBooks.length > 0"
-            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
+            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm"
+            aria-label="I libri più visti">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               i libri più visti
@@ -82,22 +100,24 @@
                 v-for="(item, index) in filteredMostViewedBooks.slice(0, 3)"
                 :key="index"
                 @click="router.push(`/books/${item.id}`)"
-                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group"
+                :aria-label="`Libro ${item.name}, viste ${item.views}`">
                 <span
                   class="font-bold text-sm text-theme-main group-hover:text-zomp truncate flex-1 mr-4">
                   {{ index + 1 }}. {{ item.name }}
                 </span>
-                <span
-                  class="text-[10px] font-black opacity-60 shrink-0">
+                <span class="text-[10px] font-black opacity-60 shrink-0">
                   <i class="fa-solid fa-eye mr-1"></i> {{ item.views }}
                 </span>
               </div>
             </div>
           </div>
 
+          <!-- Librerie più visitate -->
           <div
             v-if="filteredLibraries.length > 0"
-            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm text-theme-main">
+            class="bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm text-theme-main"
+            aria-label="Le librerie più visitate">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               le librerie più visitate
@@ -107,7 +127,8 @@
                 v-for="(item, index) in filteredLibraries.slice(0, 3)"
                 :key="index"
                 @click="router.push(`/libraries/${item.id}`)"
-                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group"
+                :aria-label="`Libreria ${item.name}, visite ${item.views}`">
                 <span
                   class="font-bold text-sm group-hover:text-zomp truncate flex-1 mr-4"
                   >{{ item.name }}</span
@@ -119,8 +140,10 @@
             </div>
           </div>
 
+          <!-- Top 5 titoli più prestati -->
           <div
-            class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm">
+            class="md:col-span-2 bg-theme-primary p-6 rounded-2xl border border-thistle shadow-sm"
+            aria-label="Top 5 titoli più prestati">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               top 5 titoli più prestati
@@ -133,7 +156,10 @@
                 )"
                 :key="index"
                 @click="router.push(`/books/${parseKey(label).id}`)"
-                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group">
+                class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-transparent hover:border-zomp transition cursor-pointer group"
+                :aria-label="`Libro ${parseKey(label).name}, scambi ${
+                  fullData.paretoBooks.data[index]
+                }`">
                 <div class="flex items-center gap-4">
                   <span class="font-display text-zomp text-lg opacity-50"
                     >{{ index + 1 }}.</span
@@ -162,22 +188,34 @@ import { apiClient } from "@/services/apiClient";
 import Chart from "chart.js/auto";
 import { useRouter } from "vue-router";
 
+// Router per navigazione
 const router = useRouter();
+
+// Stato card aperta/chiusa
 const isOpen = ref(false);
+
+// Stato caricamento dati
 const isLoading = ref(false);
+
+// Contatori sintetici
 const counters = reactive({ books: 0, copies: 0, loans: 0 });
+
+// Dati completi
 const fullData = ref(null);
 
+// Riferimenti canvas per grafici
 const canvasTrend = ref(null);
 const canvasWeekly = ref(null);
 let charts = [];
 
+// Card sintetiche
 const simpleCards = computed(() => [
   { label: "titoli unici", value: counters.books },
   { label: "copie totali", value: counters.copies },
   { label: "scambi conclusi", value: counters.loans },
 ]);
 
+// Statistiche dettagliate
 const detailStats = computed(() => {
   if (!fullData.value) return [];
   return [
@@ -232,6 +270,7 @@ const filteredLibraries = computed(() => {
     .sort((a, b) => b.views - a.views);
 });
 
+// Fetch contatori globali
 async function fetchCounters() {
   try {
     const res = await apiClient.get("/stats/global/counters");
@@ -241,6 +280,7 @@ async function fetchCounters() {
   }
 }
 
+// Toggle apertura/chiusura card
 async function toggleOpen() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
@@ -259,6 +299,7 @@ async function toggleOpen() {
   }
 }
 
+// Render grafici
 function renderGlobalCharts() {
   charts.forEach((c) => c.destroy());
   charts = [];
@@ -302,21 +343,39 @@ function renderGlobalCharts() {
       new Chart(canvasWeekly.value, {
         type: "bar",
         data: {
-          labels: fullData.value.weeklyRequests.labels, // Es: "29/12 - 04/01"
+          labels: fullData.value.weeklyRequests.labels,
           datasets: [
             {
               data: dataValues,
               backgroundColor: barColors,
               borderRadius: 6,
+              barPercentage: 0.6,
+              categoryPercentage: 0.8, // garantisce larghezza uniforme
             },
           ],
         },
-        options: commonOptions, // commonOptions ha già il beginAtZero e il ticks stepSize
+        options: {
+          ...commonOptions,
+          scales: {
+            x: {
+              offset: true, // crea spazio a inizio/fine del grafico
+            },
+            y: {
+              ticks: {
+                stepSize: 1,
+                precision: 0,
+              },
+              maxTicksLimit: 6, // limita i numeri a circa 6
+              beginAtZero: true,
+            },
+          },
+        },
       })
     );
   }
 }
 
+// Lifecycle
 onMounted(fetchCounters);
 onUnmounted(() => charts.forEach((c) => c.destroy()));
 </script>
