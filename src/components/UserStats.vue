@@ -127,7 +127,7 @@
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
               {{
                 filteredLibraries.length > 1
-                  ? "le librerie più visitate"
+                  ? "librerie più visitate"
                   : "visite libreria"
               }}
             </p>
@@ -155,7 +155,7 @@
             aria-label="Titoli più richiesti">
             <p
               class="text-[10px] font-black opacity-50 mb-6 text-center tracking-widest">
-              i titoli più richiesti
+               titoli più richiesti
             </p>
             <div class="space-y-3">
               <div
@@ -234,12 +234,12 @@ const simpleCards = computed(() => [
     color: "text-theme-main",
   },
   {
-    label: "richiesti",
+    label: "richieste effettuate",
     value: counters.totalLoansIn,
     color: "text-[var(--zomp)]",
   },
   {
-    label: "prestati",
+    label: "prestiti accettati",
     value: counters.totalLoansOut,
     color: "text-[var(--paynes-gray)]",
   },
