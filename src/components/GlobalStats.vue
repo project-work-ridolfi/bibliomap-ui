@@ -219,21 +219,21 @@ const simpleCards = computed(() => [
 const detailStats = computed(() => {
   if (!fullData.value) return [];
   return [
-    {
-      label: "top requester",
+  {
+      label: "lettore più attivo",
       value: fullData.value.topRequester || "nessuno",
       link: fullData.value.topRequesterId
         ? `/profile/${fullData.value.topRequesterId}`
         : null,
     },
     {
-      label: "top loaner",
+      label: "chi condivide di più", 
       value: fullData.value.topLoaner || "nessuno",
       link: fullData.value.topLoanerId
         ? `/profile/${fullData.value.topLoanerId}`
         : null,
     },
-    { label: "genere top", value: fullData.value.topTag || "nessuno" },
+    { label: "tag più diffuso", value: fullData.value.topTag || "nessuno" },
     { label: "viaggio record", value: `${fullData.value.maxDistance || 0} km` },
   ];
 });
