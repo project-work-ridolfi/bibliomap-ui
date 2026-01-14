@@ -266,7 +266,7 @@ const detailStats = computed(() => {
       value: partnerName,
       link: partnerId ? `/profile/${partnerId}` : null,
     },
-    { label: "tutti i tag", value: fullData.value.topTag || "nessuno" },
+    { label: "il tag più usato", value: fullData.value.topTag || "nessuno" },
     {
       label: "viaggio più lungo",
       value: `${fullData.value.maxDistance || 0} km`,
