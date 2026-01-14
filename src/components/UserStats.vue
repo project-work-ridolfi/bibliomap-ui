@@ -234,12 +234,12 @@ const simpleCards = computed(() => [
     color: "text-theme-main",
   },
   {
-    label: "richieste effettuate",
+    label: "presi in prestito",
     value: counters.totalLoansIn,
     color: "text-[var(--zomp)]",
   },
   {
-    label: "prestiti accettati",
+    label: "prestati",
     value: counters.totalLoansOut,
     color: "text-[var(--paynes-gray)]",
   },
