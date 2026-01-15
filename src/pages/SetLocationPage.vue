@@ -9,38 +9,41 @@
       Scegli come preferisci impostarla:
     </p>
 
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-3 gap-4" role="group" aria-label="modalità selezione posizione">
       <button
         @click="locationMode = 'geo'"
+        aria-label="usa posizione del browser"
         :class="
           locationMode === 'geo'
             ? 'bg-zomp text-white border-zomp'
             : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'
         "
         class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
-        <i class="fa-solid fa-location-arrow mb-2 text-xl"></i><br />
+        <i class="fa-solid fa-location-arrow mb-2 text-xl" aria-hidden="true"></i><br />
         Browser
       </button>
       <button
         @click="locationMode = 'map'"
+        aria-label="seleziona posizione su mappa"
         :class="
           locationMode === 'map'
             ? 'bg-zomp text-white border-zomp'
             : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'
         "
         class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
-        <i class="fa-solid fa-map-pin mb-2 text-xl"></i><br />
+        <i class="fa-solid fa-map-pin mb-2 text-xl" aria-hidden="true"></i><br />
         Sulla Mappa
       </button>
       <button
         @click="locationMode = 'address'"
+        aria-label="inserisci indirizzo manualmente"
         :class="
           locationMode === 'address'
             ? 'bg-zomp text-white border-zomp'
             : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'
         "
         class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
-        <i class="fa-solid fa-house mb-2 text-xl"></i><br />
+        <i class="fa-solid fa-house mb-2 text-xl" aria-hidden="true"></i><br />
         Indirizzo
       </button>
     </div>
@@ -61,6 +64,7 @@
             type="text"
             required
             placeholder="Via, Piazza, ecc."
+            aria-label="tipo di strada"
             class="filter-input" />
         </div>
         <div>
@@ -75,6 +79,7 @@
             type="text"
             required
             placeholder="Roma, Garibaldi, ecc."
+            aria-label="nome della via"
             class="filter-input" />
         </div>
       </div>
@@ -91,6 +96,7 @@
             id="houseNumber"
             type="text"
             placeholder="10A"
+            aria-label="numero civico"
             class="filter-input" />
         </div>
         <div>
@@ -105,6 +111,7 @@
             type="text"
             required
             placeholder="001xx"
+            aria-label="codice avviamento postale"
             class="filter-input" />
         </div>
         <div class="relative group">
@@ -117,6 +124,7 @@
             id="city"
             value="Roma"
             disabled
+            aria-label="città"
             class="filter-input bg-theme-secondary opacity-60 cursor-not-allowed" />
           <div
             class="absolute top-full mt-2 hidden group-hover:block bg-paynes-gray text-white text-[10px] rounded py-1 px-2 z-10 w-40">
@@ -124,7 +132,7 @@
           </div>
         </div>
       </div>
-      <p v-if="locationError" class="text-xs text-red-500 font-bold mt-2">
+      <p v-if="locationError" role="alert" class="text-xs text-red-500 font-bold mt-2">
         ERRORE: {{ locationError }}
       </p>
       <p
@@ -144,6 +152,7 @@
 
       <div
         id="map-container"
+        aria-label="mappa interattiva per selezione posizione"
         class="h-64 w-full rounded-xl overflow-hidden border border-thistle shadow-inner">
         <div id="map" class="h-full w-full"></div>
       </div>
@@ -173,10 +182,11 @@
       <button
         @click="getGeolocation"
         :disabled="isLoadingLocation"
+        aria-label="richiedi geolocalizzazione automatica"
         class="btn-sort inline-flex max-w-xs mx-auto py-3 px-6 text-sm">
         <i
           :class="isLoadingLocation ? 'fa-spinner fa-spin' : 'fa-crosshairs'"
-          class="fa-solid mr-2"></i>
+          class="fa-solid mr-2" aria-hidden="true"></i>
         {{ isLoadingLocation ? "RICERCA IN CORSO..." : "OTTIENI POSIZIONE" }}
       </button>
       <p
@@ -185,7 +195,7 @@
         Posizione ottenuta! ({{ form.latitude.toFixed(2) }},
         {{ form.longitude.toFixed(2) }})
       </p>
-      <p v-if="locationError" class="mt-4 text-xs text-red-500 font-bold">
+      <p v-if="locationError" role="alert" class="mt-4 text-xs text-red-500 font-bold">
         ERRORE: {{ locationError }}
       </p>
     </div>
@@ -208,7 +218,11 @@
           class="block text-xs font-bold uppercase text-theme-main mb-2"
           >Chi può vedere dove ti trovi?</label
         >
-        <select v-model="form.visibility" id="visibility" class="filter-input">
+        <select 
+          v-model="form.visibility" 
+          id="visibility" 
+          aria-label="seleziona visibilità posizione"
+          class="filter-input">
           <option value="all">Tutti gli utenti</option>
           <option value="friends">Solo utenti registrati</option>
           <option value="private">Nessuno (solo uso distanze personali)</option>
@@ -234,6 +248,7 @@
           min="0"
           max="500"
           step="10"
+          aria-label="slider livello offuscamento posizione"
           class="w-full h-2 bg-thistle rounded-lg appearance-none cursor-pointer accent-zomp" />
 
         <div
@@ -247,6 +262,7 @@
     <div class="flex justify-between space-x-4 pt-4">
       <button
         @click="skipAndContinue"
+        aria-label="salta configurazione posizione"
         class="w-1/2 btn-modal-cancel py-3 text-lg uppercase">
         Salta
       </button>
@@ -254,6 +270,7 @@
         @click="saveLocation"
         :disabled="!isLocationSet || !authStore.isAuthenticated"
         id="save-location-btn"
+        aria-label="salva e conferma posizione"
         class="w-1/2 btn-modal-confirm py-3 text-lg justify-center uppercase">
         Salva
       </button>
@@ -290,6 +307,12 @@ const form = ref({
 const isLoadingLocation = ref(false);
 const locationError = ref(null);
 
+// bounding box approssimativo di roma (sw: sud-ovest, ne: nord-est)
+const ROME_BOUNDS = {
+  SW: { lat: 41.6, lng: 12.2 },
+  NE: { lat: 42.1, lng: 12.8 }
+};
+
 const displayBlurRadius = computed(() => {
   const radius = form.value.blurRadius;
   if (!radius) return "Posizione Esatta (0m)";
@@ -307,7 +330,18 @@ const isLocationSet = computed(() => {
   );
 });
 
-// --- LOGICA MAPPA ---
+// controlla se le coordinate sono dentro roma
+function checkIsRome(lat, lng) {
+  if (!lat || !lng) return false;
+  return (
+    lat >= ROME_BOUNDS.SW.lat &&
+    lat <= ROME_BOUNDS.NE.lat &&
+    lng >= ROME_BOUNDS.SW.lng &&
+    lng <= ROME_BOUNDS.NE.lng
+  );
+}
+
+// logica mappa
 const map = ref(null);
 const marker = ref(null);
 const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`;
@@ -338,6 +372,11 @@ const initMap = async () => {
     form.value.latitude = lat;
     form.value.longitude = lng;
     marker.value.setLngLat([lng, lat]);
+    
+    // resetta errore se si clicca di nuovo
+    if (locationError.value && locationError.value.includes("fuori roma")) {
+        locationError.value = null;
+    }
   });
 
   if (form.value.latitude && form.value.longitude) {
@@ -369,7 +408,7 @@ onUnmounted(() => {
   }
 });
 
-// --- GEOLOCALIZZAZIONE ---
+// geolocalizzazione browser
 async function getGeolocation() {
   locationError.value = null;
   isLoadingLocation.value = true;
@@ -392,7 +431,7 @@ async function getGeolocation() {
   );
 }
 
-// --- GEOCODING ---
+// geocoding indirizzo
 async function geocodeAddress() {
   locationError.value = null;
   isLoadingLocation.value = true;
@@ -418,8 +457,10 @@ async function geocodeAddress() {
   }
 }
 
-// --- SALVATAGGIO ---
+// salvataggio posizione
 async function saveLocation() {
+  locationError.value = null;
+
   if (
     locationMode.value === "address" &&
     (!form.value.latitude || !form.value.longitude)
@@ -429,6 +470,12 @@ async function saveLocation() {
   }
 
   if (form.value.latitude && form.value.longitude) {
+    // validazione coordinate su roma
+    if (!checkIsRome(form.value.latitude, form.value.longitude)) {
+        locationError.value = "la posizione selezionata sembra essere fuori roma";
+        return;
+    }
+
     try {
       await apiClient.post("/users/set-location", {
         latitude: form.value.latitude,

@@ -25,6 +25,7 @@
       </p>
       <button
         @click="fetchBookDetails"
+        aria-label="riprova a caricare i dettagli"
         class="mt-2 underline text-xs font-bold uppercase text-theme-main hover:text-accent-color">
         Riprova
       </button>
@@ -99,7 +100,10 @@
               <div class="grid grid-cols-[100px_1fr] items-center">
                 <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">Libreria:</dt>
                 <dd>
-                  <router-link :to="`/libraries/${book.libraryId}`" class="font-bold text-xs text-theme-main hover:text-zomp underline">
+                  <router-link 
+                    :to="`/libraries/${book.libraryId}`" 
+                    aria-label="vai alla libreria proprietaria"
+                    class="font-bold text-xs text-theme-main hover:text-zomp underline">
                     {{ book.libraryName }}
                   </router-link>
                 </dd>
@@ -125,15 +129,31 @@
 
           <div class="pt-4 border-t border-thistle flex flex-wrap gap-3 justify-end items-center">
             <div v-if="isOwner" class="flex space-x-3">
-              <button @click="router.push(`/books/${book.id}/edit`)" class="btn-pagination w-10 h-10"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button @click="openMoveModal" class="btn-pagination w-10 h-10"><i class="fa-solid fa-right-left"></i></button>
-              <button @click="openDeleteModal" class="btn-pagination w-10 h-10 hover:bg-red-500 !text-red-500 hover:!text-white"><i class="fa-solid fa-trash"></i></button>
+              <button 
+                @click="router.push(`/books/${book.id}/edit`)" 
+                aria-label="modifica libro"
+                class="btn-pagination w-10 h-10">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button 
+                @click="openMoveModal" 
+                aria-label="sposta libro in altra libreria"
+                class="btn-pagination w-10 h-10">
+                <i class="fa-solid fa-right-left"></i>
+              </button>
+              <button 
+                @click="openDeleteModal" 
+                aria-label="elimina libro"
+                class="btn-pagination w-10 h-10 hover:bg-red-500 !text-red-500 hover:!text-white">
+                <i class="fa-solid fa-trash"></i>
+              </button>
             </div>
 
             <div v-else class="flex flex-wrap gap-3">
               <button 
                 @click="getSimilarBook" 
                 :disabled="isSearchingSimilar"
+                aria-label="cerca un libro simile nelle vicinanze"
                 class="btn-sort px-6 py-3 uppercase text-xs tracking-widest flex items-center gap-2">
                 <i :class="isSearchingSimilar ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'" class="fa-solid"></i>
                 Trova simile
@@ -143,6 +163,7 @@
                 <button
                   v-if="book.status === 'available'"
                   @click="openLoanConfirmModal"
+                  aria-label="richiedi questo libro in prestito"
                   class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest">
                   Chiedi in Prestito
                 </button>
@@ -151,7 +172,10 @@
                 </button>
               </template>
               <template v-else>
-                 <router-link to="/login" class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest text-center">
+                 <router-link 
+                    to="/login" 
+                    aria-label="accedi per richiedere prestito"
+                    class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest text-center">
                   Accedi per richiedere
                 </router-link>
               </template>
@@ -166,12 +190,28 @@
           <i class="fa-solid fa-lightbulb mr-2"></i>
           {{ suggestionLabel }}
         </h3>
+        
+        <div v-if="suggestedBook.ownerId === authStore.userId" class="mb-2 text-[10px] font-bold uppercase text-accent-color bg-accent-color/10 inline-block px-3 py-1 rounded-full">
+            <i class="fa-solid fa-user mr-1"></i> è un tuo libro!
+        </div>
+
         <div class="flex flex-col items-center gap-2">
             <p class="font-display text-2xl text-theme-main">{{ suggestedBook.title }}</p>
             <p class="text-xs italic opacity-70 mb-4">di {{ suggestedBook.author }}</p>
-            <button @click="goToSuggested" class="btn-modal-confirm px-6 py-2 uppercase text-[10px] tracking-widest">Vedi suggerimento</button>
+            <button 
+                @click="goToSuggested" 
+                aria-label="vai al dettaglio del libro suggerito"
+                class="btn-modal-confirm px-6 py-2 uppercase text-[10px] tracking-widest">
+                Vedi suggerimento
+            </button>
         </div>
     </section>
+
+    <div v-if="noSuggestionsFound && !isSearchingSimilar" class="custom-fade-in text-center py-6 opacity-60">
+        <p class="text-xs font-bold uppercase tracking-widest">
+            <i class="fa-solid fa-face-meh mr-2"></i> non ci sono ancora libri simili in zona
+        </p>
+    </div>
 
     <AppModal :isOpen="showMoveModal" title="Sposta Copia" @close="showMoveModal = false">
         <div class="space-y-4 text-theme-main">
@@ -179,6 +219,7 @@
             <div v-if="isFetchingLibraries" class="text-center py-6"><i class="fa-solid fa-circle-notch fa-spin text-zomp"></i></div>
             <div v-else class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1">
                 <button v-for="lib in userLibraries" :key="lib.id" @click="confirmMove(lib.id)" :disabled="lib.id === book.libraryId"
+                    aria-label="sposta in questa libreria"
                     class="w-full text-left p-3 rounded-xl border-2 transition-all"
                     :class="lib.id === book.libraryId ? 'opacity-40 cursor-not-allowed border-border-color' : 'border-border-color bg-theme-primary hover:border-accent-color'">
                     <span class="font-bold text-xs uppercase">{{ lib.name }}</span>
@@ -192,8 +233,8 @@
             <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600"><i class="fa-solid fa-triangle-exclamation text-3xl"></i></div>
             <p class="text-sm font-bold uppercase">{{ deleteUI.message }}</p>
             <div class="flex gap-3 w-full mt-4">
-                <button @click="showDeleteModal = false" class="btn-modal-cancel flex-1 uppercase text-xs">Annulla</button>
-                <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase">Elimina</button>
+                <button @click="showDeleteModal = false" class="btn-modal-cancel flex-1 uppercase text-xs" aria-label="annulla eliminazione">Annulla</button>
+                <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase" aria-label="conferma eliminazione">Elimina</button>
             </div>
         </div>
         <div v-else-if="deleteStep === 'loading'" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i></div>
@@ -206,8 +247,8 @@
                 <p class="text-[10px] italic opacity-70">di {{ book.author }}</p>
             </div>
             <div class="flex gap-3 pt-2">
-                <button @click="isLoanConfirmModalOpen = false" class="btn-modal-cancel flex-1 uppercase text-xs font-bold">Annulla</button>
-                <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="btn-modal-confirm flex-1 justify-center text-xs uppercase tracking-widest">
+                <button @click="isLoanConfirmModalOpen = false" class="btn-modal-cancel flex-1 uppercase text-xs font-bold" aria-label="annulla prestito">Annulla</button>
+                <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="btn-modal-confirm flex-1 justify-center text-xs uppercase tracking-widest" aria-label="conferma invio richiesta">
                     {{ isSendingLoan ? 'Invio...' : 'Conferma' }}
                 </button>
             </div>
@@ -233,12 +274,12 @@ const book = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
 
-// Stato Suggerimenti
+// stato suggerimenti
 const isSearchingSimilar = ref(false);
 const suggestedBook = ref(null);
+const noSuggestionsFound = ref(false);
 
-
-// Label dinamica basata sulla distanza restituita dal BE
+// label dinamica basata sulla distanza
 const suggestionLabel = computed(() => {
   if (!suggestedBook.value) return "";
   const d = suggestedBook.value.distance;
@@ -252,7 +293,7 @@ const mappedCondition = computed(() => {
   return found ? found.label : book.value.condition;
 });
 
-// Stati Modali e UI
+// stati modali e ui
 const showDeleteModal = ref(false);
 const deleteStep = ref("confirm");
 const deleteUI = reactive({ title: "", message: "", confirmBtn: "", successMsg: "" });
@@ -291,13 +332,17 @@ const deleteModalTitle = computed(() => {
 
 function goBack() { router.back(); }
 
+// recupera dettagli libro e incrementa visualizzazioni
 async function fetchBookDetails() {
   isLoading.value = true;
   error.value = null;
   suggestedBook.value = null;
+  noSuggestionsFound.value = false;
   try {
     const response = await apiClient.get(`/books/${route.params.id}`);
     book.value = response;
+    // incrementa view count (fire and forget)
+    apiClient.post(`/books/${route.params.id}/view`).catch(() => {});
   } catch (err) {
     error.value = "Impossibile caricare il libro.";
   } finally {
@@ -307,15 +352,22 @@ async function fetchBookDetails() {
 
 async function getSimilarBook() {
   isSearchingSimilar.value = true;
+  suggestedBook.value = null;
+  noSuggestionsFound.value = false;
   try {
-    const response = await apiClient.get(`/books/${book.value.id}/similar`);
+    // passa parametro per includere propri libri
+    const response = await apiClient.get(`/books/${book.value.id}/similar`, {
+        params: { include_own: true }
+    });
+    
     if (response && response.id) {
         suggestedBook.value = response;
     } else {
-        alert("Non abbiamo trovato libri simili nelle vicinanze.");
+        noSuggestionsFound.value = true;
     }
   } catch (e) {
     console.error("Errore ricerca simile:", e);
+    noSuggestionsFound.value = true;
   } finally {
     isSearchingSimilar.value = false;
   }
@@ -355,15 +407,21 @@ function openLoanConfirmModal() {
   else isLoanConfirmModalOpen.value = true;
 }
 
+// esegue richiesta prestito reale e aggiorna stato
 async function confirmLoanRequest() {
   if (!book.value || book.value.status !== "available") return;
-  isLoanConfirmModalOpen.value = false;
   isSendingLoan.value = true;
   try {
     await apiClient.post(`/loan/${book.value.id}`, {});
-    alert("Richiesta inviata con successo!");
-  } catch (e) { alert("Errore invio richiesta"); }
-  finally { isSendingLoan.value = false; }
+    isLoanConfirmModalOpen.value = false;
+    // ricarica per aggiornare stato
+    await fetchBookDetails();
+  } catch (e) { 
+      console.error(e);
+      alert("Errore durante la richiesta."); 
+  } finally { 
+      isSendingLoan.value = false; 
+  }
 }
 
 function openDeleteModal() {

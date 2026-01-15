@@ -3,6 +3,7 @@
     class="max-w-7xl mx-auto p-6 space-y-8 animate-fade-in text-theme-main font-sans">
     <button
       @click="router.back()"
+      aria-label="torna alla pagina precedente"
       class="flex items-center text-theme-main hover:text-zomp transition-colors font-medium rounded-lg p-1">
       <i class="fa-solid fa-arrow-left mr-2"></i> torna indietro
     </button>
@@ -51,6 +52,7 @@
           <button
             v-if="isMyProfile"
             @click="toggleEditMode"
+            aria-label="attiva o disattiva modalità modifica profilo"
             class="w-full btn-primary !py-4 flex items-center justify-center gap-3 shadow-lg hover:scale-[1.02] transition-transform">
             <i
               class="fa-solid"
@@ -119,6 +121,7 @@
                   <input
                     v-model="profileForm.username"
                     type="text"
+                    aria-label="modifica username"
                     class="input-field"
                     :class="{
                       'border-red-500':
@@ -142,6 +145,7 @@
                     !usernameAvailability ||
                     isCheckingUsername
                   "
+                  aria-label="salva nuovo username"
                   class="btn-primary uppercase">
                   {{ isCheckingUsername ? "verifica..." : "salva username" }}
                 </button>
@@ -150,6 +154,7 @@
                   <button
                     v-if="!isChangingPassword"
                     @click="isChangingPassword = true"
+                    aria-label="inizia cambio password"
                     class="btn-outline uppercase">
                     cambia password
                   </button>
@@ -158,12 +163,14 @@
                       v-model="passwordForm.old"
                       type="password"
                       placeholder="pass attuale"
+                      aria-label="password attuale"
                       class="input-field" />
                     <div>
                       <input
                         v-model="passwordForm.new"
                         type="password"
                         placeholder="nuova pass"
+                        aria-label="nuova password"
                         class="input-field"
                         @input="validatePassword" />
                       <div
@@ -209,16 +216,19 @@
                       v-model="passwordForm.confirm"
                       type="password"
                       placeholder="conferma nuova"
+                      aria-label="conferma nuova password"
                       class="input-field" />
                     <div class="flex gap-2">
                       <button
                         @click="updatePassword"
                         :disabled="!isPasswordValid"
+                        aria-label="conferma cambio password"
                         class="flex-1 btn-primary uppercase">
                         salva
                       </button>
                       <button
                         @click="cancelPasswordChange"
+                        aria-label="annulla cambio password"
                         class="flex-1 btn-outline uppercase">
                         chiudi
                       </button>
@@ -237,6 +247,9 @@
                   class="flex items-center justify-between p-3 border border-thistle rounded-xl bg-white/50">
                   <span
                     @click="openLegal(type)"
+                    role="button"
+                    tabindex="0"
+                    aria-label="leggi documento legale"
                     class="text-xs font-bold underline cursor-pointer decoration-zomp"
                     >{{
                       type === "privacy"
@@ -244,12 +257,17 @@
                         : "termini e condizioni"
                     }}</span
                   >
-                  <button @click="downloadPDF(type)" class="text-zomp">
+                  <button 
+                    @click="downloadPDF(type)" 
+                    class="text-zomp"
+                    aria-label="scarica documento pdf">
                     <VueFeather type="download" size="18"></VueFeather>
                   </button>
                 </div>
                 <button
                   @click="handleExportRequest"
+                  title="il documento arriverà via email in formato pdf"
+                  aria-label="richiedi esportazione dati personali"
                   class="w-full text-[12px] font-bold py-2 border-2 border-dashed border-ash-gray rounded-xl hover:bg-ash-gray/10 transition-colors">
                   richiedi copia dati
                 </button>
@@ -265,6 +283,7 @@
                   <span> visibilità profilo: </span>
                   <select
                     v-model="profileForm.visibility"
+                    aria-label="seleziona visibilità profilo"
                     class="input-field font-bold text-[11px]">
                     <option value="all">pubblico</option>
                     <option value="logged_in">utenti registrati</option>
@@ -282,11 +301,13 @@
                     min="0"
                     max="500"
                     step="10"
+                    aria-label="imposta raggio sfocatura posizione"
                     class="w-full accent-zomp" />
                 </div>
                 <button
                   @click="handlePrivacyUpdate"
                   :disabled="!isPrivacyModified"
+                  aria-label="salva impostazioni privacy"
                   class="btn-primary uppercase">
                   salva privacy
                 </button>
@@ -300,6 +321,7 @@
                   class="h-32 rounded-xl border-2 border-thistle overflow-hidden bg-ash-gray/10"></div>
                 <button
                   @click="router.push('/set-location')"
+                  aria-label="vai alla pagina modifica posizione"
                   class="w-full btn-outline flex items-center justify-center">
                   <VueFeather type="map-pin" size="14" class="mr-2"></VueFeather
                   >cambia posizione
@@ -308,6 +330,7 @@
               <div class="flex justify-end pt-4">
                 <button
                   @click="confirmDelete = true"
+                  aria-label="inizia eliminazione account"
                   class="text-[10px] font-bold text-red-600 hover:underline">
                   elimina definitivamente l'account
                 </button>
@@ -358,6 +381,7 @@
         <p class="text-sm font-bold">{{ uiModal.message }}</p>
         <button
           @click="uiModal.open = false"
+          aria-label="chiudi messaggio"
           class="btn-primary w-32 mx-auto uppercase">
           chiudi
         </button>
@@ -373,11 +397,13 @@
         <div class="flex gap-4">
           <button
             @click="handleDeleteAccount"
+            aria-label="conferma eliminazione"
             class="flex-1 btn-red py-3 font-bold">
             conferma
           </button>
           <button
             @click="confirmDelete = false"
+            aria-label="annulla eliminazione"
             class="flex-1 btn-outline py-3 font-bold">
             annulla
           </button>
@@ -651,10 +677,10 @@ async function calculateAffinity() {
   try {
     const myStats = await apiClient.get(`/stats/user/${authStore.userId}/full`);
 
-    // Target Tags (Profilo visualizzato)
+    // tag del profilo visualizzato
     const targetTagMap = profile.value.tags || {};
 
-    // My Tags (Profilo utente loggato)
+    // tag dell'utente loggato
     const myTagMap = {};
     if (myStats.tags?.labels && myStats.tags?.data) {
       myStats.tags.labels.forEach((label, index) => {
@@ -665,15 +691,15 @@ async function calculateAffinity() {
     const targetLabels = Object.keys(targetTagMap);
     const myLabels = Object.keys(myTagMap);
 
-    // identifichiamo i generi letterari in comune (solo i nomi)
+    // identifica i generi letterari in comune
     commonTags.value = targetLabels.filter((t) => myLabels.includes(t));
 
-    // Calcolo Similitudine del Coseno (Analisi dei pesi)
+    // calcolo similitudine coseno
     let dotProduct = 0;
     let magnitudeTarget = 0;
     let magnitudeMe = 0;
 
-    // Set di tutti i tag unici presenti in entrambi i profili
+    // insieme di tutti i tag unici
     const allUniqueTags = new Set([...targetLabels, ...myLabels]);
 
     allUniqueTags.forEach((tag) => {
@@ -687,11 +713,11 @@ async function calculateAffinity() {
 
     const magnitude = Math.sqrt(magnitudeTarget) * Math.sqrt(magnitudeMe);
 
-    // Calcolo finale in percentuale
+    // calcolo percentuale
     affinityScore.value =
       magnitude > 0 ? Math.round((dotProduct / magnitude) * 100) : 0;
 
-    // messaggi dinamici
+    // messaggi affinità dinamici
     if (affinityScore.value > 85) {
       affinityMessage.value =
         "Anime gemelle letterarie! Leggete quasi le stesse cose.";

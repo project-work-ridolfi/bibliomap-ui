@@ -3,7 +3,8 @@
     class="max-w-4xl mx-auto p-8 shadow-xl rounded-2xl border-2 transition-colors duration-300 bg-theme-primary text-theme-main border-border-color relative space-y-6">
     <button
       @click="handleCancel"
-      class="absolute top-4 left-4 text-theme-main opacity-70 hover:text-accent-color transition-colors flex items-center gap-2 font-bold text-xs uppercase">
+      class="absolute top-4 left-4 text-theme-main opacity-70 hover:text-accent-color transition-colors flex items-center gap-2 font-bold text-xs uppercase"
+      aria-label="annulla o salta operazione">
       <i class="fa-solid fa-arrow-left"></i> {{ isSetup ? "salta" : "annulla" }}
     </button>
 
@@ -12,6 +13,7 @@
     </h1>
 
     <div
+      v-if="!isPostSaveScreen"
       class="space-y-3 p-5 rounded-xl border border-border-color bg-theme-secondary">
       <label class="block text-sm font-bold text-theme-main opacity-70 uppercase"
         >libreria di destinazione *</label
@@ -26,6 +28,7 @@
         <router-link
           to="/create-library"
           class="text-accent-color font-bold underline text-sm uppercase"
+          aria-label="vai alla pagina crea libreria"
           >crea la tua prima libreria</router-link
         >
       </div>
@@ -38,7 +41,8 @@
       <select
         v-else
         v-model="form.targetLibraryId"
-        class="filter-input">
+        class="filter-input"
+        aria-label="seleziona libreria di destinazione">
         <option disabled value="">seleziona una libreria</option>
         <option v-for="lib in userLibraries" :key="lib.id" :value="lib.id">
           {{ lib.name }}
@@ -46,314 +50,377 @@
       </select>
     </div>
 
-    <div
-      class="grid grid-cols-2 gap-4"
-      v-if="form.targetLibraryId && hasLibraries">
-      <button
-        @click="switchMode('manual')"
-        :class="
-          inputMode === 'manual'
-            ? 'btn-sort--active'
-            : 'bg-theme-primary border-border-color text-theme-main'
-        "
-        class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2 uppercase text-xs">
-        <i class="fa-solid fa-pen-to-square mb-1 text-lg"></i><br />
-        manuale
-      </button>
-      <button
-        @click="switchMode('isbn')"
-        :class="
-          inputMode === 'isbn'
-            ? 'btn-sort--active'
-            : 'bg-theme-primary border-border-color text-theme-main'
-        "
-        class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2 uppercase text-xs">
-        <i class="fa-solid fa-barcode mb-1 text-lg"></i><br />
-        isbn
-      </button>
-    </div>
-
-    <div
-      v-if="inputMode === 'isbn' && hasLibraries"
-      class="space-y-4 p-5 rounded-xl border border-border-color bg-theme-secondary custom-fade-in">
-      <div v-if="!isScanning" class="flex flex-col md:flex-row gap-6">
-        <div class="flex-grow space-y-2">
-          <div class="flex items-center gap-2">
-            <label class="block text-sm font-bold opacity-70 uppercase"
-              >codice isbn</label
-            >
-            <div class="relative group">
-              <button
-                class="w-4 h-4 rounded-full bg-theme-main text-theme-primary text-[10px] flex items-center justify-center font-bold cursor-help">
-                ?
-              </button>
-              <div
-                class="absolute left-6 top-0 w-64 p-3 bg-theme-primary border border-border-color rounded-lg shadow-xl hidden group-hover:block z-50 text-xs italic">
-                l'isbn è un codice di 13 cifre che identifica univocamente un libro, tipicamente si trova nella quarta di copertina.
-              </div>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <input
-              v-model="form.isbn"
-              type="text"
-              placeholder="es. 978..."
-              class="filter-input" />
-            <button
-              @click="fetchBookByIsbn"
-              :disabled="!isIsbnValid"
-              class="btn-sort px-4">
-              <i class="fa-solid fa-search"></i>
-            </button>
-          </div>
-        </div>
-        <button
-          @click="handleStartScan"
-          class="btn-sort md:w-48 py-2 px-4 shadow font-bold flex items-center justify-center gap-2 self-end uppercase text-xs">
-          <i class="fa-solid fa-camera"></i> scanner
+    <div v-if="isPostSaveScreen" class="flex flex-col items-center justify-center py-10 space-y-6 text-center custom-fade-in">
+      <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center border-2 border-green-500 text-green-600 mb-2">
+        <i class="fa-solid fa-check text-2xl"></i>
+      </div>
+      <h2 class="text-2xl font-bold uppercase text-theme-main">libro aggiunto con successo!</h2>
+      <p class="text-sm opacity-70 max-w-md">il libro è stato inserito correttamente nella tua libreria.</p>
+      
+      <div class="flex gap-4 mt-4 w-full justify-center">
+        <button 
+          @click="resetFormForNewBook" 
+          class="px-6 py-3 bg-theme-primary border-2 border-accent-color text-accent-color rounded-xl font-bold uppercase text-xs hover:bg-theme-secondary transition"
+          aria-label="aggiungi un altro libro">
+          <i class="fa-solid fa-plus mr-2"></i> aggiungi altro
+        </button>
+        <button 
+          @click="goToLibrary" 
+          class="px-6 py-3 bg-accent-color text-white rounded-xl font-bold uppercase text-xs hover:bg-opacity-90 transition shadow-md"
+          aria-label="vai alla libreria">
+          vai alla libreria <i class="fa-solid fa-arrow-right ml-2"></i>
         </button>
       </div>
-      <div v-else class="space-y-4">
-        <div
-          ref="scannerContainer"
-          id="scanner-container"
-          class="border-2 border-accent-color rounded-xl overflow-hidden h-48 relative bg-black">
-          <div
-            v-if="isLoadingCamera"
-            class="absolute inset-0 flex items-center justify-center text-white/70 z-10 uppercase text-xs font-bold">
-            avvio fotocamera...
-          </div>
-          <div class="scanning-bar"></div>
-        </div>
-        <button
-          @click="handleStopScan"
-          class="w-full py-2 text-red-500 font-bold text-sm uppercase">
-          ferma scanner
-        </button>
-      </div>
-      <p v-if="isbnError" class="text-xs text-red-600 text-center font-bold uppercase">
-        {{ isbnError }}
-      </p>
     </div>
 
-    <div
-      v-if="(inputMode === 'manual' || bookDetailsFound) && hasLibraries"
-      class="space-y-8 custom-fade-in">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <div
-          @dragenter.prevent="isDragging = true"
-          @dragover.prevent="isDragging = true"
-          @dragleave.prevent="isDragging = false"
-          @drop.prevent="handleDrop"
+    <template v-else>
+      <div
+        class="grid grid-cols-2 gap-4"
+        v-if="form.targetLibraryId && hasLibraries">
+        <button
+          @click="switchMode('manual')"
           :class="
-            isDragging
-              ? 'border-accent-color bg-accent-color/10'
-              : 'border-border-color bg-theme-primary'
+            inputMode === 'manual'
+              ? 'btn-sort--active'
+              : 'bg-theme-primary border-border-color text-theme-main'
           "
-          class="border-2 border-dashed rounded-xl p-4 transition-all text-center relative flex flex-col items-center justify-center min-h-[180px]">
-          <div v-if="previewUrl" class="relative group">
-            <img
-              :src="previewUrl"
-              class="h-32 object-contain rounded shadow-md" />
-            <button
-              @click.stop="removeCover"
-              type="button"
-              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg hover:bg-red-600 z-10">
-              <i class="fa-solid fa-times"></i>
-            </button>
-          </div>
-          <div v-else class="space-y-1 opacity-50">
-            <i class="fa-solid fa-cloud-arrow-up text-2xl text-theme-main"></i>
-            <p class="text-xs text-theme-main uppercase font-bold tracking-tighter">carica o trascina copertina</p>
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            @change="handleCoverUpload"
-            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-        </div>
-
+          class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2 uppercase text-xs"
+          aria-label="modalità inserimento manuale">
+          <i class="fa-solid fa-pen-to-square mb-1 text-lg"></i><br />
+          manuale
+        </button>
         <button
-          @click="startPhotoCapture"
-          class="h-[180px] rounded-xl border-2 border-dashed border-border-color bg-theme-primary text-theme-main flex flex-col items-center justify-center gap-2 hover:bg-theme-secondary transition font-bold uppercase shadow-sm">
-          <i class="fa-solid fa-camera text-2xl"></i>
-          <span class="text-xs">scatta foto alla copia</span>
+          @click="switchMode('isbn')"
+          :class="
+            inputMode === 'isbn'
+              ? 'btn-sort--active'
+              : 'bg-theme-primary border-border-color text-theme-main'
+          "
+          class="p-4 rounded-xl shadow-sm transition duration-150 font-bold border-2 uppercase text-xs"
+          aria-label="modalità inserimento isbn">
+          <i class="fa-solid fa-barcode mb-1 text-lg"></i><br />
+          isbn
         </button>
       </div>
 
       <div
-        class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-theme-secondary p-6 rounded-xl border border-border-color shadow-sm">
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
-            >titolo *</label
-          >
-          <input
-            v-model="form.title"
-            type="text"
-            :readonly="lockedFields.includes('title')"
-            @input="debouncedManualSearch"
-            class="filter-input" />
+        v-if="inputMode === 'isbn' && hasLibraries"
+        class="space-y-4 p-5 rounded-xl border border-border-color bg-theme-secondary custom-fade-in">
+        <div v-if="!isScanning" class="flex flex-col md:flex-row gap-6">
+          <div class="flex-grow space-y-2">
+            <div class="flex items-center gap-2">
+              <label class="block text-sm font-bold opacity-70 uppercase"
+                >codice isbn</label
+              >
+              <div class="relative group">
+                <button
+                  class="w-4 h-4 rounded-full bg-theme-main text-theme-primary text-[10px] flex items-center justify-center font-bold cursor-help"
+                  aria-label="info su isbn">
+                  ?
+                </button>
+                <div
+                  class="absolute left-6 top-0 w-64 p-3 bg-theme-primary border border-border-color rounded-lg shadow-xl hidden group-hover:block z-50 text-xs italic">
+                  l'isbn è un codice di 13 cifre che identifica univocamente un libro, tipicamente si trova nella quarta di copertina.
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <input
+                v-model="form.isbn"
+                type="text"
+                placeholder="es. 978..."
+                class="filter-input"
+                aria-label="inserisci codice isbn" />
+              <button
+                @click="fetchBookByIsbn"
+                :disabled="!isIsbnValid"
+                class="btn-sort px-4"
+                aria-label="cerca libro per isbn">
+                <i class="fa-solid fa-search"></i>
+              </button>
+            </div>
+          </div>
+          <button
+            @click="handleStartScan"
+            class="btn-sort md:w-48 py-2 px-4 shadow font-bold flex items-center justify-center gap-2 self-end uppercase text-xs"
+            aria-label="avvia scanner fotocamera">
+            <i class="fa-solid fa-camera"></i> scanner
+          </button>
         </div>
-        <div>
-          <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
-            >autore *</label
-          >
-          <input
-            v-model="form.author"
-            type="text"
-            :readonly="lockedFields.includes('author')"
-            @input="debouncedManualSearch"
-            class="filter-input" />
+        <div v-else class="space-y-4">
+          <div
+            ref="scannerContainer"
+            id="scanner-container"
+            class="border-2 border-accent-color rounded-xl overflow-hidden h-48 relative bg-black">
+            <div
+              v-if="isLoadingCamera"
+              class="absolute inset-0 flex items-center justify-center text-white/70 z-10 uppercase text-xs font-bold">
+              avvio fotocamera...
+            </div>
+            <div class="scanning-bar"></div>
+          </div>
+          <button
+            @click="handleStopScan"
+            class="w-full py-2 text-red-500 font-bold text-sm uppercase"
+            aria-label="ferma scansione">
+            ferma scanner
+          </button>
         </div>
-        <div>
-          <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase">editore</label>
-          <input
-            v-model="form.publisher"
-            type="text"
-            :readonly="lockedFields.includes('publisher')"
-            class="filter-input" />
-        </div>
-        <div class="grid grid-cols-2 gap-4 md:col-span-2">
-          <div>
-            <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase">anno</label>
+        <p v-if="isbnError" class="text-xs text-red-600 text-center font-bold uppercase">
+          {{ isbnError }}
+        </p>
+      </div>
+
+      <div
+        v-if="(inputMode === 'manual' || bookDetailsFound) && hasLibraries"
+        class="space-y-8 custom-fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div
+            @dragenter.prevent="isDragging = true"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleDrop"
+            :class="
+              isDragging
+                ? 'border-accent-color bg-accent-color/10'
+                : 'border-border-color bg-theme-primary'
+            "
+            class="border-2 border-dashed rounded-xl p-4 transition-all text-center relative flex flex-col items-center justify-center min-h-[180px]"
+            role="button"
+            tabindex="0"
+            aria-label="area caricamento copertina">
+            
+            <div v-if="previewUrl" class="relative group w-[120px] aspect-[2/3] shadow-md rounded overflow-hidden">
+              <img
+                :src="previewUrl"
+                class="w-full h-full object-cover"
+                alt="anteprima copertina" />
+              <button
+                @click.stop="removeCover"
+                type="button"
+                class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow hover:bg-red-600 z-10"
+                aria-label="rimuovi copertina">
+                <i class="fa-solid fa-times text-xs"></i>
+              </button>
+            </div>
+            
+            <div v-else class="space-y-1 opacity-50 pointer-events-none">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl text-theme-main"></i>
+              <p class="text-xs text-theme-main uppercase font-bold tracking-tighter">carica o trascina copertina</p>
+            </div>
             <input
-              v-model.number="form.publicationYear"
-              type="number"
-              class="filter-input" />
+              type="file"
+              accept="image/*"
+              @change="handleCoverUpload"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              aria-label="seleziona file immagine" />
+          </div>
+
+          <button
+            @click="startPhotoCapture"
+            class="h-[180px] rounded-xl border-2 border-dashed border-border-color bg-theme-primary text-theme-main flex flex-col items-center justify-center gap-2 hover:bg-theme-secondary transition font-bold uppercase shadow-sm"
+            aria-label="scatta foto copertina">
+            <i class="fa-solid fa-camera text-2xl"></i>
+            <span class="text-xs">scatta foto alla copia</span>
+          </button>
+        </div>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-theme-secondary p-6 rounded-xl border border-border-color shadow-sm">
+          <div class="md:col-span-2">
+            <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
+              >titolo *</label
+            >
+            <input
+              v-model="form.title"
+              type="text"
+              :readonly="lockedFields.includes('title')"
+              @input="debouncedManualSearch"
+              class="filter-input"
+              aria-label="titolo libro" />
           </div>
           <div>
             <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
-              >lingua</label
+              >autore *</label
             >
             <input
-              v-model="form.language"
+              v-model="form.author"
               type="text"
-              class="filter-input" />
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-6">
-        <h2
-          class="text-xl font-display text-theme-main uppercase">
-          dati della tua copia:
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-[10px] font-bold opacity-70 mb-2 uppercase"
-              >condizione *</label
-            >
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="cond in conditions"
-                :key="cond.value"
-                @click="copyForm.condition = cond.value"
-                :class="
-                  copyForm.condition === cond.value
-                    ? 'btn-filters--active border-transparent'
-                    : 'bg-theme-primary border-border-color text-theme-main'
-                "
-                class="px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase">
-                {{ cond.label }}
-              </button>
-            </div>
+              :readonly="lockedFields.includes('author')"
+              @input="debouncedManualSearch"
+              class="filter-input"
+              aria-label="autore libro" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold opacity-70 mb-2 uppercase"
-              >stato *</label
-            >
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="stat in statuses"
-                :key="stat.value"
-                @click="copyForm.status = stat.value"
-                :class="
-                  copyForm.status === stat.value
-                    ? 'btn-sort--active border-transparent'
-                    : 'bg-theme-primary border-border-color text-theme-main'
-                "
-                class="px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase">
-                {{ stat.label }}
-              </button>
-            </div>
+            <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase">editore</label>
+            <input
+              v-model="form.publisher"
+              type="text"
+              :readonly="lockedFields.includes('publisher')"
+              class="filter-input"
+              aria-label="editore" />
           </div>
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-bold opacity-70 mb-2 uppercase"
-            >tag e generi</label
-          >
-          <div class="tag-list tag-list-scrollable">
-            <button
-              v-for="tag in copyForm.tags"
-              :key="tag"
-              @click="toggleTag(tag)"
-              class="btn-tag--active px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all uppercase flex items-center gap-1">
-              {{ tag }} <i class="fa-solid fa-xmark"></i>
-            </button>
-            <hr
-              v-if="copyForm.tags.length > 0"
-              class="w-full border-transparent h-1" />
-            <button
-              v-for="tag in availableTags"
-              :key="tag"
-              @click="toggleTag(tag)"
-              :class="copyForm.tags.includes(tag) ? 'hidden' : 'btn-tag px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase'">
-              {{ tag }}
-            </button>
-            <button
-              v-if="!showTagInput"
-              @click="showTagInput = true"
-              class="w-8 h-8 rounded-lg bg-theme-secondary border-2 border-border-color flex items-center justify-center text-accent-color hover:bg-theme-primary transition shadow-sm">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-            <div v-else class="flex gap-1">
+          <div class="grid grid-cols-2 gap-4 md:col-span-2">
+            <div>
+              <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase">anno</label>
               <input
-                ref="tagInputRef"
-                v-model="newCustomTag"
-                @keyup.enter="addCustomTag"
-                @blur="cancelTagInput"
-                class="px-3 py-1 text-xs border-2 rounded-lg w-24 bg-theme-primary border-border-color outline-none focus:border-accent-color text-theme-main" />
-              <button
-                @click="addCustomTag"
-                class="btn-tag--active px-2 rounded-lg text-xs font-bold">
-                ok
-              </button>
+                v-model.number="form.publicationYear"
+                type="number"
+                class="filter-input"
+                aria-label="anno pubblicazione" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
+                >lingua</label
+              >
+              <input
+                v-model="form.language"
+                type="text"
+                class="filter-input"
+                aria-label="lingua" />
             </div>
           </div>
         </div>
 
-        <div>
-          <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
-            >note personali</label
-          >
-          <textarea
-            v-model="copyForm.ownerNotes"
-            rows="3"
-            class="w-full px-3 py-2 border rounded-xl bg-theme-primary border-border-color outline-none focus:ring-2 focus:ring-accent-color resize-none text-theme-main text-sm"></textarea>
+        <div class="space-y-6">
+          <h2
+            class="text-xl font-display text-theme-main uppercase">
+            dati della tua copia:
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-bold opacity-70 mb-2 uppercase"
+                >condizione *</label
+              >
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="cond in conditions"
+                  :key="cond.value"
+                  @click="copyForm.condition = cond.value"
+                  :class="
+                    copyForm.condition === cond.value
+                      ? 'btn-filters--active border-transparent'
+                      : 'bg-theme-primary border-border-color text-theme-main'
+                  "
+                  class="px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase"
+                  :aria-label="'imposta condizione ' + cond.label">
+                  {{ cond.label }}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold opacity-70 mb-2 uppercase"
+                >stato *</label
+              >
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="stat in statuses"
+                  :key="stat.value"
+                  @click="copyForm.status = stat.value"
+                  :class="
+                    copyForm.status === stat.value
+                      ? 'btn-sort--active border-transparent'
+                      : 'bg-theme-primary border-border-color text-theme-main'
+                  "
+                  class="px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase"
+                  :aria-label="'imposta stato ' + stat.label">
+                  {{ stat.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold opacity-70 mb-2 uppercase"
+              >tag e generi</label
+            >
+            <div class="tag-list tag-list-scrollable p-2 bg-theme-primary border border-border-color rounded-xl min-h-[60px]">
+              
+              <div v-if="copyForm.tags.length > 0" class="flex flex-wrap gap-2 mb-3 pb-2 border-b border-dashed border-border-color">
+                <button
+                  v-for="tag in copyForm.tags"
+                  :key="tag"
+                  @click="toggleTag(tag)"
+                  class="btn-tag--active px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all uppercase flex items-center gap-1 hover:bg-red-500 hover:text-white"
+                  :aria-label="'rimuovi tag ' + tag">
+                  {{ tag }} <i class="fa-solid fa-xmark ml-1"></i>
+                </button>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="tag in availableTags"
+                  :key="tag"
+                  @click="toggleTag(tag)"
+                  :class="copyForm.tags.includes(tag) ? 'hidden' : 'btn-tag px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase cursor-pointer hover:border-accent-color'"
+                  :aria-label="'aggiungi tag ' + tag">
+                  {{ tag }}
+                </button>
+                
+                <button
+                  v-if="!showTagInput"
+                  @click="showTagInput = true"
+                  class="w-8 h-8 rounded-lg bg-theme-secondary border-2 border-border-color flex items-center justify-center text-accent-color hover:bg-theme-primary transition shadow-sm cursor-pointer"
+                  title="aggiungi tag personalizzato"
+                  aria-label="aggiungi nuovo tag">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+                
+                <div v-else class="flex gap-1 items-center">
+                  <input
+                    ref="tagInputRef"
+                    v-model="newCustomTag"
+                    @keyup.enter="addCustomTag"
+                    @blur="cancelTagInput"
+                    placeholder="nuovo tag..."
+                    class="px-3 py-1 text-[10px] border-2 rounded-lg w-24 bg-theme-primary border-border-color outline-none focus:border-accent-color text-theme-main uppercase"
+                    aria-label="nome nuovo tag" />
+                  <button
+                    @click="addCustomTag"
+                    class="btn-tag--active px-2 py-1 rounded-lg text-[10px] font-bold uppercase"
+                    aria-label="conferma nuovo tag">
+                    ok
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
+              >note personali</label
+            >
+            <textarea
+              v-model="copyForm.ownerNotes"
+              rows="3"
+              class="w-full px-3 py-2 border rounded-xl bg-theme-primary border-border-color outline-none focus:ring-2 focus:ring-accent-color resize-none text-theme-main text-sm"
+              aria-label="note personali"></textarea>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="hasLibraries" class="flex gap-4 pt-6">
-      <button
-        @click="handleCancel"
-        class="flex-1 py-3 border-2 border-border-color rounded-xl font-bold text-theme-main hover:bg-theme-secondary transition uppercase text-xs tracking-widest">
-        {{ isSetup ? "salta" : "annulla" }}
-      </button>
-      <button
-        @click="submitBook"
-        :disabled="isSubmitting"
-        class="flex-[2] btn-modal-confirm py-3 justify-center text-xs tracking-widest uppercase"
-        :class="isReadyToSave ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none'">
-        <span v-if="isSubmitting"
-          ><i class="fa-solid fa-circle-notch fa-spin mr-2"></i
-          >salvataggio...</span
-        >
-        <span v-else>salva</span>
-      </button>
-    </div>
+      <div v-if="hasLibraries" class="flex gap-4 pt-6">
+        <button
+          @click="handleCancel"
+          class="flex-1 py-3 border-2 border-border-color rounded-xl font-bold text-theme-main hover:bg-theme-secondary transition uppercase text-xs tracking-widest"
+          aria-label="annulla inserimento">
+          {{ isSetup ? "salta" : "annulla" }}
+        </button>
+        <button
+          @click="submitBook"
+          :disabled="isSubmitting"
+          class="flex-[2] btn-modal-confirm py-3 justify-center text-xs tracking-widest uppercase"
+          :class="isReadyToSave ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none'"
+          aria-label="salva libro">
+          <span v-if="isSubmitting"
+            ><i class="fa-solid fa-circle-notch fa-spin mr-2"></i
+            >salvataggio...</span
+          >
+          <span v-else>salva</span>
+        </button>
+      </div>
+    </template>
 
     <div
       v-if="showConflictModal"
@@ -368,13 +435,15 @@
             v-for="book in conflictBooks"
             :key="book.isbn"
             @click="selectBookFromModal(book)"
-            class="w-full text-left p-3 border-2 border-border-color bg-theme-secondary rounded-xl hover:border-accent-color transition flex gap-3 items-center">
+            class="w-full text-left p-3 border-2 border-border-color bg-theme-secondary rounded-xl hover:border-accent-color transition flex gap-3 items-center"
+            :aria-label="'seleziona libro ' + book.title">
             <div
               class="w-10 h-14 bg-theme-primary border border-border-color flex items-center justify-center rounded shrink-0 overflow-hidden text-theme-main">
               <img
                 v-if="book.cover"
                 :src="book.cover"
-                class="w-full h-full object-cover" />
+                class="w-full h-full object-cover"
+                alt="" />
               <i v-else class="fa-solid fa-book opacity-30"></i>
             </div>
             <div class="text-xs overflow-hidden flex-grow text-theme-main">
@@ -385,7 +454,8 @@
         </div>
         <button
           @click="showConflictModal = false"
-          class="btn-modal-cancel mt-6 w-full uppercase">
+          class="btn-modal-cancel mt-6 w-full uppercase"
+          aria-label="ignora suggerimenti e usa dati manuali">
           inserisci i dati manualmente
         </button>
       </div>
@@ -405,23 +475,27 @@
             v-model="form.isbn"
             type="text"
             placeholder="978..."
-            class="filter-input text-center" />
+            class="filter-input text-center"
+            aria-label="inserisci isbn" />
         </div>
         <div class="flex flex-col gap-2 mt-4">
           <button
             @click="handleIsbnModalSubmit"
             :disabled="!isIsbnValid"
-            class="btn-modal-confirm w-full py-3 justify-center uppercase font-bold text-xs">
+            class="btn-modal-confirm w-full py-3 justify-center uppercase font-bold text-xs"
+            aria-label="cerca e valida isbn">
             cerca e valida
           </button>
           <button
             @click="forceSubmitWithoutIsbn"
-            class="w-full py-2 text-theme-main text-xs underline uppercase font-bold opacity-60">
+            class="w-full py-2 text-theme-main text-xs underline uppercase font-bold opacity-60"
+            aria-label="procedi senza isbn">
             non lo trovo / procedi senza isbn
           </button>
           <button
             @click="showIsbnRequestModal = false"
-            class="w-full py-2 text-red-500 text-xs uppercase font-bold">
+            class="w-full py-2 text-red-500 text-xs uppercase font-bold"
+            aria-label="annulla operazione">
             annulla
           </button>
         </div>
@@ -442,12 +516,14 @@
         <div class="mt-8 flex gap-6">
           <button
             @click="takePhoto"
-            class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-2xl">
+            class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-2xl"
+            aria-label="scatta foto">
             <i class="fa-solid fa-camera text-2xl text-paynes-gray"></i>
           </button>
           <button
             @click="stopPhotoCapture"
-            class="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center shadow-2xl">
+            class="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center shadow-2xl"
+            aria-label="chiudi fotocamera">
             <i class="fa-solid fa-xmark text-2xl"></i>
           </button>
         </div>
@@ -461,7 +537,8 @@
           <img
             :src="rawImageData"
             class="max-h-[65vh] object-contain transition-transform duration-300 origin-center"
-            :style="`transform: scale(${cropZoom});`" />
+            :style="`transform: scale(${cropZoom});`" 
+            alt="immagine da ritagliare" />
           <div
             class="absolute inset-0 border-[40px] border-black/50 pointer-events-none flex items-center justify-center">
             <div
@@ -471,7 +548,8 @@
         <div class="flex items-center gap-4 mt-6">
           <button
             @click="cropZoom = Math.max(0.1, cropZoom - 0.1)"
-            class="w-10 h-10 bg-white/20 text-white rounded-full hover:bg-white/40 transition font-bold">
+            class="w-10 h-10 bg-white/20 text-white rounded-full hover:bg-white/40 transition font-bold"
+            aria-label="riduci zoom">
             -
           </button>
           <input
@@ -480,22 +558,26 @@
             max="3"
             step="0.1"
             v-model.number="cropZoom"
-            class="w-32 accent-accent-color" />
+            class="w-32 accent-accent-color"
+            aria-label="livello zoom" />
           <button
             @click="cropZoom = Math.min(5, cropZoom + 0.1)"
-            class="w-10 h-10 bg-white/20 text-white rounded-full hover:bg-white/40 transition font-bold">
+            class="w-10 h-10 bg-white/20 text-white rounded-full hover:bg-white/40 transition font-bold"
+            aria-label="aumenta zoom">
             +
           </button>
         </div>
         <div class="mt-8 flex gap-6">
           <button
             @click="applyCrop"
-            class="bg-accent-color text-white px-10 py-3 rounded-xl font-bold shadow-xl uppercase text-xs">
+            class="bg-accent-color text-white px-10 py-3 rounded-xl font-bold shadow-xl uppercase text-xs"
+            aria-label="conferma ritaglio">
             conferma
           </button>
           <button
             @click="isCropping = false"
-            class="bg-red-500 text-white px-10 py-3 rounded-xl font-bold shadow-xl uppercase text-xs">
+            class="bg-red-500 text-white px-10 py-3 rounded-xl font-bold shadow-xl uppercase text-xs"
+            aria-label="annulla ritaglio">
             annulla
           </button>
         </div>
@@ -511,8 +593,9 @@
         <p class="text-theme-main font-bold uppercase tracking-tighter mb-6">{{ modalContent }}</p>
         <button
           @click="handleModalClose"
-          class="btn-modal-confirm px-12 py-2 uppercase font-bold text-xs tracking-widest">
-          finito
+          class="btn-modal-confirm px-12 py-2 uppercase font-bold text-xs tracking-widest"
+          aria-label="chiudi messaggio">
+          chiudi
         </button>
       </div>
     </AppModal>
@@ -542,6 +625,8 @@ const isModalOpen = ref(false);
 const modalTitle = ref("");
 const modalContent = ref("");
 const isSuccess = ref(false);
+// nuova variabile per gestire la view post-salvataggio
+const isPostSaveScreen = ref(false); 
 const showIsbnRequestModal = ref(false);
 const showConflictModal = ref(false);
 const conflictBooks = ref([]);
@@ -619,7 +704,41 @@ function handleCancel() {
 }
 function handleModalClose() {
   isModalOpen.value = false;
-  if (isSuccess.value) router.push(returnTo.value);
+  // se era successo ora non serve redirect qui perché gestito dalla schermata post-save
+}
+
+// resetta il form per inserire un nuovo libro
+function resetFormForNewBook() {
+  isPostSaveScreen.value = false;
+  inputMode.value = null; // torna alla selezione modalità
+  form.value = {
+    targetLibraryId: form.value.targetLibraryId, // mantieni libreria
+    isbn: "",
+    title: "",
+    author: "",
+    publisher: "",
+    language: "",
+    publicationYear: null,
+    coverFile: null,
+  };
+  copyForm.value = {
+    status: "available",
+    condition: null,
+    ownerNotes: "",
+    tags: [],
+  };
+  previewUrl.value = null;
+  bookDetailsFound.value = false;
+  lockedFields.value = [];
+}
+
+// naviga alla libreria corrente
+function goToLibrary() {
+  if (form.value.targetLibraryId) {
+    router.push(`/libraries/${form.value.targetLibraryId}`);
+  } else {
+    router.push(returnTo.value);
+  }
 }
 
 async function handleStartScan() {
@@ -713,7 +832,8 @@ async function executeSubmit() {
     );
     if (form.value.coverFile) fd.append("cover", form.value.coverFile);
     await apiClient.post("/books/save", fd);
-    showModal("ottimo", "libro aggiunto correttamente", true);
+    // invece di mostrare modale, attivo schermata successo inline
+    isPostSaveScreen.value = true;
   } catch (e) {
     showModal("attenzione", "errore salvataggio", false);
   } finally {
@@ -920,7 +1040,7 @@ watch([() => form.value.title, () => form.value.author], () => {
 }
 
 .tag-list {
-  max-height: 120px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
@@ -935,4 +1055,4 @@ watch([() => form.value.title, () => form.value.author], () => {
   padding: 1.5rem;
   text-align: center;
 }
-</style>```
+</style>

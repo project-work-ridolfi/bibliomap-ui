@@ -12,6 +12,7 @@
       <div v-if="isOwner" class="flex gap-3">
         <button
           @click="router.push(`/libraries/${library.id}/edit`)"
+          aria-label="modifica impostazioni libreria"
           class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] shadow-md hover:opacity-90 transition flex items-center gap-2">
           <i class="fa-solid fa-pen-to-square"></i>
           modifica libreria
@@ -22,6 +23,7 @@
             path: '/add-book',
             query: { libraryId: library.id, returnTo: route.path },
           }"
+          aria-label="aggiungi nuovo libro"
           class="bg-zomp text-white px-5 py-2.5 rounded-xl font-bold text-[10px] shadow-md hover:opacity-90 transition flex items-center gap-2">
           <i class="fa-solid fa-plus"></i>
           nuovo libro
@@ -71,6 +73,7 @@
               <dt class="opacity-70">proprietario:</dt>
               <router-link
                 :to="`/profile/${library.ownerId}`"
+                aria-label="vedi profilo proprietario"
                 class="font-bold hover:text-zomp transition-colors cursor-pointer">
                 {{ library.ownerName || "utente anonimo" }}
               </router-link>
@@ -90,6 +93,7 @@
           <button
             v-if="isOwner"
             @click="openDeleteLibraryModal"
+            aria-label="elimina definitivamente questa libreria"
             class="w-full mt-6 p-3 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-xl transition flex items-center justify-center gap-2 font-bold text-xs shadow-sm">
             <i class="fa-solid fa-trash-can"></i>
             elimina libreria
@@ -121,7 +125,8 @@
                 <img
                   v-if="book.customCover || book.coverUrl"
                   :src="book.customCover || book.coverUrl"
-                  class="w-full h-full object-cover" />
+                  class="w-full h-full object-cover"
+                  alt="copertina libro" />
                 <div
                   v-else
                   class="w-full h-full flex items-center justify-center text-gray-400">
@@ -155,6 +160,7 @@
                   <button
                     v-if="!book.hasPendingRequest"
                     @click="openLoanConfirmModal(book)"
+                    aria-label="richiedi in prestito"
                     class="bg-zomp text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-opacity-90 transition transform hover:-translate-y-0.5 flex items-center">
                     <i class="fa-solid fa-hand-holding-heart mr-2"></i>chiedi in
                     prestito
@@ -170,6 +176,7 @@
               <button
                 @click="router.push(`/books/${book.id}`)"
                 title="vedi dettagli"
+                aria-label="vedi dettagli libro"
                 class="p-2.5 text-theme-main hover:text-zomp hover:bg-ash-gray/20 rounded-xl transition border border-transparent hover:border-thistle">
                 <i class="fa-solid fa-eye text-lg"></i>
               </button>
@@ -180,12 +187,14 @@
                 <button
                   @click="router.push(`/books/${book.id}/edit`)"
                   title="modifica"
+                  aria-label="modifica libro"
                   class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg transition">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
                 <button
                   @click="openMoveModal(book)"
                   title="sposta"
+                  aria-label="sposta libro in altra libreria"
                   class="p-2 text-theme-main hover:bg-ash-gray/20 rounded-lg transition">
                   <i class="fa-solid fa-right-left"></i>
                 </button>
@@ -197,6 +206,7 @@
                       ? 'text-red-500 hover:bg-red-50'
                       : 'text-gray-300 cursor-not-allowed'
                   "
+                  aria-label="elimina libro"
                   class="p-2 rounded-lg transition">
                   <i class="fa-solid fa-trash"></i>
                 </button>
@@ -229,11 +239,13 @@
         <div class="flex gap-3 w-full mt-4">
           <button
             @click="closeDeleteModal"
+            aria-label="annulla eliminazione"
             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition">
             annulla
           </button>
           <button
             @click="executeDelete"
+            aria-label="conferma eliminazione"
             class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition flex justify-center items-center gap-2">
             <i class="fa-solid fa-trash"></i> conferma
           </button>
@@ -258,6 +270,7 @@
         <p class="text-sm text-gray-600">{{ deleteModal.successMsg }}</p>
         <button
           @click="handleDeleteSuccess"
+          aria-label="chiudi messaggio conferma"
           class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg hover:bg-opacity-90 font-bold transition">
           chiudi
         </button>
@@ -276,6 +289,7 @@
         </p>
         <button
           @click="closeDeleteModal"
+          aria-label="chiudi messaggio errore"
           class="w-full mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-bold transition">
           chiudi
         </button>
@@ -295,12 +309,14 @@
         <div class="flex justify-end gap-3 pt-2">
           <button
             @click="isLoanConfirmModalOpen = false"
+            aria-label="annulla richiesta"
             class="px-4 py-2 text-sm font-bold opacity-60">
             annulla
           </button>
           <button
             @click="confirmLoanRequest"
             :disabled="isSendingLoan"
+            aria-label="conferma invio richiesta"
             class="bg-zomp text-white px-6 py-2 rounded-xl font-bold shadow-md flex items-center gap-2">
             <i
               v-if="isSendingLoan"
@@ -314,7 +330,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onMounted, computed, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { apiClient } from "@/services/apiClient";
@@ -336,11 +352,11 @@ const isLoanConfirmModalOpen = ref(false);
 const isSendingLoan = ref(false);
 const isMoveModalOpen = ref(false);
 
-// stato unificato per eliminazione (libreria o libro)
+// stato unificato per eliminazione libreria o libro
 const deleteModal = reactive({
   show: false,
   step: "confirm",
-  type: null, // 'library' o 'book'
+  type: null,
   targetId: null,
   message: "",
   successMsg: "",
@@ -398,6 +414,14 @@ async function fetchLibraryDetails(page = 0) {
     isLoading.value = false;
   }
 }
+
+// navigazione tra librerie senza refresh
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) fetchLibraryDetails();
+  }
+);
 
 // eliminazione libreria
 function openDeleteLibraryModal() {
@@ -471,4 +495,3 @@ async function confirmLoanRequest() {
 
 onMounted(fetchLibraryDetails);
 </script>
-

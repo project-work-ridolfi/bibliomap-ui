@@ -5,36 +5,41 @@
       <div class="flex gap-4">
         <button
           @click="goBack"
-          class="px-4 py-2 text-sm font-bold text-theme-main hover:text-zomp transition uppercase">
+          class="px-4 py-2 text-sm font-bold text-theme-main hover:text-zomp transition uppercase"
+          aria-label="annulla modifiche e torna indietro">
           Annulla
         </button>
         <button
           @click="saveChanges"
           :disabled="isSaving"
-          class="btn-modal-confirm px-6 py-2 justify-center">
+          class="btn-modal-confirm px-6 py-2 justify-center"
+          aria-label="salva modifiche libro">
           <span v-if="isSaving" class="text-xs uppercase tracking-widest font-bold">Salvataggio...</span>
           <span v-else class="uppercase">Salva</span>
         </button>
       </div>
     </div>
 
-    <div v-if="isLoading" class="text-center py-20">
+    <div v-if="isLoading" class="text-center py-20" role="status">
       <i class="fa-solid fa-circle-notch fa-spin text-3xl text-zomp"></i>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-10 custom-fade-in">
       <section class="space-y-6 flex flex-col items-center">
         <div
-          class="relative w-full aspect-[2/3] shadow-2xl rounded-2xl overflow-hidden bg-theme-primary border border-border-color group">
+          class="relative w-full aspect-[2/3] shadow-2xl rounded-2xl overflow-hidden bg-theme-primary border border-border-color group"
+          role="img"
+          aria-label="anteprima copertina libro">
           <img
             :src="previewCover || currentImage"
             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
-            alt="anteprima" />
+            alt="anteprima copertina" />
 
           <div
             class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-3">
             <label
-              class="cursor-pointer bg-white text-paynes-gray px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-zomp hover:text-white transition uppercase">
+              class="cursor-pointer bg-white text-paynes-gray px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-zomp hover:text-white transition uppercase"
+              aria-label="carica nuova immagine">
               Carica file
               <input
                 type="file"
@@ -45,13 +50,15 @@
 
             <button
               @click="startCamera"
-              class="bg-white text-paynes-gray px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-zomp hover:text-white transition uppercase">
+              class="bg-white text-paynes-gray px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-zomp hover:text-white transition uppercase"
+              aria-label="scatta foto con fotocamera">
               Scatta foto
             </button>
 
             <button
               @click="removeCurrentCover"
-              class="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-red-600 transition uppercase">
+              class="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-red-600 transition uppercase"
+              aria-label="rimuovi copertina attuale">
               Rimuovi
             </button>
           </div>
@@ -59,7 +66,10 @@
 
         <div class="w-full space-y-2">
           <label class="block text-[10px] font-bold text-theme-main uppercase tracking-widest ml-1 opacity-70">Stato prestito</label>
-          <select v-model="form.status" class="filter-input">
+          <select 
+            v-model="form.status" 
+            class="filter-input"
+            aria-label="seleziona stato disponibilità">
             <option value="available">Disponibile</option>
             <option value="loaned">In prestito</option>
             <option value="maintenance">Non disponibile</option>
@@ -80,7 +90,10 @@
         <div class="space-y-6 text-theme-main">
           <div>
             <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-70">Condizioni</label>
-            <select v-model="form.condition" class="filter-input">
+            <select 
+              v-model="form.condition" 
+              class="filter-input"
+              aria-label="seleziona condizioni libro">
               <option v-for="opt in conditionOptions" :key="opt.value" :value="opt.value">
                 {{ opt.label }}
               </option>
@@ -88,31 +101,44 @@
           </div>
 
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-70">Tags</label>
-            <div class="flex flex-wrap gap-2 p-3 border border-border-color rounded-xl bg-theme-secondary min-h-[50px]">
-              <span
-                v-for="(tag, idx) in form.tags"
-                :key="idx"
-                class="bg-zomp text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 uppercase">
-                {{ tag }}
-                <button @click="removeTag(idx)" class="hover:text-red-500">
-                  <i class="fa-solid fa-xmark"></i>
+            <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-70">Tag e Generi</label>
+            <div class="p-3 border border-border-color rounded-xl bg-theme-secondary space-y-3">
+              <div v-if="form.tags.length > 0" class="flex flex-wrap gap-2 pb-2 border-b border-dashed border-border-color">
+                <button
+                  v-for="(tag, idx) in form.tags"
+                  :key="idx"
+                  @click="removeTag(idx)"
+                  class="bg-zomp text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 uppercase hover:bg-red-500 transition"
+                  :aria-label="'rimuovi tag ' + tag">
+                  {{ tag }} <i class="fa-solid fa-xmark"></i>
                 </button>
-              </span>
-              <input
-                v-model="newTag"
-                @keydown.enter.prevent="addTag"
-                placeholder="Aggiungi tag..."
-                class="flex-grow bg-transparent outline-none text-theme-main text-sm p-1" />
-            </div>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <button
-                v-for="tag in filteredSuggestedTags"
-                :key="tag"
-                @click="addSuggestedTag(tag)"
-                class="btn-tag text-[9px] font-bold uppercase border border-border-color px-2 py-1 rounded transition">
-                + {{ tag }}
-              </button>
+              </div>
+
+              <div class="flex flex-wrap gap-2 items-center">
+                 <button
+                  v-for="tag in filteredSuggestedTags"
+                  :key="tag"
+                  @click="addSuggestedTag(tag)"
+                  class="btn-tag text-[9px] font-bold uppercase border border-border-color px-2 py-1 rounded transition hover:border-zomp hover:text-zomp"
+                  :aria-label="'aggiungi tag suggerito ' + tag">
+                  + {{ tag }}
+                </button>
+                
+                <div class="flex gap-2 items-center flex-grow min-w-[120px]">
+                   <input
+                    v-model="newTag"
+                    @keydown.enter.prevent="addTag"
+                    placeholder="nuovo tag..."
+                    class="flex-grow bg-transparent outline-none text-theme-main text-xs border-b border-transparent focus:border-zomp p-1 uppercase placeholder:normal-case"
+                    aria-label="inserisci nuovo tag" />
+                   <button 
+                      @click="addTag" 
+                      class="text-zomp hover:text-theme-main transition"
+                      aria-label="conferma aggiunta tag">
+                      <i class="fa-solid fa-plus"></i>
+                   </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -122,7 +148,8 @@
               v-model="form.ownerNotes"
               rows="5"
               class="w-full p-4 rounded-xl border border-border-color bg-theme-primary text-theme-main focus:ring-2 focus:ring-zomp outline-none text-sm transition-colors resize-none"
-              placeholder="Scrivi qui dettagli sulla tua copia..."></textarea>
+              placeholder="Scrivi qui dettagli sulla tua copia..."
+              aria-label="note personali sulla copia"></textarea>
           </div>
         </div>
       </section>
@@ -131,10 +158,16 @@
     <div v-if="isCameraOpen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4">
       <video ref="video" autoplay playsinline class="max-w-full max-h-[70vh] rounded-2xl shadow-2xl"></video>
       <div class="mt-8 flex gap-6">
-        <button @click="captureImage" class="w-16 h-16 bg-white rounded-full border-4 border-zomp flex items-center justify-center shadow-xl">
+        <button 
+          @click="captureImage" 
+          class="w-16 h-16 bg-white rounded-full border-4 border-zomp flex items-center justify-center shadow-xl"
+          aria-label="scatta foto">
           <i class="fa-solid fa-camera text-2xl text-zomp"></i>
         </button>
-        <button @click="stopCamera" class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-xl">
+        <button 
+          @click="stopCamera" 
+          class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-xl"
+          aria-label="chiudi fotocamera">
           <i class="fa-solid fa-xmark text-2xl text-white"></i>
         </button>
       </div>
@@ -178,11 +211,12 @@ const video = ref(null)
 const canvas = ref(null)
 const stream = ref(null)
 
-// 1. LOGICA TAG: Mostra solo i tag suggeriti che non sono già presenti sopra
+// filtra i tag suggeriti escludendo quelli già presenti
 const filteredSuggestedTags = computed(() => {
-  return commonTags.filter(tag => !form.tags.includes(tag.toLowerCase()));
-});
+  return commonTags.filter(tag => !form.tags.includes(tag.toLowerCase()))
+})
 
+// calcola url immagine da mostrare
 const currentImage = computed(() => {
   if (useDefault.value) return "/images/cover_placeholder.png"
   if (form.customCover) {
@@ -191,11 +225,12 @@ const currentImage = computed(() => {
   return form.coverUrl || "/images/cover_placeholder.png"
 })
 
-// 2. NAVIGAZIONE: Torna direttamente al dettaglio libro usando replace per pulire la history
+// torna alla pagina dettaglio libro
 function goBack() {
-  router.replace(`/books/${form.id}`);
+  router.replace(`/books/${form.id}`)
 }
 
+// carica dati iniziali libro
 async function loadData() {
   isLoading.value = true
   try {
@@ -218,21 +253,25 @@ async function loadData() {
   }
 }
 
+// aggiunge tag manuale
 function addTag() {
   const val = newTag.value.trim().toLowerCase()
   if (val && !form.tags.includes(val)) form.tags.push(val)
   newTag.value = ""
 }
 
+// aggiunge tag dai suggerimenti
 function addSuggestedTag(tag) {
-  const val = tag.toLowerCase();
+  const val = tag.toLowerCase()
   if (!form.tags.includes(val)) form.tags.push(val)
 }
 
+// rimuove tag dalla lista
 function removeTag(idx) {
   form.tags.splice(idx, 1)
 }
 
+// resetta copertina a default
 function removeCurrentCover() {
   previewCover.value = null
   selectedFile.value = null
@@ -240,6 +279,7 @@ function removeCurrentCover() {
   form.customCover = ""
 }
 
+// gestisce upload file immagine
 function handleFileUpload(event) {
   const file = event.target.files[0]
   if (!file) return
@@ -250,6 +290,7 @@ function handleFileUpload(event) {
   reader.readAsDataURL(file)
 }
 
+// avvia fotocamera dispositivo
 async function startCamera() {
   isCameraOpen.value = true
   try {
@@ -260,11 +301,13 @@ async function startCamera() {
   }
 }
 
+// ferma stream fotocamera
 function stopCamera() {
   if (stream.value) stream.value.getTracks().forEach(t => t.stop())
   isCameraOpen.value = false
 }
 
+// cattura frame video come immagine
 function captureImage() {
   const context = canvas.value.getContext("2d")
   canvas.value.width = video.value.videoWidth
@@ -278,6 +321,7 @@ function captureImage() {
   }, "image/jpeg", 0.8)
 }
 
+// salva modifiche al server
 async function saveChanges() {
   isSaving.value = true
   try {
@@ -291,7 +335,6 @@ async function saveChanges() {
 
     await apiClient.put(`/copies/${form.id}`, formData)
     
-    // 2. NAVIGAZIONE: replace sostituisce lo stato "modifica" con "dettaglio" nella cronologia
     router.replace(`/books/${form.id}`)
   } catch (e) {
     console.error("errore salvataggio")
