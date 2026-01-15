@@ -156,3 +156,17 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 - [ ] richiedi copia dati, passandoci sopra deve scrivere che arriva pdf via email
 - [x] aggiungi /about a sidebar
 - [ ] check posizione fuori roma non indirizzo
+- [ ] dopo salva libro una volta che si è finito è brutto e torna alla libreria
+- [ ] dettaglio libro dovrebbe trovare i risultati anche per i suggerimenti pure se è del proprietario
+- [ ] trova libri ce ne entrano tre ma sono due
+- [ ] aria labels ovunque
+- [ ] barra distanza nella home va centrata
+- [ ] richiesta prestito da dettaglio libro
+- [ ] link al prestito
+- [ ] quando un libro viene aggiunto correettamente finito è a sinistra, dovrebbe essere centrato o a destra
+- [ ] migliorare tag in aggiunta libri, su una linea diversa quelli cliccati, più chiaro che sia navigabile la linea (magari con freccetta), il + con placeholder aggiungi tag
+- [ ] se si è sul dett di una libreria e si prova a navigare su un altra da sidebar non funge (serve reload)
+- [ ] un messaggio di cortesia se non ci sono libri simili
+- [ ] check numero visualizzazioni come cresce
+- [ ] add 2 utenti demo con pwd in questo readme
+- [ ] rel
