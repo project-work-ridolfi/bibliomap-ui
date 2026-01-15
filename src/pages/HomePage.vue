@@ -174,7 +174,7 @@
               role="button"
               tabindex="0">
               
-                <div class="w-24 h-full shrink-0 bg-gray-200">
+                <div class="w-24 h-full shrink-0 bg-gray-200 border-r border-[var(--border-color)]">
                   <img
                     :src="book.coverUrl"
                     :alt="'copertina del libro ' + book.title"
@@ -352,7 +352,7 @@ const authStore = useAuthStore()
 const router = useRouter()
 const ROME_CENTER = { lat: 41.9028, lng: 12.4964 }
 
-// altezza stimata card orizzontale inclusi margini
+// altezza stimata card orizzontale
 const CARD_HEIGHT = 156 
 const MAX_SEARCH_RADIUS = 20
 const MAX_ZOOM_OUT = 10

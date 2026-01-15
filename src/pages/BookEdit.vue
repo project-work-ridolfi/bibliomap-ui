@@ -155,18 +155,23 @@
       </section>
     </div>
 
-    <div v-if="isCameraOpen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4">
-      <video ref="video" autoplay playsinline class="max-w-full max-h-[70vh] rounded-2xl shadow-2xl"></video>
-      <div class="mt-8 flex gap-6">
+    <div v-if="isCameraOpen" class="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4">
+      <div class="relative w-full max-w-sm aspect-[2/3] border-2 border-zomp rounded-lg overflow-hidden shadow-2xl bg-black">
+        <video ref="video" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+        <div class="absolute inset-0 border-4 border-white/20 pointer-events-none"></div>
+      </div>
+      
+      <div class="mt-8 flex gap-6 items-center">
         <button 
           @click="captureImage" 
-          class="w-16 h-16 bg-white rounded-full border-4 border-zomp flex items-center justify-center shadow-xl"
+          class="w-20 h-20 bg-white rounded-full border-4 border-zomp flex items-center justify-center shadow-xl hover:scale-105 transition transform"
           aria-label="scatta foto">
           <i class="fa-solid fa-camera text-2xl text-zomp"></i>
         </button>
+        
         <button 
           @click="stopCamera" 
-          class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-xl"
+          class="w-14 h-14 bg-red-500 rounded-full flex items-center justify-center shadow-xl hover:bg-red-600 transition"
           aria-label="chiudi fotocamera">
           <i class="fa-solid fa-xmark text-2xl text-white"></i>
         </button>
@@ -294,9 +299,19 @@ function handleFileUpload(event) {
 async function startCamera() {
   isCameraOpen.value = true
   try {
-    stream.value = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-    video.value.srcObject = stream.value
+    stream.value = await navigator.mediaDevices.getUserMedia({ 
+      video: { 
+        facingMode: "environment",
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      } 
+    })
+    // wait for dom update
+    setTimeout(() => {
+      if (video.value) video.value.srcObject = stream.value
+    }, 100)
   } catch (e) {
+    console.error("camera access denied")
     isCameraOpen.value = false
   }
 }
@@ -309,16 +324,44 @@ function stopCamera() {
 
 // cattura frame video come immagine
 function captureImage() {
-  const context = canvas.value.getContext("2d")
-  canvas.value.width = video.value.videoWidth
-  canvas.value.height = video.value.videoHeight
-  context.drawImage(video.value, 0, 0)
+  const v = video.value
+  const ctx = canvas.value.getContext("2d")
+  
+  // source dimensions
+  const vw = v.videoWidth
+  const vh = v.videoHeight
+  
+  // calculate crop for 2:3 ratio
+  const targetRatio = 2 / 3
+  let cropW, cropH, startX, startY
+
+  if (vw / vh > targetRatio) {
+    // video is wider than target, crop width
+    cropH = vh
+    cropW = vh * targetRatio
+    startX = (vw - cropW) / 2
+    startY = 0
+  } else {
+    // video is taller than target, crop height
+    cropW = vw
+    cropH = vw / targetRatio
+    startX = 0
+    startY = (vh - cropH) / 2
+  }
+
+  // set canvas to crop size
+  canvas.value.width = cropW
+  canvas.value.height = cropH
+  
+  // draw cropped area
+  ctx.drawImage(v, startX, startY, cropW, cropH, 0, 0, cropW, cropH)
+  
   canvas.value.toBlob(blob => {
     selectedFile.value = new File([blob], "photo.jpg", { type: "image/jpeg" })
     previewCover.value = URL.createObjectURL(blob)
     useDefault.value = false
     stopCamera()
-  }, "image/jpeg", 0.8)
+  }, "image/jpeg", 0.9)
 }
 
 // salva modifiche al server
@@ -331,7 +374,10 @@ async function saveChanges() {
     formData.append("ownerNotes", form.ownerNotes)
     formData.append("tags", form.tags.join(","))
     formData.append("useDefaultCover", useDefault.value)
-    if (selectedFile.value) formData.append("coverFile", selectedFile.value)
+    
+    if (selectedFile.value) {
+      formData.append("coverFile", selectedFile.value)
+    }
 
     await apiClient.put(`/copies/${form.id}`, formData)
     

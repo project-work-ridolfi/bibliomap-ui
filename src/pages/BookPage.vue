@@ -128,6 +128,16 @@
           </div>
 
           <div class="pt-4 border-t border-thistle flex flex-wrap gap-3 justify-end items-center">
+            
+              <button 
+                @click="getSimilarBook" 
+                :disabled="isSearchingSimilar"
+                aria-label="cerca un libro simile nelle vicinanze"
+                class="btn-sort px-6 py-3 uppercase text-xs tracking-widest flex items-center gap-2">
+                <i :class="isSearchingSimilar ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'" class="fa-solid"></i>
+                Trova simile
+              </button>
+              
             <div v-if="isOwner" class="flex space-x-3">
               <button 
                 @click="router.push(`/books/${book.id}/edit`)" 
@@ -150,15 +160,6 @@
             </div>
 
             <div v-else class="flex flex-wrap gap-3">
-              <button 
-                @click="getSimilarBook" 
-                :disabled="isSearchingSimilar"
-                aria-label="cerca un libro simile nelle vicinanze"
-                class="btn-sort px-6 py-3 uppercase text-xs tracking-widest flex items-center gap-2">
-                <i :class="isSearchingSimilar ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'" class="fa-solid"></i>
-                Trova simile
-              </button>
-
               <template v-if="authStore.isAuthenticated">
                 <button
                   v-if="book.status === 'available'"

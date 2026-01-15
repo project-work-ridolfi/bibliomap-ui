@@ -348,7 +348,7 @@
                 </button>
               </div>
 
-              <div class="flex flex-wrap gap-2">
+              <div class="flex flex-wrap gap-2 items-center">
                 <button
                   v-for="tag in availableTags"
                   :key="tag"
@@ -361,10 +361,9 @@
                 <button
                   v-if="!showTagInput"
                   @click="showTagInput = true"
-                  class="w-8 h-8 rounded-lg bg-theme-secondary border-2 border-border-color flex items-center justify-center text-accent-color hover:bg-theme-primary transition shadow-sm cursor-pointer"
-                  title="aggiungi tag personalizzato"
+                  class="px-3 py-1.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition text-[10px] font-bold uppercase"
                   aria-label="aggiungi nuovo tag">
-                  <i class="fa-solid fa-plus"></i>
+                  + aggiungi tag
                 </button>
                 
                 <div v-else class="flex gap-1 items-center">
@@ -868,8 +867,9 @@ function applyCrop() {
   img.onload = () => {
     const renderWidth = img.width * cropZoom.value;
     const renderHeight = img.height * cropZoom.value;
-    canvas.width = 600;
-    canvas.height = 400;
+    // imposta canvas verticale (2:3)
+    canvas.width = 400;
+    canvas.height = 600;
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(
