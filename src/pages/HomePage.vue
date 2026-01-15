@@ -121,39 +121,40 @@
             <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
           </div>
 
-          <div
-            v-else-if="filteredBooks.length === 0"
-            class="flex-center flex-col mt-4 px-4 text-center">
-            <p class="opacity-70 text-sm mb-4">
-              nessun libro trovato in quest area.
-            </p>
+         <div
+  v-else-if="filteredBooks.length === 0"
+  class="flex flex-col items-center justify-center mt-10 px-4 text-center w-full h-full"
+>
+  <p class="opacity-70 text-sm mb-4">nessun libro trovato in quest area.</p>
 
-            <div
-              class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)]">
-              <div class="flex justify-between items-center">
-                <span class="text-[10px] uppercase font-bold opacity-80"
-                  >espandi raggio</span
-                >
+  <div
+    class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl"
+  >
+    <div class="flex justify-between items-center">
+      <span class="text-[10px] uppercase font-bold opacity-80"
+        >espandi raggio</span
+      >
 
-                <span class="text-xs font-bold text-[var(--zomp)]">
-                  {{
-                    expansionRadius >= 1000
-                      ? (expansionRadius / 1000).toFixed(1) + " km"
-                      : expansionRadius + " m"
-                  }}
-                </span>
-              </div>
+      <span class="text-xs font-bold text-[var(--zomp)]">
+        {{
+          expansionRadius >= 1000
+            ? (expansionRadius / 1000).toFixed(1) + " km"
+            : expansionRadius + " m"
+        }}
+      </span>
+    </div>
 
-              <input
-                type="range"
-                min="500"
-                max="15000"
-                step="500"
-                v-model.number="expansionRadius"
-                @change="applyRadiusZoom"
-                class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]" />
-            </div>
-          </div>
+    <input
+      type="range"
+      min="500"
+      max="15000"
+      step="500"
+      v-model.number="expansionRadius"
+      @change="applyRadiusZoom"
+      class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]"
+    />
+  </div>
+</div>
 
           <div v-else class="book-scroll-area">
             <div
@@ -331,10 +332,22 @@ import AppModal from "@/components/AppModal.vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
+
+// coordinate e limiti di Roma
 const ROME_CENTER = { lat: 41.9028, lng: 12.4964 };
+const ROME_BOUNDS = [
+  [12.1300, 41.6300], 
+  [12.8600, 42.1700]  
+];
+
+
 const CARD_HEIGHT = 180;
+
+// costanti per limiti di ricerca e zoom
 const MAX_SEARCH_RADIUS = 20;
 const MAX_ZOOM_OUT = 10;
+
+// stato reattivo del componente
 const map = shallowRef(null);
 const mapLoaded = ref(false);
 const listContainer = ref(null);
@@ -591,15 +604,26 @@ async function fetchBooks(lat, lng, radius) {
 
 // esegue una ricerca libri nell'area attualmente visualizzata sulla mappa
 function searchInCurrentArea() {
-  if (!map.value || isZoomingToBook.value) return;
+  if (!map.value || isZoomingToBook.value) {
+    return;
+  }
+
+  // determina la posizione di ricerca (marker utente o centro mappa)
   const pos = userMarker.value
     ? userMarker.value.getLngLat()
     : map.value.getCenter();
+
   const bounds = map.value.getBounds();
+
+  // calcola il raggio di ricerca in km, limitato al massimo consentito
   const radius = Math.min(
     map.value.getCenter().distanceTo(bounds.getNorthEast()) / 1000,
     MAX_SEARCH_RADIUS
   );
+
+  // aggiorna il raggio di espansione visibile
+  expansionRadius.value = Math.round(radius * 1000);
+
   fetchBooks(pos.lat, pos.lng, radius);
 }
 
@@ -628,6 +652,7 @@ const initMap = (lat, lng, zoomLevel) => {
     center: [lng, lat],
     zoom: zoomLevel,
     minZoom: MAX_ZOOM_OUT,
+    maxBounds: ROME_BOUNDS,
     attributionControl: false,
   });
 
