@@ -868,8 +868,8 @@ function applyCrop() {
   img.onload = () => {
     const renderWidth = img.width * cropZoom.value;
     const renderHeight = img.height * cropZoom.value;
-    canvas.width = 400;
-    canvas.height = 600;
+    canvas.width = 600;
+    canvas.height = 400;
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(

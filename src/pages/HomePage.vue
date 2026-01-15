@@ -164,68 +164,63 @@
             </div>
           </div>
 
-          <div v-else class="book-scroll-area grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-max p-2">
+          <div v-else class="book-scroll-area flex flex-col gap-3 p-2 overflow-y-auto">
             <div
               v-for="book in paginatedBooks"
               :key="book.id"
               @click="zoomToBook(book)"
-              class="book-card cursor-pointer"
+              class="book-card cursor-pointer flex flex-row h-36 bg-theme-primary rounded-xl border border-[var(--border-color)] overflow-hidden hover:border-[var(--zomp)] transition-colors shadow-sm"
               :aria-label="'vedi dettagli libro ' + book.title"
               role="button"
               tabindex="0">
-              <div class="book-card-content">
-                <div class="book-cover">
+              
+                <div class="w-24 h-full shrink-0 bg-gray-200">
                   <img
                     :src="book.coverUrl"
                     :alt="'copertina del libro ' + book.title"
+                    class="w-full h-full object-cover"
                     @error="
                       (e) => (e.target.src = assignDefaultCover(book.id))
                     " />
                 </div>
 
-                <div class="book-info">
-                  <p class="book-title">{{ book.title }}</p>
-
-                  <p class="book-author">{{ book.author }}</p>
-
-                  <div v-if="book.tags && book.tags.length" class="book-tags">
-                    <span v-for="t in book.tags" :key="t">{{ t }}</span>
-                  </div>
-
-                  <div class="book-footer-info">
-                    <div
-                      v-if="book.libraryName"
-                      class="flex items-center gap-1 opacity-70">
-                      <i class="fa-solid fa-shop text-[10px]"></i>
-
-                      {{ book.libraryName }}
+                <div class="flex-1 p-3 flex flex-col justify-between overflow-hidden">
+                  <div>
+                    <div class="flex justify-between items-start">
+                        <p class="font-bold text-sm text-theme-main leading-tight truncate pr-2">{{ book.title }}</p>
+                        <span class="text-[10px] font-bold text-[var(--zomp)] shrink-0">{{ book.distance.toFixed(1) }} km</span>
                     </div>
+                    <p class="text-xs italic opacity-70 truncate">{{ book.author }}</p>
 
-                    <div class="flex items-center gap-1 opacity-60">
-                      <i class="fa-solid fa-location-dot text-[10px]"></i>
-
-                      {{ book.distance.toFixed(1) }} km
+                    <div v-if="book.tags && book.tags.length" class="flex flex-wrap gap-1 mt-1.5">
+                        <span v-for="t in book.tags.slice(0, 2)" :key="t" class="text-[9px] px-1.5 py-0.5 bg-[var(--bg-secondary)] rounded border border-[var(--border-color)] opacity-70 uppercase">{{ t }}</span>
+                        <span v-if="book.tags.length > 2" class="text-[9px] opacity-50">+{{ book.tags.length - 2 }}</span>
                     </div>
                   </div>
 
-                  <div class="book-footer-btns">
-                    <button
-                      @click.stop="goToBookDetails(book.id)"
-                      class="book-footer-btn view"
-                      aria-label="vedi dettagli completi">
-                      <i class="fa-solid fa-eye"></i> vedi
-                    </button>
+                  <div class="flex justify-between items-end mt-2">
+                    <div class="flex items-center gap-1 opacity-60 text-[10px]">
+                      <i class="fa-solid fa-shop"></i>
+                      <span class="truncate max-w-[80px]">{{ book.libraryName }}</span>
+                    </div>
 
-                    <button
-                      v-if="authStore.isAuthenticated"
-                      @click.stop="openConfirmModal(book)"
-                      class="book-footer-btn request"
-                      aria-label="richiedi prestito libro">
-                      <i class="fa-solid fa-hand-holding-hand"></i> richiedi
-                    </button>
+                    <div class="flex gap-2">
+                        <button
+                        @click.stop="goToBookDetails(book.id)"
+                        class="px-3 py-1 bg-[var(--bg-secondary)] hover:bg-[var(--ash-gray)] text-theme-main rounded-lg text-[10px] font-bold uppercase transition"
+                        aria-label="vedi dettagli completi">
+                        vedi
+                        </button>
+                        <button
+                        v-if="authStore.isAuthenticated"
+                        @click.stop="openConfirmModal(book)"
+                        class="px-3 py-1 bg-[var(--zomp)] text-white hover:opacity-90 rounded-lg text-[10px] font-bold uppercase transition"
+                        aria-label="richiedi prestito libro">
+                        richiedi
+                        </button>
+                    </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -344,51 +339,47 @@ import {
   onUnmounted,
   watch,
   reactive,
-} from "vue";
+} from "vue"
 
-import { useRouter } from "vue-router";
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import { useAuthStore } from "@/stores/authStore";
-import { apiClient } from "@/services/apiClient";
-import AppModal from "@/components/AppModal.vue";
+import { useRouter } from "vue-router"
+import maplibregl from "maplibre-gl"
+import "maplibre-gl/dist/maplibre-gl.css"
+import { useAuthStore } from "@/stores/authStore"
+import { apiClient } from "@/services/apiClient"
+import AppModal from "@/components/AppModal.vue"
 
-const authStore = useAuthStore();
-const router = useRouter();
+const authStore = useAuthStore()
+const router = useRouter()
+const ROME_CENTER = { lat: 41.9028, lng: 12.4964 }
 
-const ROME_CENTER = { 
-  lat: 41.9028,
-  lng: 12.4964 }
-const CARD_HEIGHT = 180;
-const MAX_SEARCH_RADIUS = 20;
-const MAX_ZOOM_OUT = 10;
+// altezza stimata card orizzontale inclusi margini
+const CARD_HEIGHT = 156 
+const MAX_SEARCH_RADIUS = 20
+const MAX_ZOOM_OUT = 10
+const map = shallowRef(null)
+const mapLoaded = ref(false)
+const listContainer = ref(null)
+const isFetchingBooks = ref(false)
+const isLocationLoading = ref(false)
+const userMarker = shallowRef(null)
+const gpsAccuracy = ref(null)
+const currentMarkers = shallowRef([])
+const showFilters = ref(false)
+const currentPage = ref(1)
+const itemsPerPage = ref(3)
 
-const map = shallowRef(null);
-const mapLoaded = ref(false);
-const listContainer = ref(null);
-const isFetchingBooks = ref(false);
-const isLocationLoading = ref(false);
-const userMarker = shallowRef(null);
-const gpsAccuracy = ref(null);
-const currentMarkers = shallowRef([]);
-const showFilters = ref(false);
-const currentPage = ref(1);
-const itemsPerPage = ref(3);
+const filters = reactive({ searchText: "", onlyAvailable: false })
 
-const filters = reactive({ 
-  searchText: "", 
-  onlyAvailable: false })
+const selectedTag = ref(null)
+const expansionRadius = ref(1000)
+const sortField = ref(null)
+const sortDirection = ref(null)
+const books = ref([])
+const isConfirmModalOpen = ref(false)
+const bookToRequest = ref(null)
+const isSending = ref(false)
 
-const selectedTag = ref(null);
-const expansionRadius = ref(1000);
-const sortField = ref(null);
-const sortDirection = ref(null);
-const books = ref([]);
-const isConfirmModalOpen = ref(false);
-const bookToRequest = ref(null);
-const isSending = ref(false);
-
-const isZoomingToBook = ref(false);
+const isZoomingToBook = ref(false)
 
 const DEFAULT_COVERS = [
   "/images/cover_default_1.png",
@@ -398,111 +389,108 @@ const DEFAULT_COVERS = [
   "/images/cover_default_5.png",
   "/images/cover_default_6.png",
   "/images/cover_default_7.png",
-];
+]
 
 // assegna copertina default se mancante
 function assignDefaultCover(bookId) {
   if (!bookId) {
-    return DEFAULT_COVERS[0];
+    return DEFAULT_COVERS[0]
   }
 
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < bookId.length; i++) {
-    hash += bookId.charCodeAt(i);
+    hash += bookId.charCodeAt(i)
   }
-  return DEFAULT_COVERS[hash % DEFAULT_COVERS.length];
+  return DEFAULT_COVERS[hash % DEFAULT_COVERS.length]
 }
 
-// calcola libri per pagina in base allo spazio verticale disponibile
+// calcola libri per pagina riempiendo lo spazio verticale
 const calculateItemsPerPage = () => {
   if (listContainer.value) {
-    const containerHeight = listContainer.value.clientHeight;
+    const containerHeight = listContainer.value.clientHeight
 
     itemsPerPage.value = Math.max(
       Math.floor((containerHeight - 10) / CARD_HEIGHT),
       2
-    );
+    )
   }
 }
 
-let resizeObserver = null;
+let resizeObserver = null
 
 onMounted(() => {
   if (listContainer.value) {
-    resizeObserver = new ResizeObserver(() => calculateItemsPerPage());
+    resizeObserver = new ResizeObserver(() => calculateItemsPerPage())
 
-    resizeObserver.observe(listContainer.value);
+    resizeObserver.observe(listContainer.value)
   }
 
-  handleGeolocationFlow();
+  handleGeolocationFlow()
 })
 
 onUnmounted(() => {
-  if (resizeObserver) resizeObserver.disconnect();
+  if (resizeObserver) resizeObserver.disconnect()
 
-  if (map.value) map.value.remove();
+  if (map.value) map.value.remove()
 })
 
 // ottiene lista tag univoci dai libri
 const availableTags = computed(() => {
-  const allTags = books.value.flatMap((b) => b.tags || []);
+  const allTags = books.value.flatMap((b) => b.tags || [])
 
-  return [...new Set(allTags)].sort();
+  return [...new Set(allTags)].sort()
 })
 
 // gestisce ordinamento lista
 const handleSort = (field) => {
   if (sortField.value !== field) {
-    sortField.value = field;
+    sortField.value = field
 
-    sortDirection.value = "asc";
+    sortDirection.value = "asc"
   } else {
-    if (sortDirection.value === "asc") sortDirection.value = "desc";
+    if (sortDirection.value === "asc") sortDirection.value = "desc"
     else {
-      sortField.value = null;
+      sortField.value = null
 
-      sortDirection.value = null;
+      sortDirection.value = null
     }
   }
 }
 
 // filtra e ordina risultati
 const filteredBooks = computed(() => {
-  let result = [...books.value];
+  let result = [...books.value]
 
-  if (selectedTag.value){
-    result = result.filter((b) => b.tags && b.tags.includes(selectedTag.value));
-  }
-  if (filters.onlyAvailable){
-    result = result.filter((b) => b.status === "available");
-  }
+  if (selectedTag.value)
+    result = result.filter((b) => b.tags && b.tags.includes(selectedTag.value))
+
+  if (filters.onlyAvailable)
+    result = result.filter((b) => b.status === "available")
+
   if (sortField.value && sortDirection.value) {
     result.sort((a, b) => {
-      let compare = 0;
+      let compare = 0
 
-      if (sortField.value === "distance") {
-      compare = a.distance - b.distance;
-      }
-      if (sortField.value === "title") {
-        compare = a.title.localeCompare(b.title);
-      }
-      if (sortField.value === "author") {
-        compare = a.author.localeCompare(b.author);
-      }
+      if (sortField.value === "distance") compare = a.distance - b.distance
 
-      return sortDirection.value === "asc" ? compare : -compare;
+      if (sortField.value === "title") compare = a.title.localeCompare(b.title)
+
+      if (sortField.value === "author")
+        compare = a.author.localeCompare(b.author)
+
+      return sortDirection.value === "asc" ? compare : -compare
     })
   } else {
-    result.sort((a, b) => a.distance - b.distance);
+    result.sort((a, b) => a.distance - b.distance)
   }
 
-  return result;
+  return result
 })
 
 // calcolo totale pagine
 const totalPages = computed(() =>
   Math.max(Math.ceil(filteredBooks.value.length / itemsPerPage.value), 1)
-);
+)
 
 // paginazione libri
 const paginatedBooks = computed(() =>
@@ -510,15 +498,15 @@ const paginatedBooks = computed(() =>
     (currentPage.value - 1) * itemsPerPage.value,
     currentPage.value * itemsPerPage.value
   )
-);
+)
 
 // toggle visibilita filtri
-const toggleFilters = () => (showFilters.value = !showFilters.value);
+const toggleFilters = () => (showFilters.value = !showFilters.value)
 
 const toggleTag = (tag) => {
-  selectedTag.value = selectedTag.value === tag ? null : tag;
-  currentPage.value = 1;
-  updateMapMarkers();
+  selectedTag.value = selectedTag.value === tag ? null : tag
+  currentPage.value = 1
+  updateMapMarkers()
 }
 
 watch(
@@ -527,7 +515,7 @@ watch(
     searchInCurrentArea()
     currentPage.value = 1
   }
-);
+)
 
 watch(
   () => filters.onlyAvailable,
@@ -535,44 +523,44 @@ watch(
     currentPage.value = 1
     updateMapMarkers()
   }
-);
+)
 watch(filteredBooks, () => {
   if (mapLoaded.value) updateMapMarkers()
-});
+})
 
 // flusso geolocalizzazione utente
 async function handleGeolocationFlow() {
-  isLocationLoading.value = true;
+  isLocationLoading.value = true
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        gpsAccuracy.value = pos.coords.accuracy;
-        finalizeLocation(pos.coords.latitude, pos.coords.longitude, 15);
+        gpsAccuracy.value = pos.coords.accuracy
+        finalizeLocation(pos.coords.latitude, pos.coords.longitude, 15)
       },
       () => finalizeLocationFromProfile(),
       { timeout: 10000 }
-    );
-  } else finalizeLocationFromProfile();
+    )
+  } else finalizeLocationFromProfile()
 }
 
 // usa posizione profilo se gps fallisce
 function finalizeLocationFromProfile() {
   if (authStore.isAuthenticated && authStore.user?.latitude) {
-    finalizeLocation(authStore.user.latitude, authStore.user.longitude, 15);
+    finalizeLocation(authStore.user.latitude, authStore.user.longitude, 15)
   } else {
-    finalizeLocation(ROME_CENTER.lat, ROME_CENTER.lng, 12);
+    finalizeLocation(ROME_CENTER.lat, ROME_CENTER.lng, 12)
   }
 }
 
 // inizializza mappa su coordinate
 function finalizeLocation(lat, lng, zoomLevel) {
-  isLocationLoading.value = false;
-  initMap(lat, lng, zoomLevel);
+  isLocationLoading.value = false
+  initMap(lat, lng, zoomLevel)
 }
 
 // recupera libri da backend
 async function fetchBooks(lat, lng, radius) {
-  isFetchingBooks.value = true;
+  isFetchingBooks.value = true
   try {
     const results = await apiClient.get("/books/nearby", {
       params: {
@@ -582,25 +570,25 @@ async function fetchBooks(lat, lng, radius) {
         search: filters.searchText,
         exclude_user: authStore.userId,
       },
-    });
+    })
 
-    const rawBooks = Array.isArray(results) ? results : results.results || [];
+    const rawBooks = Array.isArray(results) ? results : results.results || []
 
     books.value = rawBooks.map((b) => {
       // logica copertina custom url o default
-      let finalCover = null;
+      let finalCover = null
 
       if (b.customCover) {
         finalCover = b.customCover.startsWith("data:")
           ? b.customCover
-          : `data:image/jpeg;base64,${b.customCover}`;
+          : `data:image/jpeg;base64,${b.customCover}`
       } else if (b.coverUrl || b.cover) {
-        const url = b.coverUrl || b.cover;
+        const url = b.coverUrl || b.cover
         // gestisce url relativi assoluti o base64
         finalCover =
           url.startsWith("http") || url.startsWith("/")
             ? url
-            : `data:image/jpeg;base64,${url}`;
+            : `data:image/jpeg;base64,${url}`
       }
       return {
         ...b,
@@ -609,43 +597,42 @@ async function fetchBooks(lat, lng, radius) {
         libraryName: b.libraryName || "libreria privata",
         ownerName: b.username || "utente",
       }
-    });
+    })
   } catch (err) {
-    console.error(err);
+    console.error(err)
   } finally {
-    isFetchingBooks.value = false;
+    isFetchingBooks.value = false
   }
 }
 
 // cerca libri in area visibile
 function searchInCurrentArea() {
-  if (!map.value || isZoomingToBook.value) return;
+  if (!map.value || isZoomingToBook.value) return
   const pos = userMarker.value
     ? userMarker.value.getLngLat()
-    : map.value.getCenter();
-
-  const bounds = map.value.getBounds();
+    : map.value.getCenter()
+  const bounds = map.value.getBounds()
   const radius = Math.min(
     map.value.getCenter().distanceTo(bounds.getNorthEast()) / 1000,
     MAX_SEARCH_RADIUS
-  );
-  fetchBooks(pos.lat, pos.lng, radius);
+  )
+  fetchBooks(pos.lat, pos.lng, radius)
 }
 
 // zoom su mappa in base a slider
 function applyRadiusZoom() {
-  if (!map.value) return;
+  if (!map.value) return
   map.value.flyTo({
     zoom: 15.5 - Math.log2(expansionRadius.value / 500),
     speed: 1.2,
-  });
+  })
 }
 
 // init maplibre
 const initMap = (lat, lng, zoomLevel) => {
   if (map.value) {
-    map.value.flyTo({ center: [lng, lat], zoom: zoomLevel });
-    return;
+    map.value.flyTo({ center: [lng, lat], zoom: zoomLevel })
+    return
   }
   map.value = new maplibregl.Map({
     container: "map",
@@ -658,22 +645,22 @@ const initMap = (lat, lng, zoomLevel) => {
     zoom: zoomLevel,
     minZoom: MAX_ZOOM_OUT,
     attributionControl: false,
-  });
+  })
 
   map.value.on("load", () => {
-    mapLoaded.value = true;
-    createUserMarker(lat, lng);
-    searchInAreaOnLoad(lat, lng);
-  });
+    mapLoaded.value = true
+    createUserMarker(lat, lng)
+    searchInAreaOnLoad(lat, lng)
+  })
 
   map.value.on("moveend", () => {
-    if (filters.searchText === "") searchInCurrentArea();
-  });
+    if (filters.searchText === "") searchInCurrentArea()
+  })
 }
 
 // ricerca iniziale
 const searchInAreaOnLoad = (lat, lng) => {
-  fetchBooks(lat, lng, 1);
+  fetchBooks(lat, lng, 1)
 }
 
 // marker utente trascinabile
@@ -683,19 +670,19 @@ const createUserMarker = (lat, lng) => {
     draggable: true,
   })
     .setLngLat([lng, lat])
-    .addTo(map.value);
-  userMarker.value.on("dragend", () => searchInCurrentArea());
+    .addTo(map.value)
+  userMarker.value.on("dragend", () => searchInCurrentArea())
 }
 
 // aggiorna pin librerie
 const updateMapMarkers = () => {
-  if (!map.value || !mapLoaded.value) return;
-  currentMarkers.value.forEach((m) => m.remove());
-  currentMarkers.value = [];
+  if (!map.value || !mapLoaded.value) return
+  currentMarkers.value.forEach((m) => m.remove())
+  currentMarkers.value = []
 
-  const librariesMap = new Map();
+  const librariesMap = new Map()
   filteredBooks.value.forEach((book) => {
-    const key = book.libraryId || `${book.lat}-${book.lng}`;
+    const key = book.libraryId || `${book.lat}-${book.lng}`
 
     if (!librariesMap.has(key)) {
       librariesMap.set(key, {
@@ -705,21 +692,21 @@ const updateMapMarkers = () => {
         lat: book.lat,
         lng: book.lng,
         booksCount: 0,
-      });
+      })
     }
 
-    librariesMap.get(key).booksCount++;
-  });
+    librariesMap.get(key).booksCount++
+  })
 
   librariesMap.forEach((lib) => {
-    const el = document.createElement("div");
-    el.className = "marker-container";
-    el.innerHTML = `<div class="custom-book-pin"><i class="fa-solid fa-shop text-white text-xl"></i></div>`;
+    const el = document.createElement("div")
+    el.className = "marker-container"
+    el.innerHTML = `<div class="custom-book-pin"><i class="fa-solid fa-shop text-white text-xl"></i></div>`
 
     const ownerLine =
       lib.owner && lib.owner !== "utente"
         ? `<p class="text-[10px] text-theme-main opacity-60 italic">di ${lib.owner}</p>`
-        : "";
+        : ""
 
     const popupContent = `
 
@@ -745,30 +732,30 @@ vedi libreria
 
 </button>
 
-</div>`;
+</div>`
 
     const popup = new maplibregl.Popup({
       offset: 45,
       closeButton: false,
-    }).setHTML(popupContent);
+    }).setHTML(popupContent)
 
     popup.on("open", () => {
       document
         .getElementById(`btn-lib-${lib.id || "temp"}`)
         ?.addEventListener("click", () => {
-          if (lib.id) router.push(`/libraries/${lib.id}`);
-        });
-    });
+          if (lib.id) router.push(`/libraries/${lib.id}`)
+        })
+    })
 
     const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
       .setLngLat([lib.lng, lib.lat])
       .setPopup(popup)
-      .addTo(map.value);
+      .addTo(map.value)
 
-    marker._libraryId = lib.id;
-    currentMarkers.value.push(marker);
-  });
-};
+    marker._libraryId = lib.id
+    currentMarkers.value.push(marker)
+  })
+}
 
 const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--
@@ -778,49 +765,49 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++
 }
 
-const goToBookDetails = (id) => router.push(`/books/${id}`);
+const goToBookDetails = (id) => router.push(`/books/${id}`)
 
 const zoomToBook = (book) => {
-  if (!map.value) return;
+  if (!map.value) return
 
-  isZoomingToBook.value = true;
+  isZoomingToBook.value = true
 
   map.value.flyTo({
     center: [book.lng, book.lat],
     zoom: 15.5,
     speed: 1.2,
-  });
+  })
 
   map.value.once("idle", () => {
     const targetMarker = currentMarkers.value.find(
       (m) => m._libraryId === book.libraryId
-    );
+    )
     if (targetMarker) {
       if (!targetMarker.getPopup().isOpen()) {
-        targetMarker.togglePopup();
+        targetMarker.togglePopup()
       }
     }
-    isZoomingToBook.value = false;
+    isZoomingToBook.value = false
   })
 }
 
 const openConfirmModal = (book) => {
-  bookToRequest.value = book;
+  bookToRequest.value = book
 
-  isConfirmModalOpen.value = true;
+  isConfirmModalOpen.value = true
 }
 
 const confirmLoanRequest = async () => {
-  if (!bookToRequest.value) return;
-  isSending.value = true;
+  if (!bookToRequest.value) return
+  isSending.value = true
   try {
-    await apiClient.post(`/loan/${bookToRequest.value.id}`);
-    isConfirmModalOpen.value = false;
+    await apiClient.post(`/loan/${bookToRequest.value.id}`)
+    isConfirmModalOpen.value = false
   } catch (err) {
-    console.error(err);
+    console.error(err)
   } finally {
-    isSending.value = false;
-    bookToRequest.value = null;
+    isSending.value = false
+    bookToRequest.value = null
   }
 }
 </script>

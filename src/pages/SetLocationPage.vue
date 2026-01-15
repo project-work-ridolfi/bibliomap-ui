@@ -132,14 +132,14 @@
           </div>
         </div>
       </div>
-      <p v-if="locationError" role="alert" class="text-xs text-red-500 font-bold mt-2">
-        ERRORE: {{ locationError }}
+      
+      <p v-if="locationError" role="alert" class="text-xs text-red-500 font-bold mt-2 uppercase animate-pulse">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ locationError }}
       </p>
       <p
         v-if="form.latitude && !locationError"
         class="text-xs text-zomp font-bold mt-2 uppercase">
-        Indirizzo convertito! Lat: {{ form.latitude.toFixed(4) }}, Lng:
-        {{ form.longitude.toFixed(4) }}
+        <i class="fa-solid fa-check mr-1"></i> Indirizzo convertito! Lat: {{ form.latitude.toFixed(4) }}, Lng: {{ form.longitude.toFixed(4) }}
       </p>
     </div>
 
@@ -158,10 +158,14 @@
       </div>
 
       <p
-        v-if="form.latitude"
+        v-if="locationError"
+        class="mt-3 text-xs text-red-500 font-bold uppercase animate-pulse">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ locationError }}
+      </p>
+      <p
+        v-else-if="form.latitude"
         class="mt-3 text-xs text-zomp font-bold uppercase">
-        Posizione selezionata! Lat: {{ form.latitude.toFixed(4) }}, Lng:
-        {{ form.longitude.toFixed(4) }}
+        <i class="fa-solid fa-check mr-1"></i> Posizione selezionata! Lat: {{ form.latitude.toFixed(4) }}, Lng: {{ form.longitude.toFixed(4) }}
       </p>
       <p
         v-else
@@ -189,14 +193,14 @@
           class="fa-solid mr-2" aria-hidden="true"></i>
         {{ isLoadingLocation ? "RICERCA IN CORSO..." : "OTTIENI POSIZIONE" }}
       </button>
-      <p
-        v-if="form.latitude"
-        class="mt-4 text-xs text-zomp font-bold uppercase">
-        Posizione ottenuta! ({{ form.latitude.toFixed(2) }},
-        {{ form.longitude.toFixed(2) }})
+      
+      <p v-if="locationError" role="alert" class="mt-4 text-xs text-red-500 font-bold uppercase animate-pulse">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ locationError }}
       </p>
-      <p v-if="locationError" role="alert" class="mt-4 text-xs text-red-500 font-bold">
-        ERRORE: {{ locationError }}
+      <p
+        v-else-if="form.latitude"
+        class="mt-4 text-xs text-zomp font-bold uppercase">
+        <i class="fa-solid fa-check mr-1"></i> Posizione ottenuta! ({{ form.latitude.toFixed(2) }}, {{ form.longitude.toFixed(2) }})
       </p>
     </div>
 
@@ -262,16 +266,18 @@
     <div class="flex justify-between space-x-4 pt-4">
       <button
         @click="skipAndContinue"
-        aria-label="salta configurazione posizione"
+        aria-label="annulla o salta configurazione"
         class="w-1/2 btn-modal-cancel py-3 text-lg uppercase">
-        Salta
+        {{ isSetupFlow ? "Salta" : "Annulla" }}
       </button>
+      
       <button
         @click="saveLocation"
-        :disabled="!isLocationSet || !authStore.isAuthenticated"
+        :disabled="!isLocationSet || !authStore.isAuthenticated || !!locationError"
         id="save-location-btn"
         aria-label="salva e conferma posizione"
-        class="w-1/2 btn-modal-confirm py-3 text-lg justify-center uppercase">
+        :class="(!isLocationSet || !!locationError) ? 'opacity-50 cursor-not-allowed grayscale' : ''"
+        class="w-1/2 btn-modal-confirm py-3 text-lg justify-center uppercase transition-all duration-200">
         Salva
       </button>
     </div>
@@ -280,7 +286,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import maplibregl from "maplibre-gl";
 import { apiClient } from "@/services/apiClient";
 import { useAuthStore } from "@/stores/authStore";
@@ -289,9 +295,12 @@ const mapTilerApiKey = import.meta.env.VITE_MAPTILER_KEY;
 const geocodingServiceUrl = "https://api.maptiler.com/geocoding";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const locationMode = ref("geo");
+
+// privacy by design: valori default più restrittivi
 const form = ref({
   latitude: null,
   longitude: null,
@@ -300,14 +309,16 @@ const form = ref({
   houseNumber: "",
   zipCode: "",
   city: "Roma",
-  visibility: "all",
-  blurRadius: 0,
+  visibility: "friends", // solo registrati
+  blurRadius: 250,       // raggio medio di default
 });
 
 const isLoadingLocation = ref(false);
 const locationError = ref(null);
 
-// bounding box approssimativo di roma (sw: sud-ovest, ne: nord-est)
+// se arriviamo dal setup iniziale (es. dopo registrazione)
+const isSetupFlow = computed(() => route.query.from === 'setup');
+
 const ROME_BOUNDS = {
   SW: { lat: 41.6, lng: 12.2 },
   NE: { lat: 42.1, lng: 12.8 }
@@ -330,7 +341,6 @@ const isLocationSet = computed(() => {
   );
 });
 
-// controlla se le coordinate sono dentro roma
 function checkIsRome(lat, lng) {
   if (!lat || !lng) return false;
   return (
@@ -341,7 +351,7 @@ function checkIsRome(lat, lng) {
   );
 }
 
-// logica mappa
+// mappa interattiva
 const map = ref(null);
 const marker = ref(null);
 const styleUrl = `https://api.maptiler.com/maps/019a4997-dd19-75e4-bf35-d09baea3fb61/style.json?key=${mapTilerApiKey}`;
@@ -373,8 +383,10 @@ const initMap = async () => {
     form.value.longitude = lng;
     marker.value.setLngLat([lng, lat]);
     
-    // resetta errore se si clicca di nuovo
-    if (locationError.value && locationError.value.includes("fuori roma")) {
+    // verifica immediata bounding box
+    if (!checkIsRome(lat, lng)) {
+        locationError.value = "la posizione selezionata sembra essere fuori roma";
+    } else {
         locationError.value = null;
     }
   });
@@ -397,6 +409,15 @@ watch(locationMode, async (newMode) => {
 });
 
 onMounted(async () => {
+  // se c'è già una posizione salvata (es. modifica da profilo), caricala
+  if (authStore.user?.latitude && authStore.user?.longitude) {
+      form.value.latitude = authStore.user.latitude;
+      form.value.longitude = authStore.user.longitude;
+      form.value.visibility = authStore.user.visibility || "friends";
+      form.value.blurRadius = authStore.user.blurRadius ?? 250;
+      locationMode.value = "map"; // parti con la mappa
+  }
+
   if (locationMode.value === "map") {
     await initMap();
   }
@@ -408,7 +429,6 @@ onUnmounted(() => {
   }
 });
 
-// geolocalizzazione browser
 async function getGeolocation() {
   locationError.value = null;
   isLoadingLocation.value = true;
@@ -419,8 +439,15 @@ async function getGeolocation() {
   }
   navigator.geolocation.getCurrentPosition(
     (position) => {
-      form.value.latitude = position.coords.latitude;
-      form.value.longitude = position.coords.longitude;
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      if (!checkIsRome(lat, lng)) {
+          locationError.value = "la posizione rilevata sembra essere fuori roma";
+      } else {
+          form.value.latitude = lat;
+          form.value.longitude = lng;
+      }
       isLoadingLocation.value = false;
     },
     (error) => {
@@ -431,7 +458,6 @@ async function getGeolocation() {
   );
 }
 
-// geocoding indirizzo
 async function geocodeAddress() {
   locationError.value = null;
   isLoadingLocation.value = true;
@@ -445,8 +471,13 @@ async function geocodeAddress() {
     const data = await response.json();
     if (data.features && data.features.length > 0) {
       const [lng, lat] = data.features[0].geometry.coordinates;
-      form.value.latitude = lat;
-      form.value.longitude = lng;
+      
+      if (!checkIsRome(lat, lng)) {
+          locationError.value = "l'indirizzo trovato sembra essere fuori roma";
+      } else {
+          form.value.latitude = lat;
+          form.value.longitude = lng;
+      }
     } else {
       locationError.value = "Indirizzo non trovato a Roma.";
     }
@@ -457,9 +488,9 @@ async function geocodeAddress() {
   }
 }
 
-// salvataggio posizione
 async function saveLocation() {
-  locationError.value = null;
+  // se c'è errore bloccante non procedere
+  if (locationError.value) return;
 
   if (
     locationMode.value === "address" &&
@@ -470,12 +501,6 @@ async function saveLocation() {
   }
 
   if (form.value.latitude && form.value.longitude) {
-    // validazione coordinate su roma
-    if (!checkIsRome(form.value.latitude, form.value.longitude)) {
-        locationError.value = "la posizione selezionata sembra essere fuori roma";
-        return;
-    }
-
     try {
       await apiClient.post("/users/set-location", {
         latitude: form.value.latitude,
@@ -483,29 +508,38 @@ async function saveLocation() {
         blurRadius: form.value.blurRadius,
         visibility: form.value.visibility,
       });
-      router.push({
-        path: "/library",
-        query: {
-          from: "setup",
-          visibility: form.value.visibility,
-          returnTo: "/set-location",
-        },
-      });
+      
+      // aggiorna store utente locale
+      await authStore.fetchCurrentUser();
+
+      navigateToNextPage();
     } catch (e) {
       locationError.value = "Errore nel salvataggio della posizione.";
     }
   }
 }
 
+function navigateToNextPage() {
+    // se c'era un parametro di ritorno (es. da profilo), usalo
+    if (route.query.returnTo) {
+        // se era profile page, ricostruisci link corretto
+        if (route.query.returnTo === '/profile') {
+             router.push(`/profile/${authStore.userId}`);
+        } else {
+             router.push(route.query.returnTo);
+        }
+    } else {
+        // default: vai alla libreria o home
+        router.push("/library");
+    }
+}
+
 function skipAndContinue() {
-  // passiamo returnTo anche nel caso in cui la posizione venga saltata
-  router.push({ 
-    path: "/library", 
-    query: { 
-      from: "setup",
-      locationSkipped: true,
-      returnTo: "/set-location"
-    } 
-  })
+  // se annulla, torna indietro se possibile
+  if (!isSetupFlow.value) {
+      router.back();
+  } else {
+      navigateToNextPage();
+  }
 }
 </script>
