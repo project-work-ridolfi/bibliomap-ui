@@ -47,126 +47,112 @@ Questo template utilizza Vue 3 con la sintassi `<script setup>`.
 
 - [x] /signup
 - [x] /login
-    - [x] password dimenticata
-    - [x] nuova password rossa anche quando giusto
+  - [x] recupero password
+  - [x] bug: campo nuova password evidenziato in rosso anche quando valido
 - [x] /setlocation
-  - [x] set location non nella registrazione
-  - [x] se vai nella mappa esci e ci torni la mappa e' vuota
-- [x] create library
-    - [x] torna indietro da set location dovrebbe tornare su set location
-    - [x] manca un bottone salta se ci si arriva da set location
-- [x] add book
-    - [x] fix css, migliora distanze e togli righe brutte
-    - [x] modalita' dark aggiungi libro, tag, note e riquadro per copertina sono bianchi
-- [x] dettaglio libro modalità dark rimane bianco
-- [x] modifica libro condizioni, tag e note in modalita' dark sono bianche
-- [x] gestione profilo
-- [x] home
-    - [x] forse va cambiato il nome
-    - [x] mostra disponibili non funziona (non si vede nulla se premuto, non sono sicura che se non e' premuto si vedano anche i libri in prestito)
-    - [x] versione dark da aggiustare i bottoni (forse css global)
-    - [x] banner con richiesta di accesso in modalita' notte ha lo sfondo dello stesso identico colore del testo
-    - [x] se clicchi sul libro dalla lista, ci si avvicina alla libreria di cui fa parte sulla mappa finchè non scompare
-- [x] stats
-    - [x] dark
-    - [x] metriche utilizzo
-    - [X] da modificare quelli che si vedono e aggiungere
-- [x] loans
-    - [x] gestione richieste nome del proprietario va visto se le opzioni di visibilita' lo consentono
-- [x] sidebar
-    - [x] librerie con menu a tendina delle librerie effettive (in quel caso chiama libraries/:id)
+  - [x] impostazione posizione separata dalla registrazione
+  - [x] bug: rientrando nella mappa questa risulta vuota
+- [x] creazione libreria
+  - [x] navigazione "indietro" coerente da set location
+  - [x] aggiunto pulsante "salta" se si arriva da set location
+- [x] aggiunta libro
+  - [x] sistemazione css (spaziature e rimozione elementi grafici superflui)
+  - [x] modalità dark: campi libro, tag, note e riquadro copertina corretti
+  - [x] migliorata gestione tag:
+    - [x] tag selezionati su riga separata
+    - [x] linea tag più chiaramente navigabile
+    - [x] placeholder "aggiungi tag" con pulsante +
+- [x] modifica libro
+  - [x] in modalità dark i campi condizioni, tag e note non risultano bianchi
+  - [x] dopo l’aggiunta i tag non vengono duplicati
+- [x] dettaglio libro
+  - [x] modalità dark corretta
+  - [x] navigazione "indietro" corretta (non ritorna alla modifica)
+  - [x] suggerimenti visibili anche se il libro è del proprietario
+  - [x] messaggio di cortesia se non ci sono libri simili
+  - [x] richiesta prestito dal dettaglio libro
+- [x] ricerca libri
+  - [x] fix filtro available
+  - [x] caricamento con spinner e paginazione
+- [x] badge visivo se libro in prestito
+- [x] disabilitata eliminazione libro se in prestito
+- [x] controllo copertina
+- [x] ritaglio immagini con proporzioni cover
+- [x] icona "occhio" su libro che porta al dettaglio
 - [x] pagina dettaglio libreria
-    - [x] si deve far vedere la mappa (forse mettere come componente, visto che è anche nella gestione del profilo)
-    - [x] non si deve poter eliminare un libro che non è in stato available
-    - [x] attaccare per la richiesta prestito
-    - [x] mappa nella pagina libreria
+  - [x] visualizzazione mappa come componente riutilizzabile
+  - [x] blocco eliminazione libro se non available
+  - [x] collegamento richiesta prestito
+  - [x] mappa visibile nella pagina libreria
 - [x] modifica libreria
-    - [x] modalità notte da aggiustare
+  - [x] sistemata modalità dark
 - [x] accordion libreria
-    - [x] bottone per aprire la pagina anche dall'accordion
-    - [x] bottone per modificare la libreria
-- [x] profilo
-    - [x] cambia visibilità
-    - [x] da fare completamente pagina profilo che riporta poi a quella che c'e' ora di gestione
-    - [x] gestione richieste rivedere non si vedeno bene
-- [x] dashboard
-    - [x] sui libri prestati devono funzionare i bottoni (api per allungare il tempo da fare)
-    - [x] sulla restituzione accettata si deve aprire una modale per far aggiungere note se necessario e/o cambiare la condizione del libro
-    - [x] dashboard owner quando libro scaduto anche vede in maniera diversa e può allungare o contattare
-    - [x] aggiungi storico dei prestiti su dashboard
-    - [x] manda stringa giorni come giorni completi separati da virgola
-    - [x] messaggio per l’utente con testo grigio che dice attento a non condividere stocazzo
-    - [x] modale ha bottoni a notte anche quando giorno
-- [x] header
-    - [x] nome utente non sempre carica da capi
-- [x] font
-- [x] footer
-- [x] modale richiesta libro
-- [x] Aggiornare `apiClient` per includere gli endpoint `/loans` definiti nel BE
-- [x] Aggiornare `DashboardPage.vue` per caricare le liste prestiti (requests e active)
-- [x] Modificare logica pulsante principale:
-    - [x] Se `currentUser == owner`: Mostra "Modifica"
-    - [x] Se `copy.status == 'available'`: Mostra "Richiedi Prestito"
-    - [x] Se `copy.status == 'on_loan'`: Mostra "Non disponibile (In prestito)"
-    - [x] Se richiesta già fatta (`pending`): Mostra "Richiesta inviata" (Disabilitato)
-- [x] Collegare click "Richiedi Prestito" alla chiamata `POST /api/loans/request`
-- [x] Creare componente/sezione "Richieste in Arrivo":
-    - [x] Lista card con: Nome Richiedente, Titolo Libro
-    - [x] Bottoni azione: [Accetta] [Rifiuta]
-    - [x] Collegare alle chiamate API `PATCH status`
-- [x] Creare Tab/Sezione "Libri che ho prestato" (Owner View):
-    - [x] Se stato `ACCEPTED`: Mostra bottone [Consegna Libro] (Start Loan)
-    - [x] Se stato `ON_LOAN`: Mostra info scadenza e bottone [Segna Restituito]
-    - [x] Collegare [Consegna Libro] a `POST /start`
-- [x] Creare modale "Conferma Restituzione":
-    - [x] Input select per nuova condizione (ottima/buona/ecc)
-    - [x] Collegare a `POST /return`
-- [x] Creare Tab/Sezione "Libri che sto leggendo" (Requester View):
-    - [x] Lista libri presi in prestito
-    - [x] Visualizzazione chiara della data di scadenza (countdown se vicina)
-- [x] Aggiornare card libro in `LibraryPage`:
-    - [x] Aggiungere badge visivo se `status == 'on_loan'`
-    - [x] Disabilitare tasto cancellazione se il libro è in prestito attivo
-- [x] fix switch light/dark
-- [x] 2025-12-28 13:54:59,843 INFO  [it.uni.api.res.LoggingFilter] (executor-thread-1) <<< OUTGOING RESPONSE: POST /api/auth/login -> Status 401
-2025-12-28 13:54:59,844 DEBUG [it.uni.api.res.LoggingFilter] (executor-thread-1) Response Body: ErrorResponse[error=INVALID_CREDENTIALS, message=Credenziali non valide.] da gestire meglio
-- [x] controlla condizioni
-- [x] aggiungi icona occhio a libreria che porta a libraries/id
-- [x] aggiungi icona occhio al libro
-- [x] sidebar con tutte le librerie?
-- [x] cerca libri per available non funge
-- [x] controllo cover
-- [x] allunga prestito
-- [x] prestito restituito
-- [x] suggerimenti nel profilo (User-to-User), indice affinità letteraria, usa toptags dei due utenti.
-- [x] suggerimenti dettaglio libro (Item-to-Item), query spaziale filtrata per gli stessi tag del libro corrente + distanza + autore.
-- [x] book counter
-- [x] lib counter
+  - [x] pulsante apertura pagina dettaglio
+  - [x] pulsante modifica libreria
+- [x] visibilità libreria
+- [x] icona "occhio" su libreria che porta a libraries/id
+- [x] sidebar
+  - [x] menu a tendina con librerie effettive (libraries/:id)
+  - [x] verifica visualizzazione di tutte le librerie
+  - [x] navigazione corretta verso un’altra libreria (fix reload)
+  - [x] aggiunta voce /about
+- [x] caricamento immagine accordion: usare cover della copia se presente
 - [x] gestione profilo
-- [x] mappetta
-- [x] stats titoli più richiesti lista non bar graph
-- [x] gestione utente se è privato non vede bene
-- [x] torna indietro dal dettaglio libro non dovrebbe portare indietro su modifica (returnTo in book edit e gestito)
+- [x] pagina profilo
+  - [x] cambio visibilità
+  - [x] nuova pagina profilo che rimanda alla gestione attuale
+  - [x] migliorata visualizzazione richieste
+- [x] gestione utente con profilo privato
+- [x] suggerimenti utente-utente
+  - [x] indice di affinità letteraria basato sui top tag
+- [x] suggerimenti libro-libro
+  - [x] query spaziale filtrata per tag, distanza e autore
+- [x] loans
+  - [x] gestione richieste con rispetto delle impostazioni di visibilità
+- [x] dashboard
+  - [x] funzionamento pulsanti libri prestati
+  - [x] modale su restituzione accettata per note e condizione libro
+  - [x] vista owner per libro scaduto con azioni disponibili
+  - [x] storico prestiti
+  - [x] formattazione giorni come elenco separato da virgole
+  - [x] messaggio informativo per l’utente su condivisione dati
+  - [x] modale con stile coerente tra light e dark
+- [x] integrazione api prestiti
+  - [x] aggiornato apiclient con endpoint /loans
+  - [x] dashboardpage carica prestiti richiesti e attivi
+  - [x] collegata richiesta prestito a post /api/loans/request
+  - [x] gestione azioni accept/reject via patch status
+  - [x] avvio prestito tramite post /start
+  - [x] restituzione prestito tramite post /return
+- [x] tab "libri che ho prestato"
+- [x] tab "libri che sto leggendo"
+  - [x] visualizzazione chiara della scadenza con countdown
+- [x] header
+  - [x] caricamento corretto nome utente
+- [x] footer
+- [x] font
+- [x] fix switch light/dark
 - [x] responsive
-- [x] book edit una volta aggiunti i tag non si dovrebbero vedere sotto
-- [X] libreria visibilita'
-- [ ] ritaglio immagini caricate con dimensioni cover (rettangolo)
-- [x] caricamento libri nella pagina di ricerca (rotella e paginazione)
-- [x] caricamento img nell'acordion se cover copia e non libro
-- [ ] richiedi copia dati, passandoci sopra deve scrivere che arriva pdf via email
-- [x] aggiungi /about a sidebar
-- [ ] check posizione fuori roma non indirizzo
-- [ ] dopo salva libro una volta che si è finito è brutto e torna alla libreria
-- [ ] dettaglio libro dovrebbe trovare i risultati anche per i suggerimenti pure se è del proprietario
-- [ ] trova libri ce ne entrano tre ma sono due
-- [ ] aria labels ovunque
-- [ ] barra distanza nella home va centrata
-- [ ] richiesta prestito da dettaglio libro
-- [ ] link al prestito
-- [ ] quando un libro viene aggiunto correettamente finito è a sinistra, dovrebbe essere centrato o a destra
-- [ ] migliorare tag in aggiunta libri, su una linea diversa quelli cliccati, più chiaro che sia navigabile la linea (magari con freccetta), il + con placeholder aggiungi tag
-- [ ] se si è sul dett di una libreria e si prova a navigare su un altra da sidebar non funge (serve reload)
-- [ ] un messaggio di cortesia se non ci sono libri simili
-- [ ] check numero visualizzazioni come cresce
-- [ ] add 2 utenti demo con pwd in questo readme
+- [x] gestione errore login 401 con messaggio più chiaro
+- [x] controllo condizioni libro
+- [x] allungamento prestito
+- [x] gestione prestito restituito
+- [x] contatori
+  - [x] book counter
+  - [x] library counter
+- [x] statistiche
+  - [x] modalità dark
+  - [x] metriche di utilizzo
+  - [x] titoli più richiesti in formato lista (non grafico)
+- [x] mappa
+  - [x] mappa integrata nel profilo
+  - [x] barra distanza centrata in home
+- [x] accessibilità
+  - [x] aria-labels ovunque
+- [x] comportamento post salvataggio libro migliorato
+- [x] caricamento libri in ricerca ottimizzato
+- [x] richiesta copia dati con tooltip informativo
+
+- [ ] allineamento modale libro appena aggiunto (bottone centrato o a destra)
+- [ ] aggiungere 2 utenti demo con password nel readme
 - [ ] rel

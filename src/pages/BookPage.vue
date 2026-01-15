@@ -8,12 +8,13 @@
       torna indietro
     </button>
 
-    <div
-      v-if="isLoading"
-      role="status"
-      class="text-center py-10 opacity-70">
-      <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-zomp" aria-hidden="true"></i>
-      <p class="uppercase font-bold text-xs tracking-widest">recupero dettagli libro...</p>
+    <div v-if="isLoading" role="status" class="text-center py-10 opacity-70">
+      <i
+        class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-zomp"
+        aria-hidden="true"></i>
+      <p class="uppercase font-bold text-xs tracking-widest">
+        recupero dettagli libro...
+      </p>
     </div>
 
     <div
@@ -57,16 +58,19 @@
               class="px-4 py-2 rounded-full text-[10px] font-bold shadow-sm border uppercase tracking-wider">
               {{ statusLabel }}
             </span>
-            <div class="flex items-center gap-1 text-[10px] font-bold opacity-60 uppercase tracking-tighter">
+            <div
+              class="flex items-center gap-1 text-[10px] font-bold opacity-60 uppercase tracking-tighter">
               <i class="fa-solid fa-eye"></i>
               {{ book.views || 0 }} visualizzazioni
             </div>
           </div>
         </section>
 
-        <section class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
+        <section
+          class="p-6 md:col-span-2 flex flex-col justify-between space-y-6">
           <header>
-            <h1 class="text-3xl font-display text-theme-main mb-1 uppercase tracking-tight">
+            <h1
+              class="text-3xl font-display text-theme-main mb-1 uppercase tracking-tight">
               {{ book.title }}
             </h1>
             <h2 class="text-xl text-theme-main opacity-80 font-medium italic">
@@ -75,33 +79,57 @@
           </header>
 
           <div class="space-y-3">
-            <h3 class="text-[10px] font-bold tracking-widest text-theme-main opacity-60 border-b border-thistle pb-1 uppercase">
+            <h3
+              class="text-[10px] font-bold tracking-widest text-theme-main opacity-60 border-b border-thistle pb-1 uppercase">
               Dettagli Edizione
             </h3>
             <dl class="text-theme-main space-y-2 text-sm">
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">Anno:</dt>
-                <dd><strong class="text-xs">{{ book.publicationYear || "N/D" }}</strong></dd>
+                <dt
+                  class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  Anno:
+                </dt>
+                <dd>
+                  <strong class="text-xs">{{
+                    book.publicationYear || "N/D"
+                  }}</strong>
+                </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">Editore:</dt>
-                <dd><strong class="text-xs">{{ book.publisher || "N/D" }}</strong></dd>
+                <dt
+                  class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  Editore:
+                </dt>
+                <dd>
+                  <strong class="text-xs">{{ book.publisher || "N/D" }}</strong>
+                </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">Lingua:</dt>
-                <dd><strong class="text-xs">{{ book.language || "Italiano" }}</strong></dd>
+                <dt
+                  class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  Lingua:
+                </dt>
+                <dd>
+                  <strong class="text-xs">{{
+                    book.language || "Italiano"
+                  }}</strong>
+                </dd>
               </div>
             </dl>
 
-            <h3 class="text-[10px] font-bold tracking-widest text-theme-main opacity-60 border-b border-thistle pb-1 mt-4 uppercase">
+            <h3
+              class="text-[10px] font-bold tracking-widest text-theme-main opacity-60 border-b border-thistle pb-1 mt-4 uppercase">
               Info Copia
             </h3>
             <dl class="text-theme-main space-y-2 text-sm">
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">Libreria:</dt>
+                <dt
+                  class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  Libreria:
+                </dt>
                 <dd>
-                  <router-link 
-                    :to="`/libraries/${book.libraryId}`" 
+                  <router-link
+                    :to="`/libraries/${book.libraryId}`"
                     aria-label="vai alla libreria proprietaria"
                     class="font-bold text-xs text-theme-main hover:text-zomp underline">
                     {{ book.libraryName }}
@@ -109,50 +137,66 @@
                 </dd>
               </div>
               <div class="grid grid-cols-[100px_1fr] items-center">
-                <dt class="flex items-center opacity-70 text-[10px] font-bold uppercase">Condizione:</dt>
-                <dd><strong class="text-xs">{{ mappedCondition }}</strong></dd>
+                <dt
+                  class="flex items-center opacity-70 text-[10px] font-bold uppercase">
+                  Condizione:
+                </dt>
+                <dd>
+                  <strong class="text-xs">{{ mappedCondition }}</strong>
+                </dd>
               </div>
             </dl>
           </div>
 
           <div v-if="book.tags && book.tags.length > 0">
             <div class="flex flex-wrap gap-2 mt-2">
-              <span v-for="tag in book.tags" :key="tag" class="px-3 py-1 bg-zomp/10 text-accent-color text-[10px] font-bold uppercase rounded-full border border-accent-color/20">
+              <span
+                v-for="tag in book.tags"
+                :key="tag"
+                class="px-3 py-1 bg-zomp/10 text-accent-color text-[10px] font-bold uppercase rounded-full border border-accent-color/20">
                 #{{ tag }}
               </span>
             </div>
           </div>
 
-          <div v-if="book.ownerNotes" class="relative bg-theme-secondary p-6 rounded-xl border border-thistle text-sm text-theme-main italic mt-2">
+          <div
+            v-if="book.ownerNotes"
+            class="relative bg-theme-secondary p-6 rounded-xl border border-thistle text-sm text-theme-main italic mt-2">
             <p class="px-4 py-1 text-center">{{ book.ownerNotes }}</p>
           </div>
 
-          <div class="pt-4 border-t border-thistle flex flex-wrap gap-3 justify-end items-center">
-            
-              <button 
-                @click="getSimilarBook" 
-                :disabled="isSearchingSimilar"
-                aria-label="cerca un libro simile nelle vicinanze"
-                class="btn-sort px-6 py-3 uppercase text-xs tracking-widest flex items-center gap-2">
-                <i :class="isSearchingSimilar ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'" class="fa-solid"></i>
-                Trova simile
-              </button>
-              
+          <div
+            class="pt-4 border-t border-thistle flex flex-wrap gap-3 justify-end items-center">
+            <button
+              @click="getSimilarBook"
+              :disabled="isSearchingSimilar"
+              aria-label="cerca un libro simile nelle vicinanze"
+              class="btn-sort px-6 py-3 uppercase text-xs tracking-widest flex items-center gap-2">
+              <i
+                :class="
+                  isSearchingSimilar
+                    ? 'fa-spinner fa-spin'
+                    : 'fa-wand-magic-sparkles'
+                "
+                class="fa-solid"></i>
+              Trova simile
+            </button>
+
             <div v-if="isOwner" class="flex space-x-3">
-              <button 
-                @click="router.push(`/books/${book.id}/edit`)" 
+              <button
+                @click="router.push(`/books/${book.id}/edit`)"
                 aria-label="modifica libro"
                 class="btn-pagination w-10 h-10">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button 
-                @click="openMoveModal" 
+              <button
+                @click="openMoveModal"
                 aria-label="sposta libro in altra libreria"
                 class="btn-pagination w-10 h-10">
                 <i class="fa-solid fa-right-left"></i>
               </button>
-              <button 
-                @click="openDeleteModal" 
+              <button
+                @click="openDeleteModal"
                 aria-label="elimina libro"
                 class="btn-pagination w-10 h-10 hover:bg-red-500 !text-red-500 hover:!text-white">
                 <i class="fa-solid fa-trash"></i>
@@ -168,15 +212,18 @@
                   class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest">
                   Chiedi in Prestito
                 </button>
-                <button v-else disabled class="px-8 py-3 bg-theme-secondary border border-border-color rounded-xl font-bold cursor-not-allowed opacity-40 uppercase text-xs tracking-widest">
+                <button
+                  v-else
+                  disabled
+                  class="px-8 py-3 bg-theme-secondary border border-border-color rounded-xl font-bold cursor-not-allowed opacity-40 uppercase text-xs tracking-widest">
                   In Prestito
                 </button>
               </template>
               <template v-else>
-                 <router-link 
-                    to="/login" 
-                    aria-label="accedi per richiedere prestito"
-                    class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest text-center">
+                <router-link
+                  to="/login"
+                  aria-label="accedi per richiedere prestito"
+                  class="btn-modal-confirm px-8 py-3 uppercase text-xs tracking-widest text-center">
                   Accedi per richiedere
                 </router-link>
               </template>
@@ -186,74 +233,152 @@
       </div>
     </article>
 
-    <section v-if="suggestedBook" class="custom-fade-in bg-zomp/5 border-2 border-dashed border-zomp/30 rounded-2xl p-6 text-center">
-        <h3 class="text-xs font-black uppercase text-zomp tracking-widest mb-4">
-          <i class="fa-solid fa-lightbulb mr-2"></i>
-          {{ suggestionLabel }}
-        </h3>
-        
-        <div v-if="suggestedBook.ownerId === authStore.userId" class="mb-2 text-[10px] font-bold uppercase text-accent-color bg-accent-color/10 inline-block px-3 py-1 rounded-full">
-            <i class="fa-solid fa-user mr-1"></i> è un tuo libro!
-        </div>
+    <section
+      v-if="suggestedBook"
+      class="custom-fade-in bg-zomp/5 border-2 border-dashed border-zomp/30 rounded-2xl p-6 text-center">
+      <h3 class="text-xs font-black uppercase text-zomp tracking-widest mb-4">
+        <i class="fa-solid fa-lightbulb mr-2"></i>
+        {{ suggestionLabel }}
+      </h3>
 
-        <div class="flex flex-col items-center gap-2">
-            <p class="font-display text-2xl text-theme-main">{{ suggestedBook.title }}</p>
-            <p class="text-xs italic opacity-70 mb-4">di {{ suggestedBook.author }}</p>
-            <button 
-                @click="goToSuggested" 
-                aria-label="vai al dettaglio del libro suggerito"
-                class="btn-modal-confirm px-6 py-2 uppercase text-[10px] tracking-widest">
-                Vedi suggerimento
-            </button>
-        </div>
+      <div
+        v-if="suggestedBook.ownerId === authStore.userId"
+        class="mb-2 text-[10px] font-bold uppercase text-accent-color bg-accent-color/10 inline-block px-3 py-1 rounded-full">
+        <i class="fa-solid fa-user mr-1"></i> è un tuo libro!
+      </div>
+
+      <div class="flex flex-col items-center gap-2">
+        <p class="font-display text-2xl text-theme-main">
+          {{ suggestedBook.title }}
+        </p>
+        <p class="text-xs italic opacity-70 mb-4">
+          di {{ suggestedBook.author }}
+        </p>
+        <button
+          @click="goToSuggested"
+          aria-label="vai al dettaglio del libro suggerito"
+          class="btn-modal-confirm px-6 py-2 uppercase text-[10px] tracking-widest">
+          Vedi suggerimento
+        </button>
+      </div>
     </section>
 
-    <div v-if="noSuggestionsFound && !isSearchingSimilar" class="custom-fade-in text-center py-6 opacity-60">
-        <p class="text-xs font-bold uppercase tracking-widest">
-            <i class="fa-solid fa-face-meh mr-2"></i> non ci sono ancora libri simili in zona
-        </p>
+    <div
+      v-if="noSuggestionsFound && !isSearchingSimilar"
+      class="custom-fade-in text-center py-6 opacity-60">
+      <p class="text-xs font-bold uppercase tracking-widest">
+        <i class="fa-solid fa-face-meh mr-2"></i> non ci sono ancora libri
+        simili in zona
+      </p>
     </div>
 
-    <AppModal :isOpen="showMoveModal" title="Sposta Copia" @close="showMoveModal = false">
-        <div class="space-y-4 text-theme-main">
-            <p class="text-[10px] font-bold tracking-widest opacity-60 uppercase">Seleziona destinazione:</p>
-            <div v-if="isFetchingLibraries" class="text-center py-6"><i class="fa-solid fa-circle-notch fa-spin text-zomp"></i></div>
-            <div v-else class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1">
-                <button v-for="lib in userLibraries" :key="lib.id" @click="confirmMove(lib.id)" :disabled="lib.id === book.libraryId"
-                    aria-label="sposta in questa libreria"
-                    class="w-full text-left p-3 rounded-xl border-2 transition-all"
-                    :class="lib.id === book.libraryId ? 'opacity-40 cursor-not-allowed border-border-color' : 'border-border-color bg-theme-primary hover:border-accent-color'">
-                    <span class="font-bold text-xs uppercase">{{ lib.name }}</span>
-                </button>
-            </div>
+    <AppModal
+      :isOpen="showMoveModal"
+      title="Sposta Copia"
+      @close="showMoveModal = false">
+      <div class="space-y-4 text-theme-main">
+        <p class="text-[10px] font-bold tracking-widest opacity-60 uppercase">
+          Seleziona destinazione:
+        </p>
+        <div v-if="isFetchingLibraries" class="text-center py-6">
+          <i class="fa-solid fa-circle-notch fa-spin text-zomp"></i>
         </div>
+        <div
+          v-else
+          class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1">
+          <button
+            v-for="lib in userLibraries"
+            :key="lib.id"
+            @click="confirmMove(lib.id)"
+            :disabled="lib.id === book.libraryId"
+            aria-label="sposta in questa libreria"
+            class="w-full text-left p-3 rounded-xl border-2 transition-all"
+            :class="
+              lib.id === book.libraryId
+                ? 'opacity-40 cursor-not-allowed border-border-color'
+                : 'border-border-color bg-theme-primary hover:border-accent-color'
+            ">
+            <span class="font-bold text-xs uppercase">{{ lib.name }}</span>
+          </button>
+        </div>
+      </div>
     </AppModal>
 
-    <AppModal :isOpen="showDeleteModal" :title="deleteModalTitle" @close="handleModalClose">
-        <div v-if="deleteStep === 'confirm'" class="flex flex-col items-center text-center space-y-4">
-            <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600"><i class="fa-solid fa-triangle-exclamation text-3xl"></i></div>
-            <p class="text-sm font-bold uppercase">{{ deleteUI.message }}</p>
-            <div class="flex gap-3 w-full mt-4">
-                <button @click="showDeleteModal = false" class="btn-modal-cancel flex-1 uppercase text-xs" aria-label="annulla eliminazione">Annulla</button>
-                <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase" aria-label="conferma eliminazione">Elimina</button>
-            </div>
+    <AppModal
+      :isOpen="showDeleteModal"
+      :title="deleteModalTitle"
+      @close="handleModalClose">
+      <div
+        v-if="deleteStep === 'confirm'"
+        class="flex flex-col items-center text-center space-y-4">
+        <div
+          class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600">
+          <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
-        <div v-else-if="deleteStep === 'loading'" class="text-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i></div>
+        <p class="text-sm font-bold uppercase">{{ deleteUI.message }}</p>
+        <div class="flex gap-3 w-full mt-4">
+          <button
+            @click="showDeleteModal = false"
+            class="btn-modal-cancel flex-1 uppercase text-xs"
+            aria-label="annulla eliminazione">
+            Annulla
+          </button>
+          <button
+            @click="confirmDelete"
+            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase"
+            aria-label="conferma eliminazione">
+            Elimina
+          </button>
+        </div>
+      </div>
+      <div v-else-if="deleteStep === 'loading'" class="text-center py-8">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
+      </div>
+      <div
+        v-else-if="deleteStep === 'success'"
+        class="flex flex-col items-center text-center space-y-4 pt-2">
+        <div
+          class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600">
+          <i class="fa-solid fa-check text-3xl"></i>
+        </div>
+        <p class="text-sm font-bold uppercase">eliminazione completata</p>
+        <button
+          @click="handleModalClose"
+          class="btn-modal-confirm w-full text-xs uppercase tracking-widest"
+          aria-label="chiudi modale">
+          Chiudi
+        </button>
+      </div>
     </AppModal>
 
-    <AppModal :isOpen="isLoanConfirmModalOpen" title="Richiesta di Prestito" @close="isLoanConfirmModalOpen = false">
-        <div v-if="book" class="space-y-4 text-theme-main">
-            <div class="p-4 bg-theme-secondary border border-border-color rounded-xl">
-                <p class="font-bold text-sm uppercase tracking-tight">{{ book.title }}</p>
-                <p class="text-[10px] italic opacity-70">di {{ book.author }}</p>
-            </div>
-            <div class="flex gap-3 pt-2">
-                <button @click="isLoanConfirmModalOpen = false" class="btn-modal-cancel flex-1 uppercase text-xs font-bold" aria-label="annulla prestito">Annulla</button>
-                <button @click="confirmLoanRequest" :disabled="isSendingLoan" class="btn-modal-confirm flex-1 justify-center text-xs uppercase tracking-widest" aria-label="conferma invio richiesta">
-                    {{ isSendingLoan ? 'Invio...' : 'Conferma' }}
-                </button>
-            </div>
+    <AppModal
+      :isOpen="isLoanConfirmModalOpen"
+      title="Richiesta di Prestito"
+      @close="isLoanConfirmModalOpen = false">
+      <div v-if="book" class="space-y-4 text-theme-main">
+        <div
+          class="p-4 bg-theme-secondary border border-border-color rounded-xl">
+          <p class="font-bold text-sm uppercase tracking-tight">
+            {{ book.title }}
+          </p>
+          <p class="text-[10px] italic opacity-70">di {{ book.author }}</p>
         </div>
+        <div class="flex gap-3 pt-2">
+          <button
+            @click="isLoanConfirmModalOpen = false"
+            class="btn-modal-cancel flex-1 uppercase text-xs font-bold"
+            aria-label="annulla prestito">
+            Annulla
+          </button>
+          <button
+            @click="confirmLoanRequest"
+            :disabled="isSendingLoan"
+            class="btn-modal-confirm flex-1 justify-center text-xs uppercase tracking-widest"
+            aria-label="conferma invio richiesta">
+            {{ isSendingLoan ? "Invio..." : "Conferma" }}
+          </button>
+        </div>
+      </div>
     </AppModal>
   </main>
 </template>
@@ -284,20 +409,28 @@ const noSuggestionsFound = ref(false);
 const suggestionLabel = computed(() => {
   if (!suggestedBook.value) return "";
   const d = suggestedBook.value.distance;
-  if (suggestedBook.value.libraryId === book.value.libraryId || d === 0) return "Potrebbe interessarti (nella stessa libreria!)";
+  if (suggestedBook.value.libraryId === book.value.libraryId || d === 0)
+    return "Potrebbe interessarti (nella stessa libreria!)";
   return `Potrebbe interessarti (entro ${d} km di distanza)`;
 });
 
 const mappedCondition = computed(() => {
   if (!book.value || !book.value.condition) return "N/D";
-  const found = CONDITIONS.find(c => c.value.toLowerCase() === book.value.condition.toLowerCase());
+  const found = CONDITIONS.find(
+    (c) => c.value.toLowerCase() === book.value.condition.toLowerCase()
+  );
   return found ? found.label : book.value.condition;
 });
 
 // stati modali e ui
 const showDeleteModal = ref(false);
 const deleteStep = ref("confirm");
-const deleteUI = reactive({ title: "", message: "", confirmBtn: "", successMsg: "" });
+const deleteUI = reactive({
+  title: "",
+  message: "",
+  confirmBtn: "",
+  successMsg: "",
+});
 const showMoveModal = ref(false);
 const userLibraries = ref([]);
 const isFetchingLibraries = ref(false);
@@ -309,29 +442,42 @@ const isOwner = computed(() => book.value?.ownerId === authStore.userId);
 const displayCover = computed(() => {
   if (!book.value) return null;
   if (book.value.customCover) {
-     return book.value.customCover.startsWith("data:") ? book.value.customCover : `data:image/jpeg;base64,${book.value.customCover}`;
+    return book.value.customCover.startsWith("data:")
+      ? book.value.customCover
+      : `data:image/jpeg;base64,${book.value.customCover}`;
   }
   return book.value.coverUrl;
 });
 
 const statusBadgeClass = computed(() => {
   if (!book.value) return "";
-  return book.value.status === "available" ? "bg-zomp text-white border-zomp" : "bg-theme-secondary text-theme-main border-border-color opacity-70";
+  return book.value.status === "available"
+    ? "bg-zomp text-white border-zomp"
+    : "bg-theme-secondary text-theme-main border-border-color opacity-70";
 });
 
-const statusLabel = computed(() => book.value?.status === "available" ? "Disponibile" : "In Prestito");
+const statusLabel = computed(() =>
+  book.value?.status === "available" ? "Disponibile" : "In Prestito"
+);
 
 const deleteModalTitle = computed(() => {
   switch (deleteStep.value) {
-    case "confirm": return deleteUI.title;
-    case "loading": return "Attendere...";
-    case "success": return "Operazione Completata";
-    case "error": return "Errore";
-    default: return "";
+    case "confirm":
+      return deleteUI.title;
+    case "loading":
+      return "Attendere...";
+    case "success":
+      return "Operazione Completata";
+    case "error":
+      return "Errore";
+    default:
+      return "";
   }
 });
 
-function goBack() { router.back(); }
+function goBack() {
+  router.back();
+}
 
 // recupera dettagli libro e incrementa visualizzazioni
 async function fetchBookDetails() {
@@ -358,13 +504,13 @@ async function getSimilarBook() {
   try {
     // passa parametro per includere propri libri
     const response = await apiClient.get(`/books/${book.value.id}/similar`, {
-        params: { include_own: true }
+      params: { include_own: true },
     });
-    
+
     if (response && response.id) {
-        suggestedBook.value = response;
+      suggestedBook.value = response;
     } else {
-        noSuggestionsFound.value = true;
+      noSuggestionsFound.value = true;
     }
   } catch (e) {
     console.error("Errore ricerca simile:", e);
@@ -375,14 +521,17 @@ async function getSimilarBook() {
 }
 
 function goToSuggested() {
-    if (suggestedBook.value) {
-        router.push(`/books/${suggestedBook.value.id}`);
-    }
+  if (suggestedBook.value) {
+    router.push(`/books/${suggestedBook.value.id}`);
+  }
 }
 
-watch(() => route.params.id, () => {
+watch(
+  () => route.params.id,
+  () => {
     fetchBookDetails();
-});
+  }
+);
 
 async function openMoveModal() {
   showMoveModal.value = true;
@@ -397,10 +546,14 @@ async function openMoveModal() {
 
 async function confirmMove(newLibraryId) {
   try {
-    await apiClient.patch(`/books/copies/${book.value.id}/move`, { libraryId: newLibraryId });
+    await apiClient.patch(`/books/copies/${book.value.id}/move`, {
+      libraryId: newLibraryId,
+    });
     showMoveModal.value = false;
     await fetchBookDetails();
-  } catch (e) { alert("Errore spostamento"); }
+  } catch (e) {
+    alert("Errore spostamento");
+  }
 }
 
 function openLoanConfirmModal() {
@@ -417,11 +570,11 @@ async function confirmLoanRequest() {
     isLoanConfirmModalOpen.value = false;
     // ricarica per aggiornare stato
     await fetchBookDetails();
-  } catch (e) { 
-      console.error(e);
-      alert("Errore durante la richiesta."); 
-  } finally { 
-      isSendingLoan.value = false; 
+  } catch (e) {
+    console.error(e);
+    alert("Errore durante la richiesta.");
+  } finally {
+    isSendingLoan.value = false;
   }
 }
 
@@ -437,8 +590,12 @@ async function confirmDelete() {
   deleteStep.value = "loading";
   const res = await executeDeletion("book", book.value.id);
   if (res.success) {
-    setTimeout(() => { deleteStep.value = "success"; }, 800);
-  } else { deleteStep.value = "error"; }
+    setTimeout(() => {
+      deleteStep.value = "success";
+    }, 800);
+  } else {
+    deleteStep.value = "error";
+  }
 }
 
 function handleModalClose() {
