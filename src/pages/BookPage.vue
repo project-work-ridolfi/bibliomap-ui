@@ -344,7 +344,7 @@
         <p class="text-sm font-bold uppercase">eliminazione completata</p>
         <button
           @click="handleModalClose"
-          class="btn-modal-confirm w-full text-xs uppercase tracking-widest"
+          class="btn-modal-confirm mx-auto text-xs uppercase tracking-widest"
           aria-label="chiudi modale">
           Chiudi
         </button>

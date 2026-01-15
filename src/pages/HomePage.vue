@@ -1,58 +1,53 @@
 <template>
-  <div id="home-page" class="page-container" aria-label="pagina principale">
-    <div
-      v-if="!authStore.isAuthenticated"
-      class="welcome-banner"
-      aria-label="banner di benvenuto">
+  <div id="home-page" class="page-container">
+    <div v-if="!authStore.isAuthenticated" class="welcome-banner">
       <div class="flex flex-col">
-        <h2 class="welcome-title">benvenuta/o su bibliomap!</h2>
-        <p class="welcome-subtitle">accedi per vedere tutte le funzionalità.</p>
+        <h2 class="welcome-title">Benvenuta/o su BIBLIOMAP!</h2>
+
+        <p class="welcome-subtitle">Accedi per vedere tutte funzionalità.</p>
       </div>
 
-      <router-link
-        to="/login"
-        class="btn-login"
-        aria-label="vai alla pagina di accesso o registrazione">
-        accedi o registrati
+      <router-link to="/login" class="btn-login">
+        Accedi o Registrati
       </router-link>
     </div>
 
-    <main class="main-layout" aria-label="contenuto principale">
-      <aside class="sidebar-container" aria-label="lista libri e filtri">
+    <main class="main-layout">
+      <aside class="sidebar-container">
         <div class="sidebar-header">
           <h2 class="sidebar-title">
-            vicini a te: <span>{{ filteredBooks.length }}</span>
+            Vicini a te: <span>{{ filteredBooks.length }}</span>
           </h2>
 
           <button
             @click="toggleFilters"
             class="btn-filters"
-            :class="showFilters ? 'btn-filters--active' : 'btn-filters--inactive'"
-            aria-label="mostra o nascondi filtri">
-            <i class="fa-solid fa-filter" aria-hidden="true"></i>
-            filtri
+            :class="
+              showFilters ? 'btn-filters--active' : 'btn-filters--inactive'
+            ">
+            <i class="fa-solid fa-filter"></i>
+
+            Filtri
           </button>
         </div>
 
-        <div v-if="showFilters" class="filters-drawer" aria-label="filtri ricerca">
+        <div v-if="showFilters" class="filters-drawer">
           <input
             v-model="filters.searchText"
             type="text"
             placeholder="cerca titolo o autore..."
-            class="filter-input"
-            aria-label="cerca per titolo o autore" />
+            class="filter-input" />
 
           <div class="filter-checkbox-group">
             <input
               type="checkbox"
               id="avail-filter"
               v-model="filters.onlyAvailable"
-              class="filter-checkbox"
-              aria-label="mostra solo libri disponibili" />
+              class="filter-checkbox" />
 
-            <label for="avail-filter" class="filter-label">
-              mostra solo libri disponibili
-            </label>
+            <label for="avail-filter" class="filter-label"
+              >Mostra solo libri disponibili</label
+            >
           </div>
 
           <div class="sort-section">
@@ -62,40 +57,43 @@
               <button
                 @click="handleSort('distance')"
                 class="btn-sort"
-                :class="{ 'btn-sort--active': sortField === 'distance' }"
-                aria-label="ordina per distanza">
+                :class="{ 'btn-sort--active': sortField === 'distance' }">
                 distanza
+
                 <i
                   v-if="sortField === 'distance'"
                   class="fa-solid"
-                  :class="sortDirection === 'asc' ? 'fa-caret-up' : 'fa-caret-down'"
-                  aria-hidden="true"></i>
+                  :class="
+                    sortDirection === 'asc' ? 'fa-caret-up' : 'fa-caret-down'
+                  "></i>
               </button>
 
               <button
                 @click="handleSort('title')"
                 class="btn-sort"
-                :class="{ 'btn-sort--active': sortField === 'title' }"
-                aria-label="ordina per titolo">
+                :class="{ 'btn-sort--active': sortField === 'title' }">
                 titolo
+
                 <i
                   v-if="sortField === 'title'"
                   class="fa-solid"
-                  :class="sortDirection === 'asc' ? 'fa-caret-up' : 'fa-caret-down'"
-                  aria-hidden="true"></i>
+                  :class="
+                    sortDirection === 'asc' ? 'fa-caret-up' : 'fa-caret-down'
+                  "></i>
               </button>
 
               <button
                 @click="handleSort('author')"
                 class="btn-sort"
-                :class="{ 'btn-sort--active': sortField === 'author' }"
-                aria-label="ordina per autore">
+                :class="{ 'btn-sort--active': sortField === 'author' }">
                 autore
+
                 <i
                   v-if="sortField === 'author'"
                   class="fa-solid"
-                  :class="sortDirection === 'asc' ? 'fa-caret-up' : 'fa-caret-down'"
-                  aria-hidden="true"></i>
+                  :class="
+                    sortDirection === 'asc' ? 'fa-caret-up' : 'fa-caret-down'
+                  "></i>
               </button>
             </div>
           </div>
@@ -103,44 +101,58 @@
           <div v-if="availableTags.length > 0" class="sort-section">
             <span class="sort-label">filtra per tag</span>
 
-            <div class="tag-list-scrollable" aria-label="lista tag disponibili">
+            <div class="tag-list-scrollable">
               <button
                 v-for="tag in availableTags"
                 :key="tag"
                 @click="toggleTag(tag)"
                 class="btn-tag"
-                :class="{ 'btn-tag--active': selectedTag === tag }"
-                :aria-label="`filtra per tag ${tag}`">
+                :class="{ 'btn-tag--active': selectedTag === tag }">
                 {{ tag }}
               </button>
             </div>
           </div>
         </div>
 
-        <div ref="listContainer" class="book-list-container" aria-label="elenco libri">
+        <div ref="listContainer" class="book-list-container">
           <div
             v-if="isFetchingBooks"
-            class="flex justify-center items-center absolute inset-0 z-20 bg-theme-primary"
-            aria-label="caricamento libri">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl" aria-hidden="true"></i>
+            class="flex justify-center items-center absolute inset-0 z-20 bg-theme-primary">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
           </div>
 
           <div
             v-else-if="filteredBooks.length === 0"
-            class="flex-center flex-col mt-4 px-4 text-center"
-            aria-label="nessun libro trovato">
+            class="flex-center flex-col mt-4 px-4 text-center">
             <p class="opacity-70 text-sm mb-4">
               nessun libro trovato in quest area.
             </p>
 
-            <input
-              type="range"
-              min="500"
-              max="15000"
-              step="500"
-              v-model.number="expansionRadius"
-              @change="applyRadiusZoom"
-              aria-label="espandi raggio di ricerca" />
+            <div
+              class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)]">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] uppercase font-bold opacity-80"
+                  >espandi raggio</span
+                >
+
+                <span class="text-xs font-bold text-[var(--zomp)]">
+                  {{
+                    expansionRadius >= 1000
+                      ? (expansionRadius / 1000).toFixed(1) + " km"
+                      : expansionRadius + " m"
+                  }}
+                </span>
+              </div>
+
+              <input
+                type="range"
+                min="500"
+                max="15000"
+                step="500"
+                v-model.number="expansionRadius"
+                @change="applyRadiusZoom"
+                class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]" />
+            </div>
           </div>
 
           <div v-else class="book-scroll-area">
@@ -148,59 +160,155 @@
               v-for="book in paginatedBooks"
               :key="book.id"
               @click="zoomToBook(book)"
-              class="book-card"
-              :aria-label="`libro ${book.title} di ${book.author}`">
-              <img
-                :src="book.coverUrl"
-                @error="(e) => (e.target.src = assignDefaultCover(book.id))"
-                :alt="`copertina del libro ${book.title}`" />
+              class="book-card">
+              <div class="book-card-content">
+                <div class="book-cover">
+                  <img
+                    :src="book.coverUrl"
+                    @error="
+                      (e) => (e.target.src = assignDefaultCover(book.id))
+                    " />
+                </div>
 
-              <button
-                @click.stop="goToBookDetails(book.id)"
-                class="book-footer-btn view"
-                aria-label="vai al dettaglio libro">
-                vedi
-              </button>
+                <div class="book-info">
+                  <p class="book-title">{{ book.title }}</p>
 
-              <button
-                v-if="authStore.isAuthenticated"
-                @click.stop="openConfirmModal(book)"
-                class="book-footer-btn request"
-                aria-label="richiedi libro in prestito">
-                richiedi
-              </button>
+                  <p class="book-author">{{ book.author }}</p>
+
+                  <div v-if="book.tags && book.tags.length" class="book-tags">
+                    <span v-for="t in book.tags" :key="t">{{ t }}</span>
+                  </div>
+
+                  <div class="book-footer-info">
+                    <div
+                      v-if="book.libraryName"
+                      class="flex items-center gap-1 opacity-70">
+                      <i class="fa-solid fa-shop text-[10px]"></i>
+
+                      {{ book.libraryName }}
+                    </div>
+
+                    <div class="flex items-center gap-1 opacity-60">
+                      <i class="fa-solid fa-location-dot text-[10px]"></i>
+
+                      {{ book.distance.toFixed(1) }} km
+                    </div>
+                  </div>
+
+                  <div class="book-footer-btns">
+                    <button
+                      @click.stop="goToBookDetails(book.id)"
+                      class="book-footer-btn view">
+                      <i class="fa-solid fa-eye"></i> vedi
+                    </button>
+
+                    <button
+                      v-if="authStore.isAuthenticated"
+                      @click.stop="openConfirmModal(book)"
+                      class="book-footer-btn request">
+                      <i class="fa-solid fa-hand-holding-hand"></i> richiedi
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="pagination-footer" aria-label="paginazione libri">
+        <div class="pagination-footer">
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="btn-pagination"
-            aria-label="pagina precedente">
-            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            class="btn-pagination">
+            <i class="fa-solid fa-chevron-left"></i>
           </button>
 
-          <span class="text-xs font-semibold">
-            pag {{ currentPage }} / {{ totalPages || 1 }}
-          </span>
+          <span class="text-xs font-semibold"
+            >pag {{ currentPage }} / {{ totalPages || 1 }}</span
+          >
 
           <button
             @click="nextPage"
             :disabled="currentPage >= totalPages || totalPages === 0"
-            class="btn-pagination"
-            aria-label="pagina successiva">
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            class="btn-pagination">
+            <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
       </aside>
 
-      <section class="map-layout-section" aria-label="mappa librerie">
-        <div id="map" class="w-full h-full" aria-label="mappa interattiva"></div>
+      <section class="map-layout-section">
+        <div class="map-wrapper">
+          <div id="map" class="w-full h-full"></div>
+
+          <div class="map-legend">
+            <div class="flex items-center">
+              <span class="legend-dot"></span>
+
+              <span>librerie vicine</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="location-status-bar">
+          <div v-if="isLocationLoading" class="location-loading">
+            <i class="fa-solid fa-satellite-dish"></i> ricerca posizione...
+          </div>
+
+          <div v-else class="flex flex-col gap-1 w-full px-2">
+            <div class="flex justify-between items-center w-full opacity-70">
+              <span
+                >posizione stimata ({{
+                  gpsAccuracy ? "~" + Math.round(gpsAccuracy) + "m" : "n/a"
+                }})</span
+              >
+
+              <button @click="handleGeolocationFlow" class="btn-retry-location">
+                riprova
+              </button>
+            </div>
+
+            <div
+              class="font-bold border-t border-[var(--border-color)] pt-1 mt-1">
+              <i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>
+
+              trascina il segnaposto rosa sulla mappa se la posizione e'
+              sbagliata.
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
+
+  <app-modal
+    :is-open="isConfirmModalOpen"
+    title="conferma richiesta"
+    @close="isConfirmModalOpen = false">
+    <div v-if="bookToRequest" class="modal-request-content">
+      <p class="text-sm">richiedi in prestito:</p>
+
+      <div class="modal-book-box">
+        <p class="font-bold text-base">{{ bookToRequest.title }}</p>
+
+        <p class="text-xs italic opacity-80">{{ bookToRequest.author }}</p>
+      </div>
+
+      <div class="modal-actions">
+        <button @click="isConfirmModalOpen = false" class="btn-modal-cancel">
+          annulla
+        </button>
+
+        <button
+          @click="confirmLoanRequest"
+          :disabled="isSending"
+          class="btn-modal-confirm">
+          <i v-if="isSending" class="fa-solid fa-circle-notch fa-spin"></i>
+
+          {{ isSending ? "invio..." : "conferma" }}
+        </button>
+      </div>
+    </div>
+  </app-modal>
 </template>
 
 <script setup>
@@ -219,6 +327,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAuthStore } from "@/stores/authStore";
 import { apiClient } from "@/services/apiClient";
+import AppModal from "@/components/AppModal.vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -275,6 +384,7 @@ function assignDefaultCover(bookId) {
 }
 
 // calcola quanti libri mostrare per pagina in base all altezza del contenitore
+
 const calculateItemsPerPage = () => {
   if (listContainer.value) {
     const containerHeight = listContainer.value.clientHeight;
@@ -306,6 +416,7 @@ onUnmounted(() => {
 });
 
 // estrae tutti i tag unici dai libri caricati
+
 const availableTags = computed(() => {
   const allTags = books.value.flatMap((b) => b.tags || []);
 
@@ -313,6 +424,7 @@ const availableTags = computed(() => {
 });
 
 // gestisce l'ordinamento della lista libri
+
 const handleSort = (field) => {
   if (sortField.value !== field) {
     sortField.value = field;
@@ -329,6 +441,7 @@ const handleSort = (field) => {
 };
 
 // filtra e ordina i libri in base alle preferenze dell'utente
+
 const filteredBooks = computed(() => {
   let result = [...books.value];
 

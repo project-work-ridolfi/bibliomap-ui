@@ -7,13 +7,15 @@
       <i class="fa-solid fa-arrow-left"></i> {{ isSetup ? "salta" : "annulla" }}
     </button>
 
-    <h1 class="text-3xl font-display text-center text-theme-main pt-4 uppercase">
+    <h1
+      class="text-3xl font-display text-center text-theme-main pt-4 uppercase">
       aggiungi un libro
     </h1>
 
     <div
       class="space-y-3 p-5 rounded-xl border border-border-color bg-theme-secondary">
-      <label class="block text-sm font-bold text-theme-main opacity-70 uppercase"
+      <label
+        class="block text-sm font-bold text-theme-main opacity-70 uppercase"
         >libreria di destinazione *</label
       >
       <p v-if="isFetchingLibraries" class="text-sm animate-pulse uppercase">
@@ -35,10 +37,7 @@
         <i class="fa-solid fa-shop mr-2 text-accent-color"></i>
         <span>{{ userLibraries[0].name }}</span>
       </div>
-      <select
-        v-else
-        v-model="form.targetLibraryId"
-        class="filter-input">
+      <select v-else v-model="form.targetLibraryId" class="filter-input">
         <option disabled value="">seleziona una libreria</option>
         <option v-for="lib in userLibraries" :key="lib.id" :value="lib.id">
           {{ lib.name }}
@@ -89,7 +88,8 @@
               </button>
               <div
                 class="absolute left-6 top-0 w-64 p-3 bg-theme-primary border border-border-color rounded-lg shadow-xl hidden group-hover:block z-50 text-xs italic">
-                l'isbn è un codice di 13 cifre che identifica univocamente un libro, tipicamente si trova nella quarta di copertina.
+                l'isbn è un codice di 13 cifre che identifica univocamente un
+                libro, tipicamente si trova nella quarta di copertina.
               </div>
             </div>
           </div>
@@ -131,7 +131,9 @@
           ferma scanner
         </button>
       </div>
-      <p v-if="isbnError" class="text-xs text-red-600 text-center font-bold uppercase">
+      <p
+        v-if="isbnError"
+        class="text-xs text-red-600 text-center font-bold uppercase">
         {{ isbnError }}
       </p>
     </div>
@@ -164,7 +166,10 @@
           </div>
           <div v-else class="space-y-1 opacity-50">
             <i class="fa-solid fa-cloud-arrow-up text-2xl text-theme-main"></i>
-            <p class="text-xs text-theme-main uppercase font-bold tracking-tighter">carica o trascina copertina</p>
+            <p
+              class="text-xs text-theme-main uppercase font-bold tracking-tighter">
+              carica o trascina copertina
+            </p>
           </div>
           <input
             type="file"
@@ -206,7 +211,9 @@
             class="filter-input" />
         </div>
         <div>
-          <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase">editore</label>
+          <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
+            >editore</label
+          >
           <input
             v-model="form.publisher"
             type="text"
@@ -215,7 +222,9 @@
         </div>
         <div class="grid grid-cols-2 gap-4 md:col-span-2">
           <div>
-            <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase">anno</label>
+            <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
+              >anno</label
+            >
             <input
               v-model.number="form.publicationYear"
               type="number"
@@ -225,17 +234,13 @@
             <label class="block text-[10px] font-bold opacity-70 mb-1 uppercase"
               >lingua</label
             >
-            <input
-              v-model="form.language"
-              type="text"
-              class="filter-input" />
+            <input v-model="form.language" type="text" class="filter-input" />
           </div>
         </div>
       </div>
 
       <div class="space-y-6">
-        <h2
-          class="text-xl font-display text-theme-main uppercase">
+        <h2 class="text-xl font-display text-theme-main uppercase">
           dati della tua copia:
         </h2>
 
@@ -299,7 +304,11 @@
               v-for="tag in availableTags"
               :key="tag"
               @click="toggleTag(tag)"
-              :class="copyForm.tags.includes(tag) ? 'hidden' : 'btn-tag px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase'">
+              :class="
+                copyForm.tags.includes(tag)
+                  ? 'hidden'
+                  : 'btn-tag px-3 py-1.5 rounded-lg text-[10px] font-bold border-2 transition-all uppercase'
+              ">
               {{ tag }}
             </button>
             <button
@@ -346,7 +355,11 @@
         @click="submitBook"
         :disabled="isSubmitting"
         class="flex-[2] btn-modal-confirm py-3 justify-center text-xs tracking-widest uppercase"
-        :class="isReadyToSave ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none'">
+        :class="
+          isReadyToSave
+            ? 'opacity-100'
+            : 'opacity-40 grayscale pointer-events-none'
+        ">
         <span v-if="isSubmitting"
           ><i class="fa-solid fa-circle-notch fa-spin mr-2"></i
           >salvataggio...</span
@@ -378,8 +391,13 @@
               <i v-else class="fa-solid fa-book opacity-30"></i>
             </div>
             <div class="text-xs overflow-hidden flex-grow text-theme-main">
-              <strong class="block truncate text-sm uppercase tracking-tighter">{{ book.title }}</strong>
-              <span class="block opacity-70 truncate italic">{{ book.author }}</span>
+              <strong
+                class="block truncate text-sm uppercase tracking-tighter"
+                >{{ book.title }}</strong
+              >
+              <span class="block opacity-70 truncate italic">{{
+                book.author
+              }}</span>
             </div>
           </button>
         </div>
@@ -396,7 +414,9 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div
         class="bg-theme-primary rounded-2xl shadow-2xl border border-border-color max-w-md w-full p-6 text-center space-y-4 custom-fade-in">
-        <h3 class="font-display text-lg text-theme-main uppercase">isbn mancante</h3>
+        <h3 class="font-display text-lg text-theme-main uppercase">
+          isbn mancante
+        </h3>
         <p class="text-sm text-theme-main opacity-70">
           per salvare questo libro nel database mondiale è necessario l'isbn.
         </p>
@@ -508,11 +528,13 @@
       :title="modalTitle"
       @close="handleModalClose">
       <div class="modal-request-content">
-        <p class="text-theme-main font-bold uppercase tracking-tighter mb-6">{{ modalContent }}</p>
+        <p class="text-theme-main font-bold uppercase tracking-tighter mb-6">
+          {{ modalContent }}
+        </p>
         <button
           @click="handleModalClose"
-          class="btn-modal-confirm px-12 py-2 uppercase font-bold text-xs tracking-widest flex-right">
-          finito
+          class="btn-modal-confirm px-12 py-2 mx-auto uppercase font-bold text-xs tracking-widest">
+          chiudi
         </button>
       </div>
     </AppModal>
@@ -915,8 +937,12 @@ watch([() => form.value.title, () => form.value.author], () => {
 }
 
 @keyframes scan {
-  0% { top: 5%; }
-  100% { top: 95%; }
+  0% {
+    top: 5%;
+  }
+  100% {
+    top: 95%;
+  }
 }
 
 .tag-list {
@@ -924,15 +950,20 @@ watch([() => form.value.title, () => form.value.author], () => {
   overflow-y: auto;
 }
 
-.tag-list::-webkit-scrollbar { width: 8px; }
+.tag-list::-webkit-scrollbar {
+  width: 8px;
+}
 .tag-list::-webkit-scrollbar-thumb {
   background-color: var(--zomp);
   border-radius: 10px;
 }
-.tag-list::-webkit-scrollbar-track { background-color: rgba(0, 0, 0, 0.1); }
+.tag-list::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+}
 
 .modal-request-content {
   padding: 1.5rem;
   text-align: center;
 }
-</style>```
+</style>
+```
