@@ -101,8 +101,7 @@
         </form>
 
         <!-- schermata OTP -->
-        <div v-else class="text-center p-4 bg-theme-primary rounded-2xl border-2 border-thistle" role="form"
-            aria-labelledby="otp-title">
+        <div v-else class="text-center" role="form" aria-labelledby="otp-title">
             <h2 class="text-2xl font-display mb-4 text-theme-main uppercase" id="otp-title">Verifica codice OTP</h2>
 
             <div v-if="mockOtp"
@@ -588,20 +587,6 @@ async function completeRegistration() {
 function goHome() {
     router.push("/");
 }
-
-// controllo accesso diretto con email in query
-onMounted(async () => {
-    // se la query contiene email, vai direttamente alla schermata OTP
-    // esempio url: /signup?email=xxx
-    if (route.query.email) {
-        form.value.email = route.query.email;
-        otpSent.value = true;
-        await nextTick();
-        // focus automatico sul primo campo OTP
-        const firstInput = document.getElementById("otp-input-0");
-        if (firstInput) firstInput.focus();
-    }
-});
 </script>
 
 <style scoped>
