@@ -9,44 +9,57 @@
       Scegli come preferisci impostarla:
     </p>
 
-    <div class="grid grid-cols-3 gap-4" role="group" aria-label="modalità selezione posizione">
-      <button
-        @click="locationMode = 'geo'"
-        aria-label="usa posizione del browser"
-        :class="
-          locationMode === 'geo'
-            ? 'bg-zomp text-white border-zomp'
-            : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'
-        "
-        class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
-        <i class="fa-solid fa-location-arrow mb-2 text-xl" aria-hidden="true"></i><br />
-        Browser
-      </button>
-      <button
-        @click="locationMode = 'map'"
-        aria-label="seleziona posizione su mappa"
-        :class="
-          locationMode === 'map'
-            ? 'bg-zomp text-white border-zomp'
-            : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'
-        "
-        class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
-        <i class="fa-solid fa-map-pin mb-2 text-xl" aria-hidden="true"></i><br />
-        Sulla Mappa
-      </button>
-      <button
-        @click="locationMode = 'address'"
-        aria-label="inserisci indirizzo manualmente"
-        :class="
-          locationMode === 'address'
-            ? 'bg-zomp text-white border-zomp'
-            : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'
-        "
-        class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2">
-        <i class="fa-solid fa-house mb-2 text-xl" aria-hidden="true"></i><br />
-        Indirizzo
-      </button>
-    </div>
+  <div
+  class="grid grid-cols-3 gap-4"
+  role="radiogroup"
+  aria-labelledby="location-mode-label"
+>
+  <span id="location-mode-label" class="sr-only">
+    Modalità selezione posizione
+  </span>
+
+  <button
+    role="radio"
+    :aria-checked="locationMode === 'geo'"
+    @click="locationMode = 'geo'"
+    class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2
+           focus:outline-none focus:ring-2 focus:ring-zomp"
+    :class="locationMode === 'geo'
+      ? 'bg-zomp text-white border-zomp'
+      : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'"
+  >
+    <i class="fa-solid fa-location-arrow mb-2 text-xl" aria-hidden="true"></i><br />
+    Browser
+  </button>
+
+  <button
+    role="radio"
+    :aria-checked="locationMode === 'map'"
+    @click="locationMode = 'map'"
+    class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2
+           focus:outline-none focus:ring-2 focus:ring-zomp"
+    :class="locationMode === 'map'
+      ? 'bg-zomp text-white border-zomp'
+      : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'"
+  >
+    <i class="fa-solid fa-map-pin mb-2 text-xl" aria-hidden="true"></i><br />
+    Sulla Mappa
+  </button>
+
+  <button
+    role="radio"
+    :aria-checked="locationMode === 'address'"
+    @click="locationMode = 'address'"
+    class="p-4 rounded-xl shadow-md transition duration-150 font-semibold border-2
+           focus:outline-none focus:ring-2 focus:ring-zomp"
+    :class="locationMode === 'address'
+      ? 'bg-zomp text-white border-zomp'
+      : 'bg-theme-primary text-theme-main border-thistle hover:border-zomp'"
+  >
+    <i class="fa-solid fa-house mb-2 text-xl" aria-hidden="true"></i><br />
+    Indirizzo
+  </button>
+</div>
 
     <div
       v-if="locationMode === 'address'"
