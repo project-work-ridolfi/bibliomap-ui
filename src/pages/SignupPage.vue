@@ -123,13 +123,13 @@
             </button>
 
             <div class="mt-4 flex justify-center space-x-4">
+                 <button @click="resetToInitialForm" class="text-sm text-theme-main hover:text-zomp underline"
+                    aria-label="Torna indietro">
+                    indietro
+                </button>
                 <button @click="resendOtp" :disabled="isResending"
                     class="text-sm text-theme-main hover:text-zomp underline" aria-label="Invia di nuovo OTP">
                     {{ isResending ? "invio..." : "invia di nuovo" }}
-                </button>
-                <button @click="resetToInitialForm" class="text-sm text-theme-main hover:text-zomp underline"
-                    aria-label="Torna indietro">
-                    Indietro
                 </button>
             </div>
         </div>
