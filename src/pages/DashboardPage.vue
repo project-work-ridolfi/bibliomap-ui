@@ -510,7 +510,12 @@
     <AppModal
       :is-open="isManageModalOpen"
       :title="modalTitle"
-      @close="isManageModalOpen = false">
+      @close="isManageModalOpen = false"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      ref="modalRef"
+    >
       <div class="p-6 space-y-6 text-theme-main bg-theme-primary rounded-xl">
         <!-- Avviso quando ci sono richieste concorrenti -->
         <div
@@ -555,14 +560,18 @@
         <!-- Field messaggio con warning privacy -->
         <div class="space-y-2">
           <label
+            for="user-message"
             class="text-[10px] font-black opacity-40 tracking-widest uppercase"
             >messaggio per l'utente</label
           >
           <textarea
+            id="user-message"
             v-model="modalForm.notes"
             class="w-full p-3 bg-theme-primary border border-thistle rounded-xl outline-none text-sm text-theme-main"
             rows="3"
-            placeholder="Scrivi qui..."></textarea>
+            placeholder="Scrivi qui..."
+            aria-label="Messaggio per l'utente"
+          ></textarea>
           <p class="text-[9px] text-gray-500 italic leading-tight">
             <i class="fa-solid fa-shield-halved mr-1"></i> Attenzione: i
             messaggi verranno inviati via email. Evita di condividere dati
@@ -612,13 +621,17 @@
         <div class="flex gap-3 pt-2">
           <button
             @click="isManageModalOpen = false"
-            class="flex-1 py-4 border border-border-color rounded-xl font-bold uppercase text-xs">
+            class="flex-1 py-4 border border-border-color rounded-xl font-bold uppercase text-xs"
+            aria-label="Annulla"
+          >
             Annulla
           </button>
           <button
             @click="handleModalSubmit"
             :disabled="isProcessing || (!isContactMode && !modalForm.action)"
-            class="flex-1 bg-zomp text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50 uppercase tracking-widest text-xs">
+            class="flex-1 bg-zomp text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50 uppercase tracking-widest text-xs"
+            aria-label="Invia"
+          >
             {{
               isProcessing
                 ? "Invio..."
@@ -743,6 +756,7 @@ const activeLoans = ref([]);
 const pendingRequests = ref([]);
 const acceptedLoans = ref([]);
 const loanHistory = ref([]);
+const allLoans = ref([]);
 const borrowedIndex = ref(0);
 const lentIndex = ref(0);
 const historyIndex = ref(0);
@@ -871,9 +885,30 @@ async function refreshAll() {
   await Promise.all([
     fetchIncomingRequests(),
     fetchActiveLoans(),
-    fetchAcceptedLoans(),
-    fetchLoanHistory(),
+    fetchAllLoans(), // chiamata unica
   ]);
+  // Dopo aver caricato allLoans, aggiorna acceptedLoans e loanHistory
+  updateAcceptedLoans();
+  updateLoanHistory();
+}
+
+// Carica tutti i prestiti (chiamata unica a /loan/all)
+async function fetchAllLoans() {
+  try {
+    allLoans.value = await apiClient.get("/loan/all");
+  } catch (e) {}
+}
+
+// Aggiorna prestiti accettati dalla variabile allLoans
+function updateAcceptedLoans() {
+  acceptedLoans.value = allLoans.value.filter((l) => l.status === "ACCEPTED");
+}
+
+// Aggiorna storico prestiti dalla variabile allLoans
+function updateLoanHistory() {
+  loanHistory.value = allLoans.value
+    .filter((l) => ["RETURNED", "REJECTED"].includes(l.status))
+    .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
 }
 
 // Carica dati dell'utente loggato
@@ -898,23 +933,20 @@ async function fetchActiveLoans() {
   } catch (e) {}
 }
 
-// Carica prestiti accettati in attesa di conferma dello scambio
-async function fetchAcceptedLoans() {
-  try {
-    const all = await apiClient.get("/loan/all");
-    acceptedLoans.value = all.filter((l) => l.status === "ACCEPTED");
-  } catch (e) {}
-}
+// Gestione focus per accessibilità modali
+import { watch, nextTick } from "vue";
+const modalRef = ref(null);
 
-// Carica storico prestiti conclusi o rifiutati ordinati per data
-async function fetchLoanHistory() {
-  try {
-    const allLoans = await apiClient.get("/loan/all");
-    loanHistory.value = allLoans
-      .filter((l) => ["RETURNED", "REJECTED"].includes(l.status))
-      .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-  } catch (e) {}
-}
+// Sposta il focus sul primo elemento interattivo della modale quando si apre
+watch([isManageModalOpen, isExchangeModalOpen, isReturnModalOpen, isExtendModalOpen], async () => {
+  await nextTick();
+  if (modalRef.value) {
+    const focusable = modalRef.value.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable) focusable.focus();
+  }
+});
 
 // Apre modale per confermare scambio avvenuto
 function openExchangeModal(loan) {
@@ -1003,7 +1035,7 @@ async function handleModalSubmit() {
   }
 }
 
-// Apre modale gestione richiesta di prestito ricevuta
+// Apre modale per confermare scambio avvenuto
 function openManageModal(req) {
   selectedRequest.value = req;
   isContactMode.value = false;
