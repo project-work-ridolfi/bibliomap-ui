@@ -4,7 +4,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
 ## [1.0.0] - **IN CORSO**
 
-Prima release pubblica di Bibliomap.
+Prima release.
 
 ### Funzionalità principali
 
