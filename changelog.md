@@ -2,9 +2,11 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
-## [1.0.0] - **IN CORSO**
+## [1.0.0] - **19/01/2026**
 
-Prima release.
+Primo rilascio.
+
+Questa versione rappresenta la prima release stabile del sistema e include le funzionalità progettate e implementate durante il lavoro sul project work.
 
 ### Funzionalità principali
 
