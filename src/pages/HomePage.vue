@@ -165,12 +165,11 @@
               <div class="book-card-content">
                 <div class="book-cover">
                   <img
-                    :src="book.coverUrl"
-                    @error="
-                      (e) => (e.target.src = assignDefaultCover(book.id))
-                    " />
+                    :src="getDisplayCover(book)"
+                    :alt="`Copertina di ${book.title}`"
+                    loading="lazy"
+                    @error="(e) => (e.target.src = assignDefaultCover(book.id))" />
                 </div>
-
                 <div class="book-info">
                   <p class="book-title">{{ book.title }}</p>
 
@@ -572,25 +571,9 @@ async function fetchBooks(lat, lng, radius) {
     const rawBooks = Array.isArray(results) ? results : results.results || [];
 
     books.value = rawBooks.map((b) => {
-      // logica priorità copertina: custom > url > default
-      let finalCover = null;
-
-      if (b.customCover) {
-        finalCover = b.customCover.startsWith("data:")
-          ? b.customCover
-          : `data:image/jpeg;base64,${b.customCover}`;
-      } else if (b.coverUrl || b.cover) {
-        const url = b.coverUrl || b.cover;
-        // gestisce url relativi o assoluti vs base64 grezzi
-        finalCover =
-          url.startsWith("http") || url.startsWith("/")
-            ? url
-            : `data:image/jpeg;base64,${url}`;
-      }
       return {
         ...b,
         libraryId: b.libraryId,
-        coverUrl: finalCover || assignDefaultCover(b.id),
         libraryName: b.libraryName || "libreria privata",
         ownerName: b.username || "utente",
       };
@@ -601,6 +584,30 @@ async function fetchBooks(lat, lng, radius) {
     isFetchingBooks.value = false;
   }
 }
+
+const getDisplayCover = (book) => {
+  if (!book) return assignDefaultCover();
+
+  // riprende la copertina personalizzata se esiste
+  if (book.customCover && book.customCover.trim() !== "") {
+    return book.customCover.startsWith("data:")
+      ? book.customCover
+      : `data:image/jpeg;base64,${book.customCover}`;
+  }
+
+  // se c'è un campo cover, controlla se è un link o una stringa Base64
+  if (book.cover && book.cover.trim() !== "") {
+    const c = book.cover.trim();
+    if (c.startsWith("http") || c.startsWith("data:")) {
+      return c;
+    }
+    // se c'è qualcosa ma non è un link, assumiamo sia Base64
+    return `data:image/jpeg;base64,${c}`;
+  }
+
+  // default
+  return assignDefaultCover(book.id);
+};
 
 // esegue una ricerca libri nell'area attualmente visualizzata sulla mappa
 function searchInCurrentArea() {
