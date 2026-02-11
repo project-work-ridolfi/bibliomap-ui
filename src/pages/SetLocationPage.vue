@@ -241,7 +241,7 @@
           aria-label="seleziona visibilità posizione"
           class="filter-input">
           <option value="all">Tutti gli utenti</option>
-          <option value="friends">Solo utenti registrati</option>
+          <option value="logged_in">Solo utenti registrati</option>
           <option value="private">Nessuno (solo uso distanze personali)</option>
         </select>
       </div>
@@ -322,7 +322,7 @@ const form = ref({
   houseNumber: "",
   zipCode: "",
   city: "Roma",
-  visibility: "friends", // solo registrati
+  visibility: "logged_in", // solo registrati
   blurRadius: 250,       // raggio medio di default
 });
 
@@ -426,7 +426,7 @@ onMounted(async () => {
   if (authStore.user?.latitude && authStore.user?.longitude) {
       form.value.latitude = authStore.user.latitude;
       form.value.longitude = authStore.user.longitude;
-      form.value.visibility = authStore.user.visibility || "friends";
+      form.value.visibility = authStore.user.visibility || "logged_in";
       form.value.blurRadius = authStore.user.blurRadius ?? 250;
       locationMode.value = "map"; // parti con la mappa
   }
