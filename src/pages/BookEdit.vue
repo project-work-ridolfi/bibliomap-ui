@@ -221,13 +221,13 @@ const filteredSuggestedTags = computed(() => {
   return commonTags.filter(tag => !form.tags.includes(tag.toLowerCase()))
 })
 
-// calcola url immagine da mostrare
+// calcola immagine da mostrare 
 const currentImage = computed(() => {
-  if (useDefault.value) return "/images/cover_placeholder.png"
+  if (useDefault.value) return "/images/cover_default_1.png"
   if (form.customCover) {
     return form.customCover.startsWith("data:") ? form.customCover : `data:image/jpeg;base64,${form.customCover}`
   }
-  return form.coverUrl || "/images/cover_placeholder.png"
+  return form.coverUrl || "/images/cover_default_1.png"
 })
 
 // torna alla pagina dettaglio libro

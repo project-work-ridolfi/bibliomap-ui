@@ -2,6 +2,12 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
+## [1.1.0] - 12/02/2026
+
+- Semplificata la logica di rendering delle copertine, ora servite direttamente dal Backend in formato ottimizzato (Base64/URL)
+- Aggiunti attributi aria-label e commenti mancanti
+- Corretta chiave per visibilita' logged_in
+
 ## [1.0.0] - **19/01/2026**
 
 Primo rilascio.

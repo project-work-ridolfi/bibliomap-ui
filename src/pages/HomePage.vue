@@ -121,40 +121,39 @@
             <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
           </div>
 
-         <div
-  v-else-if="filteredBooks.length === 0"
-  class="flex flex-col items-center justify-center mt-10 px-4 text-center w-full h-full"
->
-  <p class="opacity-70 text-sm mb-4">nessun libro trovato in quest area.</p>
+          <div
+            v-else-if="filteredBooks.length === 0"
+            class="flex flex-col items-center justify-center mt-10 px-4 text-center w-full h-full">
+            <p class="opacity-70 text-sm mb-4">
+              nessun libro trovato in quest area.
+            </p>
 
-  <div
-    class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl"
-  >
-    <div class="flex justify-between items-center">
-      <span class="text-[10px] uppercase font-bold opacity-80"
-        >espandi raggio</span
-      >
+            <div
+              class="w-full max-w-[240px] flex flex-col gap-2 bg-[var(--bg-secondary)] p-4 rounded-xl">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] uppercase font-bold opacity-80"
+                  >espandi raggio</span
+                >
 
-      <span class="text-xs font-bold text-[var(--zomp)]">
-        {{
-          expansionRadius >= 1000
-            ? (expansionRadius / 1000).toFixed(1) + " km"
-            : expansionRadius + " m"
-        }}
-      </span>
-    </div>
+                <span class="text-xs font-bold text-[var(--zomp)]">
+                  {{
+                    expansionRadius >= 1000
+                      ? (expansionRadius / 1000).toFixed(1) + " km"
+                      : expansionRadius + " m"
+                  }}
+                </span>
+              </div>
 
-    <input
-      type="range"
-      min="500"
-      max="15000"
-      step="500"
-      v-model.number="expansionRadius"
-      @change="applyRadiusZoom"
-      class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]"
-    />
-  </div>
-</div>
+              <input
+                type="range"
+                min="500"
+                max="15000"
+                step="500"
+                v-model.number="expansionRadius"
+                @change="applyRadiusZoom"
+                class="w-full h-1.5 bg-[var(--ash-gray)] rounded-lg appearance-none cursor-pointer accent-[var(--zomp)]" />
+            </div>
+          </div>
 
           <div v-else class="book-scroll-area">
             <div
@@ -165,10 +164,12 @@
               <div class="book-card-content">
                 <div class="book-cover">
                   <img
-                    :src="getDisplayCover(book)"
+                    :src="book.cover || assignDefaultCover(book.id)"
                     :alt="`Copertina di ${book.title}`"
                     loading="lazy"
-                    @error="(e) => (e.target.src = assignDefaultCover(book.id))" />
+                    @error="
+                      (e) => (e.target.src = assignDefaultCover(book.id))
+                    " />
                 </div>
                 <div class="book-info">
                   <p class="book-title">{{ book.title }}</p>
@@ -335,10 +336,9 @@ const router = useRouter();
 // coordinate e limiti di Roma
 const ROME_CENTER = { lat: 41.9028, lng: 12.4964 };
 const ROME_BOUNDS = [
-  [12.1300, 41.6300], 
-  [12.8600, 42.1700]  
+  [12.13, 41.63],
+  [12.86, 42.17]
 ];
-
 
 const CARD_HEIGHT = 180;
 
@@ -403,7 +403,6 @@ const calculateItemsPerPage = () => {
 
     itemsPerPage.value = Math.max(
       Math.floor((containerHeight - 10) / CARD_HEIGHT),
-
       2
     );
   }
@@ -565,7 +564,7 @@ async function fetchBooks(lat, lng, radius) {
         radius,
         search: filters.searchText,
         exclude_user: authStore.userId,
-      },
+      }
     });
 
     const rawBooks = Array.isArray(results) ? results : results.results || [];
@@ -576,6 +575,7 @@ async function fetchBooks(lat, lng, radius) {
         libraryId: b.libraryId,
         libraryName: b.libraryName || "libreria privata",
         ownerName: b.username || "utente",
+        cover: b.cover && b.cover.trim() !== "" ? b.cover : null
       };
     });
   } catch (err) {
@@ -584,30 +584,6 @@ async function fetchBooks(lat, lng, radius) {
     isFetchingBooks.value = false;
   }
 }
-
-const getDisplayCover = (book) => {
-  if (!book) return assignDefaultCover();
-
-  // riprende la copertina personalizzata se esiste
-  if (book.customCover && book.customCover.trim() !== "") {
-    return book.customCover.startsWith("data:")
-      ? book.customCover
-      : `data:image/jpeg;base64,${book.customCover}`;
-  }
-
-  // se c'è un campo cover, controlla se è un link o una stringa Base64
-  if (book.cover && book.cover.trim() !== "") {
-    const c = book.cover.trim();
-    if (c.startsWith("http") || c.startsWith("data:")) {
-      return c;
-    }
-    // se c'è qualcosa ma non è un link, assumiamo sia Base64
-    return `data:image/jpeg;base64,${c}`;
-  }
-
-  // default
-  return assignDefaultCover(book.id);
-};
 
 // esegue una ricerca libri nell'area attualmente visualizzata sulla mappa
 function searchInCurrentArea() {
@@ -639,7 +615,7 @@ function applyRadiusZoom() {
   if (!map.value) return;
   map.value.flyTo({
     zoom: 15.5 - Math.log2(expansionRadius.value / 500),
-    speed: 1.2,
+    speed: 1.2
   });
 }
 
@@ -660,7 +636,7 @@ const initMap = (lat, lng, zoomLevel) => {
     zoom: zoomLevel,
     minZoom: MAX_ZOOM_OUT,
     maxBounds: ROME_BOUNDS,
-    attributionControl: false,
+    attributionControl: false
   });
 
   map.value.on("load", () => {
@@ -796,7 +772,7 @@ const zoomToBook = (book) => {
 
   map.value.once("idle", () => {
     const targetMarker = currentMarkers.value.find(
-      (m) => m._libraryId === book.libraryId
+      (m) => m._libraryId === book.libraryId,
     );
     if (targetMarker) {
       if (!targetMarker.getPopup().isOpen()) {
