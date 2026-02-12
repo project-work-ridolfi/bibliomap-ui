@@ -10,6 +10,7 @@
       </div>
       <router-link
         to="/library"
+        aria-label="crea una nuova libreria"
         class="bg-[var(--zomp)] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:opacity-90 transition transform hover:scale-105">
         <i class="fa-solid fa-plus"></i>
         nuova libreria
@@ -18,12 +19,15 @@
 
     <div v-if="isLoading" class="text-center py-20">
       <i
+        aria-label="caricamento librerie in corso"
         class="fa-solid fa-circle-notch fa-spin text-4xl text-[var(--zomp)]"></i>
     </div>
 
     <div v-else class="space-y-3">
       <div
         v-if="libraries.length === 0"
+        role="status"
+        aria-label="nessuna libreria presente"
         class="text-center py-20 border-2 border-dashed border-[var(--thistle)] rounded-2xl">
         <p class="italic opacity-60 font-bold">nessuna libreria presente.</p>
       </div>
@@ -44,6 +48,7 @@
       :title="deleteModalTitle"
       @close="confirmModal.show = false">
       <div class="p-6 text-center space-y-4 text-theme-main">
+        <!-- step conferma eliminazione -->
         <template v-if="confirmModal.step === 'confirm'">
           <div
             class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 mx-auto mb-2">
@@ -61,25 +66,31 @@
           <div class="flex gap-3 pt-4">
             <button
               @click="confirmModal.show = false"
+              aria-label="annulla eliminazione"
               class="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] font-bold transition">
               Annulla
             </button>
+            <!-- conferma eliminazione elemento -->
             <button
               @click="handleExecuteDelete"
+              aria-label="conferma eliminazione definitiva"
               class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold shadow-md transition">
               {{ confirmModal.confirmBtn }}
             </button>
           </div>
         </template>
 
+        <!-- step caricamento eliminazione -->
         <template v-else-if="confirmModal.step === 'loading'">
           <div class="py-8">
             <i
+              aria-label="eliminazione in corso"
               class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i>
             <p class="font-bold">Eliminazione in corso...</p>
           </div>
         </template>
 
+        <!-- step successo eliminazione -->
         <template v-else-if="confirmModal.step === 'success'">
           <div
             class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-zomp mx-auto mb-2 animate-bounce">
@@ -89,6 +100,7 @@
           <p class="text-sm opacity-70">{{ confirmModal.successMsg }}</p>
           <button
             @click="confirmModal.show = false"
+            aria-label="chiudi notifica di successo"
             class="w-full mt-4 px-4 py-2 bg-zomp text-white rounded-lg font-bold transition">
             Chiudi
           </button>
@@ -120,6 +132,7 @@ const confirmModal = reactive({
   successMsg: "",
 });
 
+// titolo modal in base al step del processo
 const deleteModalTitle = computed(() => {
   if (confirmModal.step === "loading") return "Attendere...";
   if (confirmModal.step === "success") return "Completato";
@@ -128,6 +141,7 @@ const deleteModalTitle = computed(() => {
 
 onMounted(fetchLibraries);
 
+// carica librerie utente da api
 async function fetchLibraries() {
   isLoading.value = true;
   try {
@@ -147,6 +161,7 @@ async function fetchLibraries() {
   }
 }
 
+// espandi libreria e carica libri se necessario
 async function toggleLibrary(libId) {
   const lib = libraries.value.find((l) => l.id === libId);
   if (!lib) return;
@@ -162,6 +177,7 @@ async function toggleLibrary(libId) {
   }
 }
 
+// sposta libro tra librerie
 async function moveBook({ bookId, toLibraryId }) {
   try {
     await apiClient.patch(`/copies/${bookId}/move`, { libraryId: toLibraryId });

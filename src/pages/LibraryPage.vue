@@ -3,6 +3,7 @@
     class="max-w-xl mx-auto p-8 bg-theme-primary shadow-xl rounded-2xl border-2 border-thistle space-y-6 relative">
     <button
       @click="handleBack"
+      aria-label="torna alla pagina precedente"
       class="absolute top-4 left-4 text-theme-main hover:text-zomp transition-colors flex items-center gap-2 font-bold text-xs uppercase">
       <i class="fa-solid fa-arrow-left"></i> torna indietro
     </button>
@@ -36,6 +37,7 @@
           id="libraryName"
           type="text"
           required
+          aria-label="inserisci nome della libreria"
           placeholder="es. scaffale in salotto"
           class="filter-input" />
       </div>
@@ -56,6 +58,7 @@
                 : 'bg-theme-primary text-theme-main border-thistle'
             "
             :disabled="userHasSkippedLocation"
+            aria-label="usa la mia posizione registrata"
             class="p-4 rounded-xl shadow-md transition duration-150 font-bold border-2 disabled:opacity-30 uppercase text-[10px]">
             usa la mia posizione
           </button>
@@ -66,11 +69,13 @@
                 ? 'bg-zomp text-white border-zomp'
                 : 'bg-theme-primary text-theme-main border-thistle'
             "
+            aria-label="inserisci una nuova posizione"
             class="p-4 rounded-xl shadow-md transition duration-150 font-bold border-2 uppercase text-[10px]">
             nuova posizione
           </button>
         </div>
 
+        <!-- sezione inserimento posizione libreria -->
         <div
           v-if="form.location === 'new_location'"
           class="mt-4 space-y-4 p-4 border rounded-xl border-thistle bg-theme-secondary custom-fade-in">
@@ -78,54 +83,65 @@
             <button
               @click="libLocMode = 'geo'"
               :class="libLocMode === 'geo' ? 'bg-zomp text-white border-zomp' : 'bg-theme-primary border-thistle'"
+              aria-label="ottieni posizione da browser"
               class="p-2 border rounded-lg text-[10px] font-bold uppercase transition">
               browser
             </button>
             <button
               @click="libLocMode = 'map'"
               :class="libLocMode === 'map' ? 'bg-zomp text-white border-zomp' : 'bg-theme-primary border-thistle'"
+              aria-label="seleziona posizione da mappa interattiva"
               class="p-2 border rounded-lg text-[10px] font-bold uppercase transition">
               mappa
             </button>
             <button
               @click="libLocMode = 'address'"
               :class="libLocMode === 'address' ? 'bg-zomp text-white border-zomp' : 'bg-theme-primary border-thistle'"
+              aria-label="inserisci indirizzo manualmente"
               class="p-2 border rounded-lg text-[10px] font-bold uppercase transition">
               indirizzo
             </button>
           </div>
 
+          <!-- input indirizzo manuale -->
           <div v-if="libLocMode === 'address'" class="space-y-2">
             <input
               v-model="form.streetName"
               type="text"
+              aria-label="inserisci nome della via"
               placeholder="nome della via"
               class="filter-input text-sm" />
             <div class="flex gap-2">
               <input
                 v-model="form.zipCode"
                 type="text"
+                aria-label="inserisci codice postale"
                 placeholder="cap"
                 class="filter-input text-sm w-1/2" />
               <input
                 value="Roma"
                 disabled
+                aria-label="città predefinita roma"
                 class="filter-input text-sm w-1/2 bg-theme-primary opacity-50 cursor-not-allowed" />
             </div>
           </div>
 
+          <!-- mappa interattiva -->
           <div v-else-if="libLocMode === 'map'" class="space-y-2">
             <div
               id="map-lib-container"
+              aria-label="mappa interattiva per selezionare posizione libreria"
               class="h-48 w-full rounded-lg border-2 border-thistle overflow-hidden">
               <div id="map-lib" class="h-full w-full"></div>
             </div>
           </div>
 
+          <!-- geolocalizzazione browser -->
           <div v-else-if="libLocMode === 'geo'" class="text-center space-y-2">
             <button
               @click="getLibGeolocation"
               :disabled="isLoadingLoc"
+              aria-label="ottieni posizione attuale da gps"
               class="btn-sort inline-flex py-2 px-4 text-[10px]">
               <i
                 v-if="isLoadingLoc"
@@ -147,13 +163,16 @@
           </p>
         </div>
 
+        <!-- messaggio errore posizione obbligatoria -->
         <p
           v-if="userHasSkippedLocation && form.location === 'user_default'"
+          role="alert"
           class="text-xs text-red-500 font-bold mt-2 text-center uppercase">
           devi specificare una nuova posizione per la libreria.
         </p>
       </div>
 
+      <!-- selezione visibilita libreria -->
       <div>
         <label
           for="visibility"
@@ -163,6 +182,7 @@
         <select
           v-model="form.visibility"
           id="visibility"
+          aria-label="seleziona livello di visibilita della libreria"
           class="filter-input">
           <option value="all">tutti</option>
           <option value="logged_in">solo gli utenti loggati</option>
@@ -171,23 +191,29 @@
       </div>
     </div>
 
+    <!-- messaggio errore creazione -->
     <p
       v-if="errorMessage"
+      role="alert"
       class="text-xs text-red-500 font-bold mt-2 text-center uppercase">
       {{ errorMessage }}
     </p>
 
+    <!-- pulsanti azione -->
     <div class="flex justify-between space-x-4 pt-4">
       <button
         v-if="isFirstLibrary"
         @click="skip"
+        aria-label="salta creazione libreria"
         class="w-1/2 btn-modal-cancel py-3 text-lg uppercase">
         salta
       </button>
       <button
         @click="createLibrary"
         :disabled="!isFormValid"
+        :aria-busy="false"
         :class="isFirstLibrary ? 'w-1/2' : 'w-full'"
+        aria-label="salva e crea nuova libreria"
         class="btn-modal-confirm py-3 text-lg uppercase justify-center">
         {{ isFirstLibrary ? "continua" : "crea libreria" }}
       </button>
@@ -206,7 +232,9 @@ const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
+// verifica se e la prima libreria dell'utente
 const isFirstLibrary = computed(() => route.query.from === "setup");
+// verifica se utente ha saltato fase geolocalizzazione
 const userHasSkippedLocation = computed(
   () => route.query.locationSkipped === "true"
 );
@@ -217,8 +245,10 @@ const returnTo = computed(() => {
   return route.query.returnTo || "/";
 });
 
+// modalita inserimento posizione geo mappa o indirizzo
 const libLocMode = ref("geo");
 const isLoadingLoc = ref(false);
+// form dati libreria
 const form = ref({
   name: "",
   location: "user_default",
@@ -230,9 +260,12 @@ const form = ref({
 });
 
 const errorMessage = ref(null);
+// istanza mappa maplibre
 const map = ref(null);
+// marcatore mappa
 const marker = ref(null);
 
+// valida form in base alla modalita inserimento
 const isFormValid = computed(() => {
   const nameSet = form.value.name.trim() !== "";
   if (form.value.location === "new_location") {
@@ -245,10 +278,12 @@ const isFormValid = computed(() => {
   return nameSet && !userHasSkippedLocation.value;
 });
 
+// torna alla pagina precedente
 const handleBack = () => {
   router.push(returnTo.value);
 };
 
+// inizializza mappa interattiva maplibre
 const initLibMap = async () => {
   await nextTick();
   const container = document.getElementById("map-lib");
@@ -267,19 +302,23 @@ const initLibMap = async () => {
     zoom: 12,
   });
 
+  // marcatore rosso posizione predefinita roma
   marker.value = new maplibregl.Marker({ color: "#629677" })
     .setLngLat([12.4963, 41.9029])
     .addTo(map.value);
 
+  // aggiorna posizione al click su mappa
   map.value.on("click", (e) => {
     form.value.latitude = e.lngLat.lat;
     form.value.longitude = e.lngLat.lng;
     marker.value.setLngLat([e.lngLat.lng, e.lngLat.lat]);
   });
   
+  // ridimensiona mappa al caricamento
   map.value.on('load', () => { map.value.resize(); });
 };
 
+// guarda cambio modalita per inizializzare mappa
 watch(
   [libLocMode, () => form.value.location],
   async ([newMode, newLoc]) => {
@@ -290,6 +329,7 @@ watch(
   { immediate: true }
 );
 
+// ottiene posizione utente da geolocalizzazione browser
 const getLibGeolocation = () => {
   isLoadingLoc.value = true;
   navigator.geolocation.getCurrentPosition(
@@ -304,6 +344,7 @@ const getLibGeolocation = () => {
   );
 };
 
+// crea libreria con api e naviga a aggiungi libro
 const createLibrary = async () => {
   errorMessage.value = null;
   
@@ -344,6 +385,7 @@ const createLibrary = async () => {
   }
 };
 
+// inicializza form con dati setup
 onMounted(() => {
   if (isFirstLibrary.value) {
     form.value.name = "la mia prima libreria";
@@ -354,7 +396,9 @@ onMounted(() => {
   }
 });
 
+// pulisce mappa al unmount
 onUnmounted(() => { if (map.value) map.value.remove(); });
 
+// salta creazione libreria e torna home
 const skip = () => { router.push("/"); };
 </script>
